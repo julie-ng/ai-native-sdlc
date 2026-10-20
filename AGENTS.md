@@ -8,6 +8,17 @@ Rules for any agent working in this repo, regardless of harness or model.
 > is tested against goose and multiple model providers, so rules live here and
 > only Claude-Code-specific additions belong in CLAUDE.md.
 
+## Git & GitHub Configuration
+
+If running from inside a dev container:
+
+- Load the agent environment file mounted read-only by the local `devcontainer.json` and follow its instructions. Consult that file for mount paths; do not add them to documentation.
+- Set repository-local Git `user.name` and `user.email` from `GIT_USER_NAME` and `GIT_USER_EMAIL`.
+- Import the private GPG key mounted read-only by the local `devcontainer.json` into GPG, configure repository-local `user.signingkey` and `commit.gpgsign=true`, and sign all commits.
+- Authenticate as `GITHUB_USERNAME` using `GITHUB_PAT`. For `gh`, export `GH_TOKEN="$GITHUB_PAT"`; use `gh auth setup-git` for HTTPS Git authentication.
+- Codex or Claude `Co-authored-by:` trailers are allowed; include the model name and version (e.g., Sol 6.1 or Sonnet 5.5). Keep the configured agent as author.
+- Never copy credential values into documentation or commit them.
+
 ## About this repo
 
 - Design notes for an autonomous-agent setup. **Documentation, not an app.**
@@ -98,4 +109,5 @@ the documented current setup as a contradiction — **the gap is the work.**
 
 - Ask before destructive or hard-to-reverse actions.
 - Commit or push only when asked.
+- Prefer small, atomic commits with Conventional Commits messages (`type(scope): description`).
 - Never commit secrets, tokens, or keys. Provider keys arrive at runtime.
