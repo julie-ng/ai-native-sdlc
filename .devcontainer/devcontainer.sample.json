@@ -1,9 +1,23 @@
 {
-  "name": "Claude Node Sandbox",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
-  "workspaceMount": "source=${localWorkspaceFolder},target=/Users/username/Workspace/path/to/project,type=bind,consistency=cached",
-  "workspaceFolder": "/Users/username/Workspace/path/to/project",
+  "name": "Autonomous Agents (Sandbox)",
+  "image": "docker.io/julieio/agent-devcontainer:v0.3.0",
+  "remoteUser": "node",
+  "workspaceMount": "source=${localWorkspaceFolder},target=${localWorkspaceFolder},type=bind,consistency=cached",
+  "workspaceFolder": "${localWorkspaceFolder}",
   "mounts": [
-    "source=${localEnv:HOME}/.claude,target=/home/node/.claude,type=bind,consistency=cached"
-  ]
+    "source=${localEnv:HOME}/example/.env.agent,target=/example/.env.agent,type=bind,readonly"
+  ],
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "moby": false
+    }
+  },
+  "dotfiles": {
+    "repository": "https://github.com/julie-ng/dotfiles.git",
+    "targetPath": "~/dotfiles",
+    "installCommand": "~/dotfiles/sync.sh --force"
+  }
 }
