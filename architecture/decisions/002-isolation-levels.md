@@ -29,7 +29,7 @@ Level 2 is not a stronger *kernel* boundary than Level 1 — both are containers
 ### MVP / POC scope
 
 - Level 1 in daily use ([ADR-001](./001-dev-container-agent-identity.md), [dev container](../dev-container.md)).
-- Level 2 not built. Local cluster first; cloud target AKS.
+- Level 2 not built. Straight to AKS — no local cluster.
 - No egress firewall (cost).
 
 ## Alternatives considered
