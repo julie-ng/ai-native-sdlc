@@ -1,0 +1,85 @@
+<svg viewBox="0 0 600 304" role="img" aria-labelledby="two-modes-title two-modes-desc" xmlns="http://www.w3.org/2000/svg" width="600" height="304">
+<title id="two-modes-title">Two modes of working with AI</title>
+<desc id="two-modes-desc"> On the left, I pair with one coding agent in an interactive session on my laptop and write scoped issues to GitHub. On the right, a stack of autonomous agents in the cloud pulls issues from GitHub and opens pull requests back on GitHub. </desc>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&amp;family=Source+Sans+3:wght@400;500;600;700&amp;display=swap");
+svg { --font-sans: "Source Sans 3", Helvetica, Arial, sans-serif; --font-mono: "Roboto Mono", Courier, monospace; --ui-color-primary-50: #eef0fb; --ui-color-primary-500: #4652c6; --ui-color-secondary-500: #00bba7; --ui-color-neutral-500: #6a7282; --ui-text-highlighted: #101828; --ui-text: #364153; --ui-text-muted: #6a7282; }
+svg { --hero-bg: var(--ui-color-primary-50); --pair: var(--ui-color-primary-500); --pair-icon: var(--ui-color-primary-500); --cloud: var(--ui-color-secondary-500); --github: var(--ui-color-neutral-500); }
+.t-mono { font-family: var(--font-mono); }
+.t-sans { font-family: var(--font-sans); }
+.t-heading { font-size: 15px; font-weight: 700; }
+.t-heading, .t-label { fill: var(--ui-text-highlighted); }
+.t-label { font-size: 14px; font-weight: 600; }
+.t-body { fill: var(--ui-text); font-size: 15px; }
+.t-muted { font-size: 14px; }
+.t-muted, .t-small { fill: var(--ui-text-muted); }
+.t-small { font-size: 13px; }
+.box-pair { stroke: var(--pair); }
+.box-cloud, .box-pair { fill: var(--hero-bg); stroke-width: 1.5px; }
+.box-cloud { stroke: var(--cloud); }
+.box-github { fill: var(--hero-bg); stroke: var(--github); }
+.arrow, .box-github { stroke-width: 1.5px; }
+.arrow-pair { stroke: var(--pair); }
+.arrow-cloud { stroke: var(--cloud); }
+.head-pair { fill: var(--pair); }
+.head-cloud { fill: var(--cloud); }
+.ic-pair { color: var(--pair-icon); }
+.ic-cloud { color: var(--cloud); }
+.ic-mono { color: var(--ui-text-highlighted); }
+@media (prefers-color-scheme: dark) {
+  svg { --ui-text-highlighted: #ffffff; --ui-text: #e5e7eb; --ui-text-muted: #99a1af; }
+
+}
+</style>
+<svg x="52" y="6" width="20" height="20" viewBox="0 0 24 24" class="ic-pair">
+<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 5a2 2 0 0 1 2 2v8.526a2 2 0 0 0 .212.897l1.068 2.127a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45l1.068-2.127A2 2 0 0 0 4 15.526V7a2 2 0 0 1 2-2zm2.054 10.987H3.946"/>
+</svg>
+<text x="80" y="21" class="t-mono t-heading">Interactive session</text>
+<text x="150" y="42" text-anchor="middle" class="t-sans t-muted">on my laptop</text>
+<rect x="70" y="68" width="160" height="104" rx="6" class="box-pair"/>
+<svg x="112" y="88" width="28" height="28" viewBox="0 0 24 24" class="ic-pair">
+<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+<circle cx="12" cy="7" r="4"/>
+</g>
+</svg>
+<text x="150" y="108" text-anchor="middle" class="t-mono t-body">+</text>
+<svg x="160" y="88" width="28" height="28" viewBox="0 0 24 24" class="ic-pair">
+<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+<path d="M12 8V4H8"/>
+<rect width="16" height="12" x="4" y="8" rx="2"/>
+<path d="M2 14h2m16 0h2m-7-1v2m-6-2v2"/>
+</g>
+</svg>
+<text x="150" y="148" text-anchor="middle" class="t-sans t-body">me + coding agent</text>
+<svg x="346" y="6" width="20" height="20" viewBox="0 0 24 24" class="ic-cloud">
+<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9"/>
+</svg>
+<text x="374" y="21" class="t-mono t-heading">Headless sessions</text>
+<text x="436" y="42" text-anchor="middle" class="t-sans t-muted">in the cloud</text>
+<rect x="372" y="52" width="160" height="104" rx="6" class="box-cloud"/>
+<rect x="364" y="60" width="160" height="104" rx="6" class="box-cloud"/>
+<rect x="356" y="68" width="160" height="104" rx="6" class="box-cloud"/>
+<svg x="422" y="88" width="28" height="28" viewBox="0 0 24 24" class="ic-cloud">
+<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+<path d="M12 8V4H8"/>
+<rect width="16" height="12" x="4" y="8" rx="2"/>
+<path d="M2 14h2m16 0h2m-7-1v2m-6-2v2"/>
+</g>
+</svg>
+<text x="436" y="148" text-anchor="middle" class="t-sans t-body">coding agents</text>
+<rect x="70" y="240" width="470" height="56" rx="6" class="box-github"/>
+<svg x="263" y="258" width="20" height="20" viewBox="0 0 24 24" class="ic-mono">
+<path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12c0 5.303 3.438 9.8 8.205 11.385c.6.113.82-.258.82-.577c0-.285-.01-1.04-.015-2.04c-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729c1.205.084 1.838 1.236 1.838 1.236c1.07 1.835 2.809 1.305 3.495.998c.108-.776.417-1.305.76-1.605c-2.665-.3-5.466-1.332-5.466-5.93c0-1.31.465-2.38 1.235-3.22c-.135-.303-.54-1.523.105-3.176c0 0 1.005-.322 3.3 1.23c.96-.267 1.98-.399 3-.405c1.02.006 2.04.138 3 .405c2.28-1.552 3.285-1.23 3.285-1.23c.645 1.653.24 2.873.12 3.176c.765.84 1.23 1.91 1.23 3.22c0 4.61-2.805 5.625-5.475 5.92c.42.36.81 1.096.81 2.22c0 1.606-.015 2.896-.015 3.286c0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+</svg>
+<text x="291" y="273" class="t-mono t-label">GitHub</text>
+<line x1="150" y1="172" x2="150" y2="232" class="arrow arrow-pair"/>
+<polygon points="145,230 150,239 155,230" class="head-pair"/>
+<text x="160" y="210" class="t-sans t-small">scoped issues</text>
+<line x1="416" y1="240" x2="416" y2="180" class="arrow arrow-cloud"/>
+<polygon points="411,182 416,173 421,182" class="head-cloud"/>
+<text x="406" y="210" text-anchor="end" class="t-sans t-small">pulls issues</text>
+<line x1="456" y1="172" x2="456" y2="232" class="arrow arrow-cloud"/>
+<polygon points="451,230 456,239 461,230" class="head-cloud"/>
+<text x="466" y="210" class="t-sans t-small">opens PRs</text>
+</svg>

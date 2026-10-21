@@ -1,0 +1,52 @@
+<svg viewBox="0 0 240 308" role="img" aria-labelledby="memory-title memory-desc" xmlns="http://www.w3.org/2000/svg" width="240" height="308">
+<title id="memory-title">Memory bottleneck</title>
+<desc id="memory-desc"> Four dev containers fill the laptop's 24 GB of RAM, leaving no memory for a fifth. </desc>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&amp;family=Source+Sans+3:wght@400;500;600;700&amp;display=swap");
+svg { --font-sans: "Source Sans 3", Helvetica, Arial, sans-serif; --font-mono: "Roboto Mono", Courier, monospace; --ui-color-primary-600: #3a42b0; --ui-color-primary-50: #eef0fb; --ui-color-warning-400: #fdc700; --ui-color-neutral-900: #101828; --ui-color-primary-300: #a3abe6; --ui-color-primary-900: #262a5e; --ui-bg: #ffffff; --ui-text-highlighted: #101828; --ui-text-muted: #6a7282; --ui-text: #364153; --ui-border-accented: #d1d5dc; }
+svg { --accent: var(--ui-color-primary-600); --accent-soft: var(--ui-color-primary-50); --warn: var(--ui-color-warning-400); --warn-on: var(--ui-color-neutral-900); }
+.t-title { fill: var(--ui-text-highlighted); font-size: 16px; font-weight: 600; }
+.t-subtitle, .t-title { font-family: var(--font-sans); }
+.t-subtitle { font-size: 13px; }
+.t-label, .t-subtitle { fill: var(--ui-text-muted); }
+.t-label { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; font-weight: 500; }
+.t-row { fill: var(--ui-text-highlighted); }
+.t-note, .t-row { font-family: var(--font-sans); font-size: 12px; }
+.t-note { fill: var(--ui-text); }
+.frame { fill: none; stroke: var(--ui-border-accented); stroke-width: 1.5px; }
+.row { fill: var(--accent-soft); }
+.row, .row-out { stroke: var(--accent); stroke-width: 1px; }
+.row-out { fill: none; stroke-dasharray: 6, 5; }
+.warn { fill: var(--warn); stroke: var(--warn); stroke-width: 1.5px; stroke-linejoin: round; }
+.warn-mark { fill: var(--warn-on); }
+@media (prefers-color-scheme: dark) {
+  svg { --ui-bg: #101828; --ui-text-highlighted: #ffffff; --ui-text-muted: #99a1af; --ui-text: #e5e7eb; --ui-border-accented: #364153; }
+  svg { --accent: var(--ui-color-primary-300); --accent-soft: color-mix(in srgb, var(--ui-color-primary-900) 40%, var(--ui-bg)); }
+}
+</style>
+<text x="2" y="18" class="t-title">Memory bottleneck</text>
+<text x="2" y="36" class="t-subtitle">parallel sessions on one laptop</text>
+<rect x="2" y="50" width="236" height="212" rx="8" class="frame"/>
+<text x="18" y="72" class="t-label">laptop · 24 GB RAM</text>
+<g>
+<rect x="18" y="88" width="204" height="30" rx="6" class="row"/>
+<text x="30" y="107" class="t-row">dev container #1</text>
+</g>
+<g>
+<rect x="18" y="130" width="204" height="30" rx="6" class="row"/>
+<text x="30" y="149" class="t-row">dev container #2</text>
+</g>
+<g>
+<rect x="18" y="172" width="204" height="30" rx="6" class="row"/>
+<text x="30" y="191" class="t-row">dev container #3</text>
+</g>
+<g>
+<rect x="18" y="214" width="204" height="30" rx="6" class="row"/>
+<text x="30" y="233" class="t-row">dev container #4</text>
+</g>
+<rect x="18" y="274" width="204" height="30" rx="6" class="row-out"/>
+<path d="M37,282 L45.5,296.5 L28.5,296.5 Z" class="warn"/>
+<rect x="36.2" y="286.5" width="1.6" height="5.6" rx="0.8" class="warn-mark"/>
+<circle cx="37" cy="294.2" r="0.95" class="warn-mark"/>
+<text x="52" y="293" class="t-note">No memory left for #5</text>
+</svg>

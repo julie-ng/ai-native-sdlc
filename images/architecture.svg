@@ -1,0 +1,185 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 30 1100 744" role="img" aria-labelledby="sdlc-architecture-title sdlc-architecture-desc" width="1100" height="744">
+<title id="sdlc-architecture-title">Kubernetes architecture</title>
+<desc id="sdlc-architecture-desc"> One Kubernetes cluster with four namespaces: platform with the workflow service and artifact service; argo with Argo Workflows; agents with planner, coder and reviewer pods, each with its own ServiceAccount; and github-broker with the GitHub token broker. 1: GitHub sends webhooks to the workflow service. 2: The workflow service submits runs to Argo Workflows. 3: Argo runs each step as an agent pod. 4: Agents get scoped GitHub tokens from the broker. 5: Agents call models through the Vercel AI Gateway. 6: Agents push and comment on GitHub. 7: Agents update status and store artifacts through the platform services. Below the cluster are the supporting services: PostgreSQL, object storage, a container registry and a secret store. </desc>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&amp;family=Source+Sans+3:wght@400;500;600;700&amp;display=swap");
+svg { --font-sans: "Source Sans 3", Helvetica, Arial, sans-serif; --font-mono: "Roboto Mono", Courier, monospace; --ui-color-primary-500: #4652c6; --ui-color-primary-50: #eef0fb; --ui-color-secondary-500: #00bba7; --ui-color-secondary-50: #f0fdfa; --ui-bg: #ffffff; --ui-color-primary-300: #a3abe6; --ui-color-primary-900: #262a5e; --ui-color-secondary-300: #46edd5; --ui-color-secondary-900: #0b4f4a; --ui-text-highlighted: #101828; --ui-text: #364153; --ui-text-muted: #6a7282; --ui-text-toned: #4a5565; --ui-bg-elevated: #f3f4f6; --ui-border-accented: #d1d5dc; --ui-color-primary-600: #3a42b0; }
+svg { --platform: var(--ui-color-primary-500); --platform-bg: var(--ui-color-primary-50); --agent: var(--ui-color-secondary-500); --agent-bg: var(--ui-color-secondary-50); --cluster-bg: color-mix(in oklab, #326ce5 4%, var(--ui-bg)); }
+.t-mono { font-family: var(--font-mono); }
+.t-sans { font-family: var(--font-sans); }
+.t-heading { fill: var(--ui-text-highlighted); font-size: 16px; font-weight: 700; }
+.t-label { font-size: 14px; }
+.t-label, .t-label-support { fill: var(--ui-text-highlighted); font-weight: 600; }
+.t-label-support { font-size: 12px; }
+.t-body { fill: var(--ui-text); font-size: 14px; }
+.t-ns { font-size: 12px; }
+.t-ns, .t-small { fill: var(--ui-text-muted); }
+.t-arrow, .t-small { font-size: 13px; }
+.t-arrow { fill: var(--ui-text-toned); }
+.t-step { fill: rgb(255, 255, 255); font-size: 12px; font-weight: 700; }
+.box-ext { fill: var(--ui-bg-elevated); }
+.box-ext, .box-support { stroke: var(--ui-border-accented); stroke-width: 1.5px; }
+.box-support { fill: var(--ui-bg); }
+.box-cluster { fill: var(--cluster-bg); stroke: rgb(50, 108, 229); stroke-width: 1.5px; }
+.box-ns { fill: var(--ui-bg); stroke: var(--ui-border-accented); stroke-width: 1px; stroke-dasharray: 5, 4; }
+.box-platform { fill: var(--platform-bg); stroke: var(--platform); }
+.arrow, .box-agent, .box-platform, .link, .link-dot { stroke-width: 1.5px; }
+.box-agent { fill: var(--agent-bg); stroke: var(--agent); }
+.arrow { fill: none; stroke: var(--ui-text-muted); }
+.head { fill: var(--ui-text-muted); }
+.arrow-agent { stroke: var(--agent); }
+.head-agent { fill: var(--agent); }
+.link { stroke-dasharray: 3, 3; }
+.link, .link-dot { stroke: var(--ui-border-accented); }
+.link-dot { fill: var(--ui-bg); }
+.step { fill: var(--ui-color-primary-600); }
+.ic-mono { color: var(--ui-text-highlighted); }
+.ic-k8s { color: rgb(50, 108, 229); }
+@media (prefers-color-scheme: dark) {
+  svg { --ui-bg: #101828; --ui-text-highlighted: #ffffff; --ui-text: #e5e7eb; --ui-text-muted: #99a1af; --ui-text-toned: #d1d5dc; --ui-bg-elevated: #1e2939; --ui-border-accented: #364153; }
+  svg { --platform: var(--ui-color-primary-300); --platform-bg: color-mix(in oklab, var(--ui-color-primary-900) 30%, transparent); --agent: var(--ui-color-secondary-300); --agent-bg: color-mix(in oklab, var(--ui-color-secondary-900) 30%, transparent); --cluster-bg: color-mix(in oklab, #326ce5 8%, var(--ui-bg)); }
+}
+</style>
+<rect x="315" y="36" width="230" height="88" rx="6" class="box-ext"/>
+<svg x="416" y="48" width="28" height="28" viewBox="0 0 24 24" class="ic-mono">
+<path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12c0 5.303 3.438 9.8 8.205 11.385c.6.113.82-.258.82-.577c0-.285-.01-1.04-.015-2.04c-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729c1.205.084 1.838 1.236 1.838 1.236c1.07 1.835 2.809 1.305 3.495.998c.108-.776.417-1.305.76-1.605c-2.665-.3-5.466-1.332-5.466-5.93c0-1.31.465-2.38 1.235-3.22c-.135-.303-.54-1.523.105-3.176c0 0 1.005-.322 3.3 1.23c.96-.267 1.98-.399 3-.405c1.02.006 2.04.138 3 .405c2.28-1.552 3.285-1.23 3.285-1.23c.645 1.653.24 2.873.12 3.176c.765.84 1.23 1.91 1.23 3.22c0 4.61-2.805 5.625-5.475 5.92c.42.36.81 1.096.81 2.22c0 1.606-.015 2.896-.015 3.286c0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+</svg>
+<text x="430" y="96" text-anchor="middle" class="t-mono t-label">GitHub</text>
+<text x="430" y="113" text-anchor="middle" class="t-sans t-small">issues · branches · PRs</text>
+<rect x="20" y="146" width="820" height="478" rx="8" class="box-cluster"/>
+<svg x="336" y="162" width="28" height="28" viewBox="0 0 24 24" class="ic-k8s">
+<path fill="currentColor" d="m10.204 14.35l.007.01l-.999 2.413a5.17 5.17 0 0 1-2.075-2.597l2.578-.437l.004.005a.44.44 0 0 1 .484.606zm-.833-2.129a.44.44 0 0 0 .173-.756l.002-.011L7.585 9.7a5.14 5.14 0 0 0-.73 3.255l2.514-.725zm1.145-1.98a.44.44 0 0 0 .699-.337l.01-.005l.15-2.62a5.14 5.14 0 0 0-3.01 1.442l2.147 1.523zm.76 2.75l.723.349l.722-.347l.18-.78l-.5-.623h-.804l-.5.623l.179.779zm1.5-3.095a.44.44 0 0 0 .7.336l.008.003l2.134-1.513a5.2 5.2 0 0 0-2.992-1.442l.148 2.615zm10.876 5.97l-5.773 7.181a1.6 1.6 0 0 1-1.248.594l-9.261.003a1.6 1.6 0 0 1-1.247-.596l-5.776-7.18a1.58 1.58 0 0 1-.307-1.34L2.1 5.573c.108-.47.425-.864.863-1.073L11.305.513a1.6 1.6 0 0 1 1.385 0l8.345 3.985c.438.209.755.604.863 1.073l2.062 8.955c.108.47-.005.963-.308 1.34m-3.289-2.057c-.042-.01-.103-.026-.145-.034c-.174-.033-.315-.025-.479-.038c-.35-.037-.638-.067-.895-.148c-.105-.04-.18-.165-.216-.216l-.201-.059a6.5 6.5 0 0 0-.105-2.332a6.5 6.5 0 0 0-.936-2.163c.052-.047.15-.133.177-.159c.008-.09.001-.183.094-.282c.197-.185.444-.338.743-.522c.142-.084.273-.137.415-.242c.032-.024.076-.062.11-.089c.24-.191.295-.52.123-.736s-.506-.236-.745-.045c-.034.027-.08.062-.111.088c-.134.116-.217.23-.33.35c-.246.25-.45.458-.673.609c-.097.056-.239.037-.303.033l-.19.135a6.55 6.55 0 0 0-4.146-2.003l-.012-.223c-.065-.062-.143-.115-.163-.25c-.022-.268.015-.557.057-.905c.023-.163.061-.298.068-.475c.001-.04-.001-.099-.001-.142c0-.306-.224-.555-.5-.555c-.275 0-.499.249-.499.555l.001.014c0 .041-.002.092 0 .128c.006.177.044.312.067.475c.042.348.078.637.056.906a.55.55 0 0 1-.162.258l-.012.211a6.42 6.42 0 0 0-4.166 2.003l-.18-.128c-.09.012-.18.04-.297-.029c-.223-.15-.427-.358-.673-.608c-.113-.12-.195-.234-.329-.349l-.111-.088a.6.6 0 0 0-.348-.132a.48.48 0 0 0-.398.176c-.172.216-.117.546.123.737l.007.005l.104.083c.142.105.272.159.414.242c.299.185.546.338.743.522c.076.082.09.226.1.288l.16.143a6.46 6.46 0 0 0-1.02 4.506l-.208.06c-.055.072-.133.184-.215.217c-.257.081-.546.11-.895.147c-.164.014-.305.006-.48.039c-.037.007-.09.02-.133.03l-.004.002l-.007.002c-.295.071-.484.342-.423.608c.061.267.349.429.645.365l.007-.001l.01-.003l.129-.029c.17-.046.294-.113.448-.172c.33-.118.604-.217.87-.256c.112-.009.23.069.288.101l.217-.037a6.5 6.5 0 0 0 2.88 3.596l-.09.218c.033.084.069.199.044.282c-.097.252-.263.517-.452.813c-.091.136-.185.242-.268.399c-.02.037-.045.095-.064.134c-.128.275-.034.591.213.71c.248.12.556-.007.69-.282v-.002c.02-.039.046-.09.062-.127c.07-.162.094-.301.144-.458c.132-.332.205-.68.387-.897c.05-.06.13-.082.215-.105l.113-.205a6.45 6.45 0 0 0 4.609.012l.106.192c.086.028.18.042.256.155c.136.232.229.507.342.84c.05.156.074.295.145.457c.016.037.043.09.062.129c.133.276.442.402.69.282c.247-.118.341-.435.213-.71c-.02-.039-.045-.096-.065-.134c-.083-.156-.177-.261-.268-.398c-.19-.296-.346-.541-.443-.793c-.04-.13.007-.21.038-.294c-.018-.022-.059-.144-.083-.202a6.5 6.5 0 0 0 2.88-3.622c.064.01.176.03.213.038c.075-.05.144-.114.28-.104c.266.039.54.138.87.256c.154.06.277.128.448.173c.036.01.088.019.13.028l.009.003l.007.001c.297.064.584-.098.645-.365c.06-.266-.128-.537-.423-.608M16.4 9.701l-1.95 1.746v.005a.44.44 0 0 0 .173.757l.003.01l2.526.728a5.2 5.2 0 0 0-.108-1.674A5.2 5.2 0 0 0 16.4 9.7zm-4.013 5.325a.44.44 0 0 0-.404-.232a.44.44 0 0 0-.372.233h-.002l-1.268 2.292a5.16 5.16 0 0 0 3.326.003l-1.27-2.296zm1.888-1.293a.44.44 0 0 0-.27.036a.44.44 0 0 0-.214.572l-.003.004l1.01 2.438a5.15 5.15 0 0 0 2.081-2.615l-2.6-.44z"/>
+</svg>
+<text x="374" y="182" class="t-mono t-heading">Kubernetes cluster</text>
+<rect x="50" y="210" width="350" height="104" rx="6" class="box-ns"/>
+<text x="225" y="232" text-anchor="middle" class="t-mono t-ns">namespace: platform</text>
+<rect x="66" y="250" width="155" height="44" rx="4" class="box-platform"/>
+<text x="143" y="277" text-anchor="middle" class="t-mono t-body">workflow service</text>
+<rect x="234" y="250" width="155" height="44" rx="4" class="box-platform"/>
+<text x="311" y="277" text-anchor="middle" class="t-mono t-body">artifact service</text>
+<rect x="50" y="380" width="350" height="104" rx="6" class="box-ns"/>
+<text x="225" y="402" text-anchor="middle" class="t-mono t-ns">namespace: argo</text>
+<rect x="110" y="420" width="230" height="44" rx="4" class="box-platform"/>
+<text x="225" y="447" text-anchor="middle" class="t-mono t-body">Argo Workflows</text>
+<rect x="540" y="210" width="260" height="250" rx="6" class="box-ns"/>
+<text x="670" y="232" text-anchor="middle" class="t-mono t-ns">namespace: agents</text>
+<g>
+<rect x="570" y="252" width="200" height="52" rx="4" class="box-agent"/>
+<text x="670" y="274" text-anchor="middle" class="t-mono t-body">planner pod</text>
+<text x="670" y="292" text-anchor="middle" class="t-sans t-small">ServiceAccount: planner</text>
+</g>
+<g>
+<rect x="570" y="320" width="200" height="52" rx="4" class="box-agent"/>
+<text x="670" y="342" text-anchor="middle" class="t-mono t-body">coder pod</text>
+<text x="670" y="360" text-anchor="middle" class="t-sans t-small">ServiceAccount: coder</text>
+</g>
+<g>
+<rect x="570" y="388" width="200" height="52" rx="4" class="box-agent"/>
+<text x="670" y="410" text-anchor="middle" class="t-mono t-body">reviewer pod</text>
+<text x="670" y="428" text-anchor="middle" class="t-sans t-small">ServiceAccount: reviewer</text>
+</g>
+<rect x="540" y="500" width="260" height="104" rx="6" class="box-ns"/>
+<rect x="570" y="522" width="200" height="44" rx="4" class="box-platform"/>
+<text x="670" y="549" text-anchor="middle" class="t-mono t-body">GitHub token broker</text>
+<text x="670" y="590" text-anchor="middle" class="t-mono t-ns">namespace: github-broker</text>
+<rect x="900" y="291" width="170" height="88" rx="6" class="box-support"/>
+<svg x="973" y="305" width="24" height="24" viewBox="0 0 24 24" class="ic-mono">
+<path fill="currentColor" d="m12 1.608l12 20.784H0Z"/>
+</svg>
+<text x="985" y="351" text-anchor="middle" class="t-mono t-label-support">AI gateway</text>
+<text x="985" y="368" text-anchor="middle" class="t-sans t-small">Vercel</text>
+<g>
+<rect x="40" y="672" width="170" height="88" rx="6" class="box-support"/>
+<g transform="translate(111 684) scale(1.5555555555555556)">
+<!-- vendor service icon (full-color, 18x18) -->
+</g>
+<text x="125" y="732" text-anchor="middle" class="t-mono t-label-support">PostgreSQL</text>
+<text x="125" y="749" text-anchor="middle" class="t-sans t-small">workflow · argo DBs</text>
+<line x1="125" y1="627" x2="125" y2="669" class="link"/>
+<circle cx="125" cy="627" r="3" class="link-dot"/>
+<circle cx="125" cy="669" r="3" class="link-dot"/>
+</g>
+<g>
+<rect x="250" y="672" width="170" height="88" rx="6" class="box-support"/>
+<g transform="translate(321 684) scale(1.5555555555555556)">
+<!-- vendor service icon (full-color, 18x18) -->
+</g>
+<text x="335" y="732" text-anchor="middle" class="t-mono t-label-support">Object Storage</text>
+<text x="335" y="749" text-anchor="middle" class="t-sans t-small">artifacts</text>
+<line x1="335" y1="627" x2="335" y2="669" class="link"/>
+<circle cx="335" cy="627" r="3" class="link-dot"/>
+<circle cx="335" cy="669" r="3" class="link-dot"/>
+</g>
+<g>
+<rect x="460" y="672" width="170" height="88" rx="6" class="box-support"/>
+<g transform="translate(531 684) scale(1.5555555555555556)">
+<!-- vendor service icon (full-color, 18x18) -->
+</g>
+<text x="545" y="732" text-anchor="middle" class="t-mono t-label-support">Container Registry</text>
+<text x="545" y="749" text-anchor="middle" class="t-sans t-small">agent images</text>
+<line x1="545" y1="627" x2="545" y2="669" class="link"/>
+<circle cx="545" cy="627" r="3" class="link-dot"/>
+<circle cx="545" cy="669" r="3" class="link-dot"/>
+</g>
+<g>
+<rect x="670" y="672" width="170" height="88" rx="6" class="box-support"/>
+<g transform="translate(741 684) scale(1.5555555555555556)">
+<!-- vendor service icon (full-color, 18x18) -->
+</g>
+<text x="755" y="732" text-anchor="middle" class="t-mono t-label-support">Secret Store</text>
+<text x="755" y="749" text-anchor="middle" class="t-sans t-small">GitHub App key</text>
+<line x1="755" y1="627" x2="755" y2="669" class="link"/>
+<circle cx="755" cy="627" r="3" class="link-dot"/>
+<circle cx="755" cy="669" r="3" class="link-dot"/>
+</g>
+<polyline points="315,80 143,80 143,242" class="arrow"/>
+<polygon points="138,240 143,249 148,240" class="head"/>
+<text x="229" y="72" text-anchor="middle" class="t-sans t-arrow">sends webhook</text>
+<polyline points="723,210 723,80 559,80" class="arrow arrow-agent"/>
+<polygon points="561,75 552,80 561,85" class="head-agent"/>
+<text x="637" y="72" text-anchor="middle" class="t-sans t-arrow">push, comment</text>
+<line x1="143" y1="294" x2="143" y2="412" class="arrow"/>
+<polygon points="138,410 143,419 148,410" class="head"/>
+<text x="131" y="350" text-anchor="end" class="t-sans t-arrow">submits run</text>
+<line x1="340" y1="442" x2="532" y2="442" class="arrow"/>
+<polygon points="530,437 539,442 530,447" class="head"/>
+<text x="437" y="434" text-anchor="middle" class="t-sans t-arrow">runs step</text>
+<line x1="540" y1="272" x2="408" y2="272" class="arrow arrow-agent"/>
+<polygon points="410,267 401,272 410,277" class="head-agent"/>
+<text x="470" y="248" text-anchor="middle" class="t-sans t-arrow">updates status,</text>
+<text x="470" y="262" text-anchor="middle" class="t-sans t-arrow">stores artifacts</text>
+<line x1="670" y1="460" x2="670" y2="514" class="arrow arrow-agent"/>
+<polygon points="665,512 670,521 675,512" class="head-agent"/>
+<text x="658" y="486" text-anchor="end" class="t-sans t-arrow">requests token</text>
+<line x1="800" y1="335" x2="892" y2="335" class="arrow arrow-agent"/>
+<polygon points="890,330 899,335 890,340" class="head-agent"/>
+<text x="847" y="326" text-anchor="middle" class="t-sans t-arrow">calls models</text>
+<g>
+<circle cx="229" cy="98" r="10" class="step"/>
+<text x="229" y="102" text-anchor="middle" class="t-mono t-step">1</text>
+</g>
+<g>
+<circle cx="159" cy="346" r="10" class="step"/>
+<text x="159" y="350" text-anchor="middle" class="t-mono t-step">2</text>
+</g>
+<g>
+<circle cx="437" cy="460" r="10" class="step"/>
+<text x="437" y="464" text-anchor="middle" class="t-mono t-step">3</text>
+</g>
+<g>
+<circle cx="686" cy="482" r="10" class="step"/>
+<text x="686" y="486" text-anchor="middle" class="t-mono t-step">4</text>
+</g>
+<g>
+<circle cx="847" cy="353" r="10" class="step"/>
+<text x="847" y="357" text-anchor="middle" class="t-mono t-step">5</text>
+</g>
+<g>
+<circle cx="637" cy="98" r="10" class="step"/>
+<text x="637" y="102" text-anchor="middle" class="t-mono t-step">6</text>
+</g>
+<g>
+<circle cx="470" cy="292" r="10" class="step"/>
+<text x="470" y="296" text-anchor="middle" class="t-mono t-step">7</text>
+</g>
+</svg>

@@ -1,0 +1,107 @@
+<svg viewBox="0 0 520 312" role="img" aria-labelledby="boundary-title boundary-desc" xmlns="http://www.w3.org/2000/svg" width="520" height="312">
+<title id="boundary-title">Soft versus hard boundary</title>
+<desc id="boundary-desc">Left: on my laptop, permission rules draw a dashed line around the repository, and the agent reads my .ssh folder anyway. Right: in a container, only the repository is mounted, so everything outside it is inaccessible to the agent. </desc>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&amp;family=Source+Sans+3:wght@400;500;600;700&amp;display=swap");
+svg { --font-sans: "Source Sans 3", Helvetica, Arial, sans-serif; --font-mono: "Roboto Mono", Courier, monospace; --ui-color-primary-600: #3a42b0; --ui-color-primary-50: #eef0fb; --ui-text-toned: #4a5565; --ui-color-error-500: #fb2c36; --ui-color-warning-400: #fdc700; --ui-color-neutral-900: #101828; --ui-color-secondary-500: #00bba7; --ui-color-primary-300: #a3abe6; --ui-color-primary-900: #262a5e; --ui-bg: #ffffff; --ui-color-error-400: #ff6467; --ui-color-secondary-400: #00d5be; --ui-text: #364153; --ui-text-muted: #6a7282; --ui-text-highlighted: #101828; --ui-border-accented: #d1d5dc; }
+svg { --accent: var(--ui-color-primary-600); --accent-soft: var(--ui-color-primary-50); --arrow: var(--ui-text-toned); --cross: var(--ui-color-error-500); --warn: var(--ui-color-warning-400); --warn-on: var(--ui-color-neutral-900); --ok: var(--ui-color-secondary-500); }
+.soft { --host: var(--ui-text); }
+.hard, .soft { --host-label: var(--ui-text-muted); }
+.hard { --host: var(--ui-text-muted); }
+.t-title { fill: var(--ui-text-highlighted); font-size: 16px; font-weight: 600; }
+.t-subtitle, .t-title { font-family: var(--font-sans); }
+.t-subtitle { font-size: 13px; }
+.t-label, .t-subtitle { fill: var(--ui-text-muted); }
+.t-label { text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; font-weight: 500; }
+.t-label, .t-mono { font-family: var(--font-mono); }
+.t-mono { font-size: 12px; }
+.t-agent, .t-mono { fill: var(--ui-text); }
+.t-agent { font-size: 13px; }
+.t-agent, .t-note { font-family: var(--font-sans); }
+.t-note, .t-note-mono { fill: var(--ui-text-highlighted); font-size: 12px; font-weight: 500; }
+.t-note-mono { font-family: var(--font-mono); }
+.t-label.t-host { fill: var(--host-label); }
+.t-mono.t-host { fill: var(--host); }
+.frame { fill: none; stroke: var(--ui-border-accented); stroke-width: 1.5px; }
+.boundary { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5px; stroke-dasharray: 6, 5; }
+.hard .boundary { stroke-dasharray: none; }
+.agent { fill: var(--ui-bg); stroke: var(--accent); stroke-width: 1.5px; }
+.ic-agent { color: var(--accent); }
+.reach { fill: none; stroke: var(--arrow); stroke-width: 1.5px; stroke-linejoin: round; stroke-linecap: round; }
+.reach-head { fill: var(--arrow); }
+.blocked { stroke: var(--arrow); stroke-dasharray: 3, 4; }
+.blocked, .cross { stroke-width: 1.5px; stroke-linecap: round; }
+.cross { fill: none; stroke: var(--cross); }
+.warn { fill: var(--warn); stroke: var(--warn); stroke-width: 1.5px; stroke-linejoin: round; }
+.warn-mark { fill: var(--warn-on); }
+.ok { fill: var(--ok); }
+.ok-shackle { fill: none; stroke: var(--ok); stroke-width: 2px; stroke-linecap: round; }
+.ok-mark { fill: var(--ui-bg); }
+@media (prefers-color-scheme: dark) {
+  svg { --ui-text-toned: #d1d5dc; --ui-bg: #101828; --ui-text: #e5e7eb; --ui-text-muted: #99a1af; --ui-text-highlighted: #ffffff; --ui-border-accented: #364153; }
+  svg { --accent: var(--ui-color-primary-300); --accent-soft: color-mix(in srgb, var(--ui-color-primary-900) 40%, var(--ui-bg)); --cross: var(--ui-color-error-400); --ok: var(--ui-color-secondary-400); }
+}
+</style>
+<g transform="translate(0 0)" class="soft">
+<text x="4" y="18" class="t-title">Soft boundary</text>
+<text x="4" y="36" class="t-subtitle">permission rules</text>
+<rect x="4" y="52" width="242" height="252" rx="8" class="frame"/>
+<g>
+<text x="20" y="74" class="t-label t-host">my laptop</text>
+<text x="20" y="100" class="t-mono t-host">~/</text>
+<text x="36" y="124" class="t-mono t-host">.ssh/</text>
+<text x="36" y="148" class="t-mono t-host">workspace/</text>
+</g>
+<rect x="36" y="166" width="190" height="118" rx="6" class="boundary"/>
+<text x="50" y="188" class="t-mono">repo/</text>
+<rect x="63" y="210" width="136" height="58" rx="6" class="agent"/>
+<svg x="120" y="217" width="22" height="22" viewBox="0 0 24 24" class="ic-agent">
+<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+<path d="M12 8V4H8"/>
+<rect width="16" height="12" x="4" y="8" rx="2"/>
+<path d="M2 14h2m16 0h2m-7-1v2m-6-2v2"/>
+</g>
+</svg>
+<text x="131" y="258" text-anchor="middle" class="t-agent">coding agent</text>
+<g>
+<polyline points="132,210 132,120 93,120" class="reach"/>
+<polygon points="94,116 87,120 94,124" class="reach-head"/>
+<path d="M159,98 L167.5,112.5 L150.5,112.5 Z" class="warn"/>
+<rect x="158.2" y="102.5" width="1.6" height="5.6" rx="0.8" class="warn-mark"/>
+<circle cx="159" cy="110.2" r="0.95" class="warn-mark"/>
+<text x="150" y="131" class="t-note">reads anyway</text>
+<text x="150" y="148" class="t-note-mono">cd ../..</text>
+</g>
+</g>
+<g transform="translate(270 0)" class="hard">
+<text x="4" y="18" class="t-title">Hard boundary</text>
+<text x="4" y="36" class="t-subtitle">container filesystem</text>
+<rect x="4" y="52" width="242" height="252" rx="8" class="frame"/>
+<g>
+<text x="20" y="74" class="t-label t-host">host</text>
+<text x="20" y="100" class="t-mono t-host">~/</text>
+<text x="36" y="124" class="t-mono t-host">.ssh/</text>
+<text x="36" y="148" class="t-mono t-host">workspace/</text>
+</g>
+<rect x="36" y="166" width="190" height="118" rx="6" class="boundary"/>
+<text x="50" y="188" class="t-mono">repo/</text>
+<rect x="63" y="210" width="136" height="58" rx="6" class="agent"/>
+<svg x="120" y="217" width="22" height="22" viewBox="0 0 24 24" class="ic-agent">
+<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+<path d="M12 8V4H8"/>
+<rect width="16" height="12" x="4" y="8" rx="2"/>
+<path d="M2 14h2m16 0h2m-7-1v2m-6-2v2"/>
+</g>
+</svg>
+<text x="131" y="258" text-anchor="middle" class="t-agent">coding agent</text>
+<g>
+<line x1="172" y1="210" x2="172" y2="174" class="blocked"/>
+<path d="M166,160 L178,172 M178,160 L166,172" class="cross"/>
+<path d="M147.5,100 V96.5 a4,4 0 0 1 8,0 V100" class="ok-shackle"/>
+<rect x="144" y="100" width="15" height="11" rx="2" class="ok"/>
+<circle cx="151.5" cy="105.5" r="1.6" class="ok-mark"/>
+<text x="144" y="129" class="t-note">not mounted</text>
+<text x="144" y="145" class="t-note">and inaccessible</text>
+</g>
+</g>
+</svg>
