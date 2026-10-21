@@ -24,7 +24,8 @@ Per feature, only the cap value and the definition of "green" change.
 - Reviewers always start fresh.
 - **Gates that need an LLM: consider OpenAI's [Decisions API](https://developers.openai.com/api/docs/guides/decisions).** Returns typed answers — probability a condition holds, a pick from fixed choices, a rating on ordered levels — instead of free text. Cost-effective: input tokens only, $0.10 per 1M. Status: public beta, one model (`gpt-6-luna`). Checked 2026-10-21.
   - Provider-agnosticism applies **most strongly** to coding — harness and coding models ([ADR-006](./006-models-and-llm-access.md), [ADR-007](./007-harness.md)). Workflow gates may use a provider-specific API where it is the best tool. No Anthropic equivalent known as of 2026-10-21.
-  - **Alternative: [Jev](https://typesafe.ai/) by TypeSafe** — "returns typed decisions with calibrated probabilities." Early access. $42 per 1B input tokens. Its site does not answer whether output is deterministic or how it differs from structured outputs; self-hosting not stated. Checked 2026-10-21.
+  - **Alternative: [Jev](https://typesafe.ai/) by TypeSafe** — "returns typed decisions with calibrated probabilities." Early access. $42 per 1B input tokens. Its site does not answer whether output is deterministic or how it differs from structured outputs. Checked 2026-10-21.
+  - Either option: hosted, not self-hosted, and called **via the AI gateway** ([ADR-006](./006-models-and-llm-access.md)).
 
 ### Target design
 
@@ -45,6 +46,6 @@ Not built.
 ## Open
 
 - **Decisions API — deterministic?** OpenAI's guide does not say outputs are deterministic or repeatable for identical input. What is bounded is the output *shape* (fixed choices, typed answers). Verify before relying on repeatability.
-- **Unverified:** whether the Decisions API is reachable through the AI gateway ([ADR-006](./006-models-and-llm-access.md)).
+- **Unverified:** whether the Decisions API and Jev are available through the POC gateway (Vercel AI Gateway) ([ADR-006](./006-models-and-llm-access.md)).
 - Coder on rework: full session resume vs. fresh start vs. fresh start + structured handoff (review comments + notes via the artifact service).
 - E2E environment: shared vs. per-branch preview; triage step (real bug / flaky / environment) before a failure reaches the coder.
