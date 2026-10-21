@@ -3,9 +3,7 @@
 How different agent types get different skill sets, and what makes that a boundary rather than a convention.
 
 > [!IMPORTANT]
-> **Status: parked.** Not needed for Phase 1, which runs one agent type. Revisit when there is more than one, or before granting any agent write access to infra.
-
-**Leaning:** `npx skills add` at pod startup, under the pod's own workload identity, federated to GitHub via OIDC. Not decided — see the trade-off below, which is narrower than it first appears.
+> **Status: decided — option A, bake per agent type.** See [ADR-010](../decisions/010-agent-images.md): skills baked into images, one image per role inheriting from a base. Options C and C′ need workload identity in agent pods, which [ADR-003](../decisions/003-platform-services-vs-agent-pods.md) rules out. Analysis below kept for the reasoning.
 
 ## Why this needs solving at all
 
@@ -99,5 +97,6 @@ Do not let "we scope skills per agent" get read as "we control skill loading." T
 | 2026-09-09 | Parked | Phase 1 runs one agent type. Not blocking. |
 | 2026-09-09 | Motivation is tidiness now, security later | Kept separate deliberately — the cheap option suffices for one and not the other. |
 | 2026-09-09 | Mount-based selection (B) is not a boundary | Confused deputy: the platform holds the credential and mounts what the manifest names. Only holds if the agent can't influence the manifest, which is not safe to assume here. |
-| 2026-09-09 | Leaning C — fetch at startup under pod identity | Credential and constraint travel together. Accepts a GitHub dependency at pod start. |
+| 2026-09-09 | ~~Leaning C — fetch at startup under pod identity~~ | Credential and constraint travel together. Accepts a GitHub dependency at pod start. |
 | 2026-09-09 | Recorded that C′ exists | Same identity property against blob storage, without the GitHub dependency. C vs. C′ is freshness/simplicity, not security — do not justify C on security grounds alone. |
+| 2026-10-19 | **Decided: A — bake per agent type** | Supersedes the C leaning. Agent pods get no workload identity (ADR-003), so C/C′ are out. [ADR-010](../decisions/010-agent-images.md). |
