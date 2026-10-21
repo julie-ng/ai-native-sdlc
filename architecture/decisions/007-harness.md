@@ -48,9 +48,5 @@ goose headless in a container, issue → PR, proven with `docker run` ([goose-k8
 
 | Trade-off | Notes |
 |---|---|
-| Two harnesses | Laptop and cloud differ. Shared surface is instructions and skills ([ADR-011](./011-skills-location.md)). |
+| Two harnesses | Laptop and cloud differ. Shared surface is instructions and skills — goose reads `AGENTS.md` and `.agents/skills/` natively ([ADR-011](./011-skills-location.md)). |
 | goose skills have no per-recipe governance | Extensions are scoped per recipe, skills are not; a skill can derail a headless run. |
-
-## Open
-
-- Whether goose reads `AGENTS.md` and `.agents/skills/` natively.

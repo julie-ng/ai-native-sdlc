@@ -14,6 +14,8 @@
 - Skills live canonically in **`.agents/skills/`**.
 - **`.claude/skills` is a symlink** to it.
 
+**goose reads `.agents/skills/` natively** — project-level `.agents/skills/`, global `~/.agents/skills/`; "`agents/skills/` is the recommended standard." It also discovers `.goose/skills/` and `.claude/skills/` for backward compatibility ([goose: using skills](https://goose-docs.ai/docs/guides/context-engineering/using-skills)). goose reads `AGENTS.md` by default, from the working directory up to the repo root and from nested subdirectories it accesses ([goose: context files](https://goose-docs.ai/docs/guides/context-engineering/using-goosehints)).
+
 ### Target design
 
 As above, in every agent-worked repo.
@@ -32,7 +34,7 @@ Not yet applied in this repo.
 
 ## Open
 
-- Whether goose reads `.agents/skills/` natively.
+- **Unverified:** goose discovers both `.agents/skills/` and `.claude/skills/` — with the symlink, the same skills may load twice.
 - `CLAUDE.md` as a one-line `@AGENTS.md` import — recommended, not formally decided.
 - Nested `AGENTS.md` handling: prose rule, generated per-directory `CLAUDE.md`, or a hook injecting the nearest one.
 - **Unverified:** Copilot may load both `AGENTS.md` and `CLAUDE.md`, ingesting instructions twice.
