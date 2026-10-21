@@ -37,8 +37,8 @@ Not built. Proven so far: one goose container, issue → PR, with plain `docker 
 | Option | Why not |
 |---|---|
 | GitHub Actions | Runners outside the cluster; artifact handoff needs a complex secure integration; GitHub-only. |
-| Temporal | Expensive. |
-| Vercel Workflow DevKit | Provider-agnostic, but a hosted service — cannot run inside the cluster. |
+| Temporal | Self-hosted: operationally complex and expensive. Temporal Cloud: a hosted service — cannot run inside the cluster, and ties the platform to a provider. |
+| Vercel Workflow DevKit | Model-agnostic, but a hosted service — cannot run inside the cluster, and ties the platform to a provider. |
 | Dapr Workflows | Argo judged more mature, wider adoption (**unverified**). Not CNCF status: both are graduated — Argo 2022-12-06, Dapr 2024-10-30 ([Argo](https://www.cncf.io/projects/argo/), [Dapr](https://www.cncf.io/projects/dapr/)). |
 | Tekton | Rejected. Reason not recorded. |
 | LangGraph | Licensing does not scale as a platform foundation; durable execution needs proprietary infrastructure by default (**unverified** — from memory). |
