@@ -77,7 +77,7 @@ A small platform service that issues each agent pod a short-lived GitHub install
 
 ## Implementation notes
 
-- Platform namespace, next to workflow service and artifact service. Workload identity → Key Vault (App private key) only.
+- Own `github-broker` namespace, separate from `platform` (workflow + artifact service) — see [ADR-003](./decisions/003-platform-services-vs-agent-pods.md). Workload identity → Key Vault (App private key) only.
 - Small surface: TokenReview, one pod lookup, one JWT sign, one GitHub API call. Estimate: a few hundred lines.
 - Broker's own Kubernetes RBAC: `tokenreviews: create`, `pods: get` in the `agents` namespace. Nothing else.
 - Label values can't contain `/` → put `owner/repo` in an **annotation**, or use the numeric repository ID as a label.
