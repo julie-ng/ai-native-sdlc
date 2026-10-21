@@ -29,6 +29,8 @@
 
 **Why a user account still commits:** the App's `…[bot]` identity cannot hold a GPG key (**unverified**), and API-created commits are ruled out by ADR-008. A separate user account is needed for integrations anyway (Vercel preview builds, see ADR-001).
 
+**Signing and access are independent mechanisms.** The signature is made locally at `git commit`; the App token only authenticates the HTTPS push and API calls. Which token pushes has no bearing on the signature.
+
 **The signing key is a secret, not a credential.** It grants access to nothing; it only marks commits Verified. Its presence in the pod does not contradict "no credentials in agent pods".
 
 | Role | Token permissions |
@@ -82,7 +84,6 @@ Not built. Today's cloud-tier evidence is a `docker run` spike with a classic PA
 ## Open
 
 - **Signing key delivery** into pods — not designed.
-- **Unverified:** a commit signed by the user's GPG key and **pushed with an App token** shows as Verified under the user. Verification is expected to depend on key + committer email, not on the pusher.
 - **Unverified:** GitHub App bots cannot register GPG keys.
 - **Unverified:** an App can be named like an existing user account (`julieio-agent`).
 - [identity.md](../identity.md) lists App permissions without **Issues**; the planner needs it.
