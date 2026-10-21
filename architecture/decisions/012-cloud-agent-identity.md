@@ -1,11 +1,11 @@
 # ADR-012: Cloud agent identity — agent user commits, GitHub App token pushes
 
-- **Status:** Accepted — **design only. Not implemented, not verified.**
+- **Status:** Accepted — **design. Not yet implemented or verified in this repo.**
 - **Date:** 2026-10-21
 - **Context:** Cloud tier (Level 2, K8s pods), no human starts the run. Dev container identity is [ADR-001](./001-dev-container-agent-identity.md).
 
 > [!IMPORTANT]
-> Nothing in this ADR has been built or tested. No GitHub App is registered. Claims marked **Unverified** must be checked before implementation.
+> Not everything in this ADR has been built or tested in this repo. No GitHub App is registered for this project yet. Claims marked **Unverified** must be checked before implementation.
 
 ## Context
 

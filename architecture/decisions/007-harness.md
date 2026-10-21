@@ -25,7 +25,7 @@
 - Recipes, skills, extensions configurable per agent role.
 - Foundation-governed.
 
-**goose is a thin wrapper.** Its job is a unified interface over swappable models. The model does the coding work; Claude and Codex are strong enough to do the rest on their own.
+**goose is a thin harness.** Its job is a unified interface over swappable models. The model does the coding work; Claude and Codex are strong enough to do the rest on their own.
 
 ### Evidence — the model matters more than the harness
 
