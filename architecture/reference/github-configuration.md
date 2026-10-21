@@ -5,9 +5,9 @@ Repository settings that stop an agent from reaching secrets or triggering a pro
 > [!NOTE]
 > **Layer:** access control on GitHub resources, enforced server-side by GitHub. Not isolation of the agent's runtime — that is [Isolation levels](../01-use-case.md#isolation-levels). Applies to every agent identity, dev container ([ADR-001](../decisions/001-dev-container-agent-identity.md)) and cloud.
 
-![GitHub configuration: agent pushes to its own branches and can run workflows there, but repository secrets are empty and Production secrets are released only to workflows running on main](../../images/github-configuration.svg)
+![GitHub configuration: agent branches cannot pass the Production main-only rule; repository secrets are empty](../../images/github-configuration.svg)
 
-Numbers refer to [Controls](#controls). Write role does **not** mean access to production secrets: the agent can run its own workflows, but there is nothing for them to read. Repository secrets are empty, and the Production environment releases its secrets only to jobs running on `main`.
+Numbers refer to [Controls](#controls), not ordered steps. Diagram style: [DESIGN.md](../../DESIGN.md). Write role does **not** mean access to production secrets: the agent can run its own workflows, but there is nothing for them to read. Repository secrets are empty, and the Production environment releases its secrets only to jobs running on `main`.
 
 ## The problem
 

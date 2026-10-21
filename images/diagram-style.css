@@ -1,0 +1,124 @@
+/* julie.io diagram style block
+   Paste this whole file inside the style element of a standalone SVG document, wrapped in CDATA.
+   Tokens and classes are adapted from the supplied julie.io guide (21 Oct 2026),
+   with the site's Nuxt UI tokens resolved to hex and merged into one class vocabulary. */
+
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap");
+
+svg {
+  --font-sans: "Source Sans 3", Helvetica, Arial, sans-serif;
+  --font-mono: "Roboto Mono", Courier, monospace;
+
+  /* brand */
+  --primary-50: #eef0fb; --primary-300: #a3abe6; --primary-500: #4652c6;
+  --primary-600: #3a42b0; --primary-900: #262a5e;
+  --secondary-50: #f0fdfa; --secondary-300: #46edd5; --secondary-400: #00d5be;
+  --secondary-500: #00bba7; --secondary-900: #0b4f4a;
+  --k8s-blue: #326ce5;
+
+  /* neutrals (light) */
+  --bg: #ffffff; --bg-elevated: #f3f4f6; --border-accented: #d1d5dc;
+  --text: #364153; --text-highlighted: #101828; --text-muted: #6a7282; --text-toned: #4a5565;
+
+  /* status */
+  --warn: #fdc700; --warn-on: #101828; --cross: #fb2c36;
+
+  /* roles */
+  --local: var(--primary-600);          /* interactive/local agent, boundaries, loop steps */
+  --local-bg: var(--primary-50);
+  --platform: var(--primary-500);       /* services and orchestration I run */
+  --platform-bg: var(--primary-50);
+  --agent: var(--secondary-500);        /* autonomous cloud agents and their actions */
+  --agent-bg: var(--secondary-50);
+  --ok: var(--secondary-500);           /* lock = protected */
+  --step: var(--primary-600);
+  --cluster: var(--k8s-blue);
+  --cluster-bg: #f6f9ff;                /* color-mix(in oklab, #326ce5 4%, white) */
+  --gate: #bc945b;                      /* warning-600 60% + neutral-400 */
+  --gate-bg: #fefdef;
+  --github: #6a7282;
+}
+
+@media (prefers-color-scheme: dark) {
+  svg {
+    --bg: #101828; --bg-elevated: #1e2939; --border-accented: #364153;
+    --text: #e5e7eb; --text-highlighted: #ffffff; --text-muted: #99a1af; --text-toned: #d1d5dc;
+    --cross: #ff6467;
+    --local: var(--primary-300);
+    --local-bg: color-mix(in srgb, var(--primary-900) 40%, var(--bg));
+    --platform: var(--primary-300);
+    --platform-bg: color-mix(in oklab, var(--primary-900) 30%, transparent);
+    --agent: var(--secondary-300);
+    --agent-bg: color-mix(in oklab, var(--secondary-900) 30%, transparent);
+    --ok: var(--secondary-400);
+    --cluster-bg: color-mix(in oklab, #326ce5 8%, var(--bg));
+    --gate: color-mix(in oklab, #ffdf20 60%, #99a1af);
+    --gate-bg: color-mix(in srgb, #733e0a 30%, var(--bg));
+  }
+}
+/* text */
+.t-mono { font-family: var(--font-mono); }
+.t-sans { font-family: var(--font-sans); }
+.t-title    { font-family: var(--font-sans); font-size: 16px; font-weight: 600; fill: var(--text-highlighted); }
+.t-heading  { font-size: 16px; font-weight: 700; fill: var(--text-highlighted); }   /* mono, e.g. "Kubernetes cluster" */
+.t-subtitle { font-family: var(--font-sans); font-size: 13px; fill: var(--text-muted); }
+.t-label    { font-size: 14px; font-weight: 600; fill: var(--text-highlighted); }    /* mono card name */
+.t-label-support { font-size: 12px; font-weight: 600; fill: var(--text-highlighted); } /* mono, supporting-service card */
+.t-container { font-family: var(--font-mono); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; fill: var(--text-muted); }
+.t-body     { font-size: 14px; fill: var(--text); }                                 /* mono node name */
+.t-ns       { font-size: 12px; fill: var(--text-muted); }                           /* mono "namespace: x" */
+.t-small    { font-size: 13px; fill: var(--text-muted); }                           /* sans descriptor */
+.t-arrow    { font-size: 13px; fill: var(--text-toned); }                           /* sans arrow label */
+.t-note     { font-family: var(--font-sans); font-size: 12px; font-weight: 500; fill: var(--text-highlighted); }
+.t-note-mono { font-family: var(--font-mono); font-size: 12px; font-weight: 500; fill: var(--text-highlighted); }
+.t-step     { font-family: var(--font-mono); font-size: 12px; font-weight: 700; fill: #ffffff; }
+.t-ghost    { fill: var(--text-muted); }
+
+/* containers */
+.frame       { fill: none; stroke: var(--border-accented); stroke-width: 1.5; }
+.box-cluster { fill: var(--cluster-bg); stroke: var(--cluster); stroke-width: 1.5; }
+.box-ns      { fill: var(--bg); stroke: var(--border-accented); stroke-width: 1; stroke-dasharray: 5 4; }
+.boundary    { fill: var(--local-bg); stroke: var(--local); stroke-width: 1.5; stroke-dasharray: 6 5; } /* soft */
+.boundary-hard { fill: var(--local-bg); stroke: var(--local); stroke-width: 1.5; }
+
+/* nodes */
+.box-platform { fill: var(--platform-bg); stroke: var(--platform); stroke-width: 1.5; }
+.box-agent    { fill: var(--agent-bg); stroke: var(--agent); stroke-width: 1.5; }
+.box-local    { fill: var(--local-bg); stroke: var(--local); stroke-width: 1.5; }
+.box-local-out { fill: none; stroke: var(--local); stroke-width: 1; stroke-dasharray: 6 5; }
+.box-agent-pill { fill: var(--bg); stroke: var(--local); stroke-width: 1.5; }
+.box-ext      { fill: var(--bg-elevated); stroke: var(--border-accented); stroke-width: 1.5; }
+.box-support  { fill: var(--bg); stroke: var(--border-accented); stroke-width: 1.5; }
+.box-github   { fill: var(--local-bg); stroke: var(--github); stroke-width: 1.5; }
+.box-gate     { fill: var(--gate-bg); stroke: var(--gate); stroke-width: 1.5; }
+.box-pr       { fill: var(--bg); stroke: var(--text-highlighted); stroke-width: 1.5; }
+
+/* connectors */
+.arrow        { fill: none; stroke: var(--text-muted); stroke-width: 1.5; }
+.head         { fill: var(--text-muted); }
+.arrow-agent  { stroke: var(--agent); }
+.head-agent   { fill: var(--agent); }
+.arrow-local  { stroke: var(--local); }
+.head-local   { fill: var(--local); }
+.arrow-changes { stroke-dasharray: 6 4; }
+.reach        { fill: none; stroke: var(--text-toned); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+.reach-head   { fill: var(--text-toned); }
+.blocked      { stroke: var(--text-toned); stroke-width: 1.5; stroke-dasharray: 3 4; stroke-linecap: round; }
+.link         { stroke: var(--border-accented); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.link-dot     { fill: var(--bg); stroke: var(--border-accented); stroke-width: 1.5; }
+.divider      { stroke: var(--border-accented); stroke-width: 1.5; stroke-dasharray: 3 4; }
+.step         { fill: var(--step); }
+
+/* status glyphs and icons */
+.warn       { fill: var(--warn); stroke: var(--warn); stroke-width: 1.5; stroke-linejoin: round; }
+.warn-mark  { fill: var(--warn-on); }
+.cross      { fill: none; stroke: var(--cross); stroke-width: 1.5; stroke-linecap: round; }
+.ok         { fill: var(--ok); }
+.ok-shackle { fill: none; stroke: var(--ok); stroke-width: 2; stroke-linecap: round; }
+.ok-mark    { fill: var(--bg); }
+.ic-local   { color: var(--local); }
+.ic-platform { color: var(--platform); }
+.ic-agent   { color: var(--agent); }
+.ic-mono    { color: var(--text-highlighted); }
+.ic-muted   { color: var(--text-muted); }
+.ic-k8s     { color: var(--k8s-blue); }
