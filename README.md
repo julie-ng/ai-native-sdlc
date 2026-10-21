@@ -63,6 +63,8 @@ The point is not to babysit sessions. No approving every change, no manually pus
 | [goose](./architecture/goose-agent.md) | The agent runtime. ACP built in, model-agnostic. |
 | [Identity](./architecture/identity.md) | Agent vs. me. Two tiers: bot account + deploy key locally, GitHub App in the cloud. |
 | [Orchestration](./architecture/orchestration.md) | GitHub → K8s Job → branch → PR |
+| [GitHub configuration](./architecture/github-configuration.md) | Rulesets, environment-only secrets — no indirect path to credentials or production |
+| [Decisions (ADRs)](./architecture/decisions/) | One decision per file, target design vs. MVP |
 
 Spikes and working code: [`spikes/`](./spikes/). Retired directions: [`stale/`](./stale/). Deferred decisions, reasoning kept: [`architecture/parked/`](./architecture/parked/).
 
