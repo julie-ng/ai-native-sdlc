@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-21 (goose chosen 2026-09-04)
-- **Context:** Both tiers. Detail: [goose-agent.md](../goose-agent.md).
+- **Context:** Both tiers. Detail: [goose](../reference/goose.md).
 
 ## Context
 

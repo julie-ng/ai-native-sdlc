@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Date:** 2026-10-20 · updated 2026-10-21
 - **Context:** **Dev containers** on the human developer's laptop, subscription-billed models. Cloud agents (K8s pods, API keys) are a separate decision, not covered here.
-- **Supersedes:** the local-tier "ED25519 key + deploy key + SSH signing" plan in [identity.md](../identity.md#local-tier--bot-account--deploy-key)
+- **Supersedes:** the local-tier "ED25519 key + deploy key + SSH signing" plan in [identity.md](../reference/identity.md#local-tier--bot-account--deploy-key)
 
 ## Context
 
@@ -35,7 +35,7 @@ The difference to the cloud tier: there, no human prompt starts the run.
 |---|---|
 | Identity | Dedicated GitHub user account, **collaborator** (write role) on the repos it works in |
 | Access | Token over HTTPS for both git and `gh` (`GH_TOKEN` + `gh auth setup-git`) |
-| Least privilege | **On the repository, not the token** — see [GitHub configuration](../github-configuration.md) |
+| Least privilege | **On the repository, not the token** — see [GitHub configuration](../reference/github-configuration.md) |
 | Commit verification | **GPG** Ed25519 signing key, no passphrase, 1-year expiry |
 | Delivery | Generated outside the container; mounted read-only at runtime, imported into the container's GnuPG home. Never baked into an image or committed. |
 
@@ -52,7 +52,7 @@ Setup steps: [AGENTS.md → Git & GitHub Configuration](../../AGENTS.md#git--git
 - Agent account `julieio-agent`, collaborator with write role.
 - **Classic PAT**, including the `workflow` scope on purpose — agents author CI/CD, and adding or updating workflow files requires that scope. Granularity is not in the token but in the repository configuration.
 
-Repo-side configuration — rulesets, environment-only secrets, production tied to `main` — is in [GitHub configuration](../github-configuration.md). It is what makes a coarse classic PAT acceptable.
+Repo-side configuration — rulesets, environment-only secrets, production tied to `main` — is in [GitHub configuration](../reference/github-configuration.md). It is what makes a coarse classic PAT acceptable.
 
 Key generation, run outside the container in a dedicated directory:
 
@@ -91,7 +91,7 @@ gpg --homedir "." \
 | Key expiry | Rotate before 2027-10-20. Revocation certificate kept outside the container. |
 
 > [!IMPORTANT]
-> **POC gap:** with write role and `repo` scope, the agent can dispatch a deploy workflow on `main` and reach production without a new human merge (confirmed 2026-10-21). No GitHub plan was found to offer a role-level switch that removes dispatch. POC mitigation: required reviewers on Production. See [GitHub configuration](../github-configuration.md#controls).
+> **POC gap:** with write role and `repo` scope, the agent can dispatch a deploy workflow on `main` and reach production without a new human merge (confirmed 2026-10-21). No GitHub plan was found to offer a role-level switch that removes dispatch. POC mitigation: required reviewers on Production. See [GitHub configuration](../reference/github-configuration.md#controls).
 
 ## Verification
 

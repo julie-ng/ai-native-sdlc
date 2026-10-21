@@ -1,6 +1,6 @@
 # goose — the agent runtime
 
-[goose](https://goose-docs.ai/) runs the agent loop in the cloud tier — a thin harness over swappable models ([ADR-007](./decisions/007-harness.md)). Model lives behind a provider config.
+[goose](https://goose-docs.ai/) runs the agent loop in the cloud tier — a thin harness over swappable models ([ADR-007](../decisions/007-harness.md)). Model lives behind a provider config.
 
 ```
 ┌─────────────────────────────────────────────────┐
@@ -101,7 +101,7 @@ curl -fsSL https://github.com/aaif-goose/goose/releases/download/stable/download
 
 `~/.config/goose/config.yaml`. Bake it into the image — no `goose configure`, no interactive prompts.
 
-The provider is an **AI gateway** ([ADR-006](./decisions/006-models-and-llm-access.md)). For the POC that is Vercel AI Gateway, shown below.
+The provider is an **AI gateway** ([ADR-006](../decisions/006-models-and-llm-access.md)). For the POC that is Vercel AI Gateway, shown below.
 
 ```yaml
 providers:
@@ -116,7 +116,7 @@ GOOSE_THINKING_EFFORT: medium
 
 - Provider slug is `vercel_ai_gateway` — not guessable, comes from the [declarative JSON](https://goose-docs.ai/docs/guides/providers/#vercel-ai-gateway).
 - Model strings are `creator/model-name`.
-- API key via env: `AI_GATEWAY_API_KEY` — how the spikes do it. Target: key delivered as a file ([ADR-006](./decisions/006-models-and-llm-access.md)).
+- API key via env: `AI_GATEWAY_API_KEY` — how the spikes do it. Target: key delivered as a file ([ADR-006](../decisions/006-models-and-llm-access.md)).
 - `GOOSE_PROVIDER` / `GOOSE_MODEL` env vars override the file. ✅ Verified in-container 2026-08-30 — a bogus `GOOSE_PROVIDER` beat the baked `active_provider` and errored with "No model configured."
 
 > [!Tip]
@@ -124,21 +124,21 @@ GOOSE_THINKING_EFFORT: medium
 
 ### Driving it from a controller
 
-**Each agent step runs `goose run --recipe`** with per-task `--params` — one process per pod, no client. Recipes replaced `--text` in the spikes ([goose-k8s-prep](../spikes/goose-k8s-prep/)).
+**Each agent step runs `goose run --recipe`** with per-task `--params` — one process per pod, no client. Recipes replaced `--text` in the spikes ([goose-k8s-prep](../../spikes/goose-k8s-prep/)).
 
-`goose acp` + an ACP client is the alternative when a controller needs streaming progress, permission prompts, or mid-task intervention. Proven working: [`spikes/goose-acp-spawn/`](../spikes/goose-acp-spawn/).
+`goose acp` + an ACP client is the alternative when a controller needs streaming progress, permission prompts, or mid-task intervention. Proven working: [`spikes/goose-acp-spawn/`](../../spikes/goose-acp-spawn/).
 
 ## Decision log
 
 | Date | Decision | Notes |
 |---|---|---|
-| 2026-10-21 | Invocation | `goose run --recipe` per agent step. ACP available but not needed. [ADR-007](./decisions/007-harness.md) |
-| 2026-10-21 | AuthN (cloud) | API keys via an AI gateway, vendor-agnostic. [ADR-006](./decisions/006-models-and-llm-access.md) |
-| 2026-10-21 | AuthN (local goose testing) | Either API key, or Claude subscription via ACP. The dev container agent itself is Claude Code / Codex. [ADR-007](./decisions/007-harness.md) |
-| 2026-10-21 | Skills location | goose reads `.agents/skills/` and `AGENTS.md` natively. [ADR-011](./decisions/011-skills-location.md) |
-| 2026-10-20 | Sidecar | None. ACP is native to the goose binary. [ADR-004](./decisions/004-orchestration-argo-workflows.md) |
-| 2026-10-19 | Config | Baked into the image at `~/.config/goose/config.yaml`. No interactive setup. [ADR-010](./decisions/010-agent-images.md) |
-| 2026-09-04 | Harness | goose. Model-agnostic, headless, AAIF-governed — a thin harness. [ADR-007](./decisions/007-harness.md) |
+| 2026-10-21 | Invocation | `goose run --recipe` per agent step. ACP available but not needed. [ADR-007](../decisions/007-harness.md) |
+| 2026-10-21 | AuthN (cloud) | API keys via an AI gateway, vendor-agnostic. [ADR-006](../decisions/006-models-and-llm-access.md) |
+| 2026-10-21 | AuthN (local goose testing) | Either API key, or Claude subscription via ACP. The dev container agent itself is Claude Code / Codex. [ADR-007](../decisions/007-harness.md) |
+| 2026-10-21 | Skills location | goose reads `.agents/skills/` and `AGENTS.md` natively. [ADR-011](../decisions/011-skills-location.md) |
+| 2026-10-20 | Sidecar | None. ACP is native to the goose binary. [ADR-004](../decisions/004-orchestration-argo-workflows.md) |
+| 2026-10-19 | Config | Baked into the image at `~/.config/goose/config.yaml`. No interactive setup. [ADR-010](../decisions/010-agent-images.md) |
+| 2026-09-04 | Harness | goose. Model-agnostic, headless, AAIF-governed — a thin harness. [ADR-007](../decisions/007-harness.md) |
 
 ### Accepted Trade-Offs
 
