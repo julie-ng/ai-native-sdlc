@@ -25,6 +25,8 @@
 - Recipes, skills, extensions configurable per agent role.
 - Foundation-governed.
 
+**Commits:** the agent commits itself, in small atomic commits. goose does not commit unless told to, so the recipe must say so. Today the [issue-to-pr recipe](../../spikes/goose-k8s-prep/recipes/issue-to-pr.yaml) asks for a commit referencing the issue — not yet for atomic commits.
+
 ### Target design
 
 As above.
@@ -48,7 +50,6 @@ goose headless in a container, issue → PR, proven with `docker run` ([goose-k8
 |---|---|
 | Two harnesses | Laptop and cloud differ. Shared surface is instructions and skills ([ADR-011](./011-skills-location.md)). |
 | goose skills have no per-recipe governance | Extensions are scoped per recipe, skills are not; a skill can derail a headless run. |
-| goose does not commit on its own | The pod's wrapper commits and pushes ([goose-k8s-prep](../../spikes/goose-k8s-prep/)). |
 
 ## Open
 

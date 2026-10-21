@@ -15,7 +15,7 @@
 - Base adds: Python environments, `jq`, `gh`, `glab`, recipes.
 - **Role images inherit from the base**, differing only in which skills are copied in, plus labels.
 - **Skills baked into images**, not pulled at runtime — less startup traffic, no runtime version management.
-- `CMD` is `bash`; `ENTRYPOINT` reset, so the wrapper runs goose and then commits.
+- `CMD` is `bash`; the base image's `goose` `ENTRYPOINT` is reset.
 - Install as root, drop to the unprivileged user last.
 
 ### Target design

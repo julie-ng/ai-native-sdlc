@@ -14,9 +14,9 @@
 
 | | Platform services | Agent pods |
 |---|---|---|
-| Examples | workflow service, artifact service, token broker | planner, coder, reviewer, open-PR step |
+| Examples | workflow service, artifact service, token broker, Argo | planner, coder, reviewer, open-PR step |
 | Trust | trusted | untrusted |
-| Cloud identity | workload identity → PostgreSQL, Blob, Key Vault | **none** |
+| Cloud identity | workload identity → PostgreSQL (incl. Argo), Blob, Key Vault | **none** |
 | GitHub | broker holds the App key | short-lived token from the broker ([ADR-012](./012-cloud-agent-identity.md)) |
 | Kubernetes | normal | no API access; projected ServiceAccount token, audience `token-broker` only |
 | Platform services | — | HMAC token per run/task (below) |

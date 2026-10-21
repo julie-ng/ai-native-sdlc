@@ -22,6 +22,8 @@
 - Every agent step **emits an artifact** on completion and exits with one of a **fixed set of outcomes**, which drive DAG branching.
 - **Create-only.** Each agent creates its own artifacts; none overwrites another's. Avoids concurrent-write conflicts by construction.
 - One PostgreSQL server for workflow service and Argo, separate databases and users.
+- **Argo authenticates to Postgres via workload identity**, no stored password. Argo supports Entra ID tokens (`azureToken`: "Workload Identity, Managed Identity and other standard mechanisms") for Postgres from v4.1 ([workflow archive](https://argo-workflows.readthedocs.io/en/latest/workflow-archive/)). `userNameSecret` is still required; `passwordSecret` is unused.
+- Argo's database is for its optional **workflow archive** and **node status offloading** ([offloading](https://argo-workflows.readthedocs.io/en/latest/offloading-large-workflows/)). Offloading only triggers when a workflow object passes etcd's 1MB limit — kept well under it because business state lives in the workflow service.
 
 ### Target design
 
@@ -44,9 +46,10 @@ Not built.
 
 | Trade-off | Notes |
 |---|---|
-| Argo uses a stored database password | Isolated in its own namespace. |
 | Two places hold small params | Duplication accepted to keep Argo swappable. |
 
 ## Open
 
+- **Unverified:** whether Argo v4.1 is a stable release — check before pinning.
+- Whether Argo's archive is needed at all, given the workflow service keeps run history.
 - Artifact naming/addressing so a downstream step finds an upstream step's output.

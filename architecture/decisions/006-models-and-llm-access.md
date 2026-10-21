@@ -16,21 +16,21 @@
 | Billing | developer's Claude Code / Codex **subscription** | **API keys**, agent's own |
 | Login | browser login, integration via Zed | none — key supplied at runtime |
 | Models | Opus for interactive work | task-fit per step — Sonnet or Codex under consideration |
-| Gateway | — | Vercel AI Gateway |
+| Gateway | — | **AI gateway** |
 
 - **Model per step.** One goose process cannot switch models mid-run, but each step is its own pod, so each gets its own model via `GOOSE_PROVIDER` / `GOOSE_MODEL`. Env vars override the baked `active_provider` in-container — confirmed in the [goose-container](../../spikes/goose-container/) and [goose-k8s-prep](../../spikes/goose-k8s-prep/) spikes.
 - The agent's GitHub identity is its own in both tiers; only the LLM billing differs.
 
 ### Target design
 
-Cloud: gateway choice open between Vercel AI Gateway and a cloud-provider gateway.
+- Any AI gateway. An organization that wants to lock down egress uses its cloud provider's AI gateway offering.
 
 - API key delivered as a **file**, per the principle "credentials as files, never env vars".
 
 ### MVP / POC scope
 
 - Dev container on subscription: in use.
-- Vercel AI Gateway with API key: working in spikes (`docker run`, not K8s). Spikes pass the key as env var `AI_GATEWAY_API_KEY` — not yet the target.
+- AI gateway = **Vercel AI Gateway**. Working with an API key in spikes (`docker run`, not K8s). Spikes pass the key as env var `AI_GATEWAY_API_KEY` — not yet the target.
 
 ## Alternatives considered
 
@@ -46,7 +46,7 @@ Cloud: gateway choice open between Vercel AI Gateway and a cloud-provider gatewa
 | Trade-off | Notes |
 |---|---|
 | Laptop agent borrows the developer's LLM subscription | GitHub identity stays separate. |
-| Vercel AI Gateway is outside the VNet | Credits and easy provider swapping. |
+| POC gateway (Vercel) is outside the VNet | Credits and easy provider swapping. Not the enterprise answer — see Target design. |
 
 ## Open
 
