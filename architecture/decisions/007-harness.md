@@ -35,7 +35,9 @@
 | Pan et al. — *HarnessTax* (UC Berkeley, Arena Intelligence) [^harnesstax] | 21 model–harness pairs, SWE-bench Lite + Terminal-Bench 2.0. "Harness choice has little effect on task success rate, but can significantly affect the cost." Average harness effect on success within ±2% (SWE-bench Lite) and ~±5% (Terminal-Bench). "A simple harness can be competitive." |
 | Brilliantov, Hernández-Cano, Abbé — *How Much of a Harness Does a Strong Agent Need…* (Apple ML, 2026-10) [^apple] | Same backbone, equal time budget: open-source SOTA harnesses no better than a single session of a minimal coding agent — "pointing to the backbone as the primary driver for performance." |
 
-**Interpretation — not a finding of the studies:** models keep improving, and what harnesses used to add gets absorbed into training. None of the three measures this over model generations; they compare harnesses at one point in time.
+**Why this holds as models improve:** HarnessTax's authors: "For day-to-day tasks, coding agents are essentially interfaces to model intelligence … As models become more capable, coding agents may need less of today's scaffolding." [^harnesstax] Their outlook, consistent with the measured results; the studies compare harnesses on current models rather than across model generations.
+
+**The harness tax:** the measured finding behind the name — the same model reaches similar success at up to 5× the cost depending on harness. Claude Code's initial context is over 10× Pi's. [^harnesstax]
 
 **Commits:** the agent commits itself, in small atomic commits. goose does not commit unless told to, so the recipe must say so. Today the [issue-to-pr recipe](../../spikes/goose-k8s-prep/recipes/issue-to-pr.yaml) asks for a commit referencing the issue — not yet for atomic commits.
 
