@@ -73,7 +73,7 @@ A small platform service that issues each agent pod a short-lived GitHub install
 | open-PR step | pull requests: write |
 
 > [!NOTE]
-> The App itself needs the **union** of these. identity.md currently lists Contents, Pull requests, Metadata — **Issues is missing** (needed to read issues on private repos and to comment).
+> The App itself needs the **union** of these — including **Issues**, which the planner needs to read issues on private repos and to comment.
 
 ## Implementation notes
 
@@ -82,6 +82,9 @@ A small platform service that issues each agent pod a short-lived GitHub install
 - Broker's own Kubernetes RBAC: `tokenreviews: create`, `pods: get` in the `agents` namespace. Nothing else.
 - Label values can't contain `/` → put `owner/repo` in an **annotation**, or use the numeric repository ID as a label.
 - Shared namespace caveat: anyone allowed to create pods in `agents` could pick any role's ServiceAccount. Restrict pod creation there to the Argo controller via RBAC.
+- **JWT:** RS256, `iss` = App ID, `exp` ≤ 10 min. The minted token (`ghs_…`) is used as an HTTPS credential — `https://x-access-token:<token>@github.com/…` — and as `GH_TOKEN` for `gh`.
+- GitHub issues the App key in **PKCS#1**; some JWT libraries (Node's `jsonwebtoken`) want PKCS#8. Convert with `openssl pkcs8 -topk8 -nocrypt`. Verify a key matches GitHub's record by comparing `openssl rsa -pubout | sha256 | base64` against the fingerprint on the App's settings page.
+- Use Octokit (`@octokit/auth-app`) or PyGithub rather than hand-rolling JWT signing, unless debugging inside a container that lacks them.
 - Possible off-the-shelf alternative: HashiCorp Vault / OpenBao Kubernetes auth + a community GitHub App token plugin. **Unverified** — check plugin maturity before considering.
 
 ## Open questions
