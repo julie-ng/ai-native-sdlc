@@ -33,6 +33,11 @@ Branch protection alone does not close path 1. **Secret placement** does.
 
 **Net effect:** production secrets and production deploys are reachable only after a human (or another actor with access to `main`) merges.
 
+> [!IMPORTANT]
+> **`workflow_dispatch` on `main` reaches production.** Write role includes dispatch; via API it needs only the `repo` scope. [^dispatch] A dispatch on `main` satisfies the `main`-only rule (5), so the net effect above does not hold for deploy workflows with a dispatch trigger. Confirmed 2026-10-21.
+>
+> No role-level switch to remove dispatch was found on any plan. [^custom-roles] POC mitigation: required reviewers on Production — on Pro, public repos only. [^deployments]
+
 ## Pitfalls
 
 - **Environment without a protection rule gates nothing.** "Secrets stored in an environment are only available to workflow jobs that reference the environment" — and without a deployment-branch rule there is "no restriction on which branch or tag can deploy to the environment." [^deployments] Any job on any branch can reference it. Keep secret-free environments secret-free.
@@ -47,6 +52,7 @@ Branch protection alone does not close path 1. **Secret placement** does.
 | | Target design | MVP / POC |
 |---|---|---|
 | Owner | GitHub organization | the developer's personal account |
+| Plan | GitHub Enterprise | GitHub Pro |
 | Agent / human split | agents in their own **team**; rulesets (3) apply to that team, human collaborators create any branch | no teams; rulesets (3) bind **every** non-admin collaborator — fine while the developer is the only human |
 | Why | Bypass lists take repo roles, teams, GitHub Apps [^rulesets]. Humans and agents both hold write, so role alone cannot separate them. Teams require an organization. | — |
 
@@ -71,6 +77,8 @@ Primary — GitHub docs, checked 2026-10-21:
 [^hardening]: [Security hardening for GitHub Actions](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions)
 [^environments]: [Environments reference](https://docs.github.com/actions/reference/environments)
 [^deployments]: [Deployments and environments](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments) — deployment protection rules, deployment branches and tags
+[^dispatch]: [REST API: workflows](https://docs.github.com/en/rest/actions/workflows#create-a-workflow-dispatch-event) — create a workflow dispatch event
+[^custom-roles]: [About custom repository roles](https://docs.github.com/en/organizations/managing-user-access-to-your-organizations-repositories/managing-repository-roles/about-custom-repository-roles)
 [^rulesets]: [Creating rulesets for a repository](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository) — bypass actors
 [^available-rules]: [Available rules for rulesets](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets) — restrict creations / updates / deletions, require a pull request, file path restrictions (push rulesets: private/internal repos only)
 [^ui]: GitHub UI, repo **Settings → Secrets and variables → Actions**, observed 2026-10-21

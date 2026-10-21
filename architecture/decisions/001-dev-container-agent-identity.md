@@ -90,6 +90,9 @@ gpg --homedir "." \
 | Long-lived secrets in the container | PAT (credential) and signing key (not a credential) persist across sessions and are available during unattended runs. Accepted for a dev container on the developer's laptop. |
 | Key expiry | Rotate before 2027-10-20. Revocation certificate kept outside the container. |
 
+> [!IMPORTANT]
+> **POC gap:** with write role and `repo` scope, the agent can dispatch a deploy workflow on `main` and reach production without a new human merge (confirmed 2026-10-21). No GitHub plan was found to offer a role-level switch that removes dispatch. POC mitigation: required reviewers on Production. See [GitHub configuration](../github-configuration.md#controls).
+
 ## Verification
 
 - Commits `9f9a655` and `3c8d9fc`: signed by key `33BFA959316A465E`; GitHub API returns `verified: true`, `reason: valid`, author `julieio-agent` (checked 2026-10-20).
