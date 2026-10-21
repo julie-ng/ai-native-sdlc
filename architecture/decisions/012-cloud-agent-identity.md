@@ -85,7 +85,7 @@ Not built. Today's cloud-tier evidence is a `docker run` spike with a classic PA
 
 - **Signing key delivery** into pods — not designed.
 - **Unverified:** GitHub App bots cannot register GPG keys.
-- **Unverified:** an App can be named like an existing user account (`julieio-agent`).
+- **App name vs. owner.** "You cannot use the same name as an existing GitHub account, unless it is your own user or organization name" ([GitHub docs](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app)). An App named `julieio-agent` must be registered **by the `julieio-agent` account itself**. Undecided: the agent account owns the App, or my account owns it under a different name.
 - [identity.md](../identity.md) lists App permissions without **Issues**; the planner needs it.
 - Broker availability: replicas + readiness, or mint in the workflow service before the pod starts.
 - Projected token `expirationSeconds` (min 600) vs. longest step.
