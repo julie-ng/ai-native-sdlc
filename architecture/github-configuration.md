@@ -64,10 +64,10 @@ Branch protection alone does not close path 1. **Secret placement** does.
 
 | Date | Decision | Notes |
 |---|---|---|
-| 2026-10-21 | Least privilege on the repo, not the token | Role + rulesets + secret placement. The token is a classic PAT; granularity lives in the repo (see ADR-001). |
+| 2026-10-21 | Least privilege on the repo, not the token | Role + rulesets + secret placement. The token is a classic PAT; granularity lives in the repo. [ADR-001](./decisions/001-dev-container-agent-identity.md) |
 | 2026-10-21 | Environment secrets only | Repo secrets are readable by every write collaborator, agents included. |
 | 2026-10-21 | Production tied to `main` via environment protection rule | Agents cannot push to `main`, so cannot satisfy the rule. |
-| 2026-10-21 | `workflow` scope required | Agents author CI/CD; adding or updating workflow files needs the scope. Safe because of the two decisions above. |
+| 2026-10-21 | `workflow` scope required | Agents author CI/CD; adding or updating workflow files needs the scope. Safe because of the two decisions above. [ADR-001](./decisions/001-dev-container-agent-identity.md) |
 
 ## Sources
 

@@ -96,9 +96,11 @@ A small platform service that issues each agent pod a short-lived GitHub install
 
 | Date | Decision | Notes |
 |---|---|---|
-| 2026-10-10 | Agent pods get no cloud identity | Only GitHub access needed. Workload identity reserved for platform services (DB, Blob, Key Vault). |
-| 2026-10-10 | One `agents` namespace, one ServiceAccount per role | Replaces namespace-per-role. Possible because no per-role K8s Secrets exist. Namespaces freed for tenancy (per team/client). |
+| 2026-10-21 | Cloud: agent user commits and signs, broker's App token pushes | [ADR-012](./decisions/012-cloud-agent-identity.md) |
+| 2026-10-21 | Broker in its own `github-broker` namespace | [ADR-003](./decisions/003-platform-services-vs-agent-pods.md) |
+| 2026-10-11 | Reviewer posts review comments on the pull request | Reviewer token gets pull requests: write. Resolves the open question. |
+| 2026-10-10 | Agent pods get no cloud identity | Only GitHub access needed. Workload identity reserved for platform services (DB, Blob, Key Vault). [ADR-003](./decisions/003-platform-services-vs-agent-pods.md) |
+| 2026-10-10 | One `agents` namespace, one ServiceAccount per role | Replaces namespace-per-role. Possible because no per-role K8s Secrets exist. Namespaces freed for tenancy (per team/client). [ADR-003](./decisions/003-platform-services-vs-agent-pods.md) |
 | 2026-10-10 | Pull model via token broker, not cloud vault | Vault needs per-pod cloud identity and isn't built for per-run secret churn. Broker auth uses the cloud-agnostic K8s ServiceAccount token. |
 | 2026-10-10 | Repository derived from pod metadata, never from the request | Denied by construction. |
 | 2026-10-10 | Argo parameters carry references (broker URL, role), never tokens | Workflow objects are readable; tokens must not land there. |
-| 2026-10-11 | Reviewer posts review comments on the pull request | Reviewer token gets pull requests: write. Resolves the open question. |

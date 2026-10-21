@@ -130,14 +130,15 @@ GOOSE_THINKING_EFFORT: medium
 
 ## Decision log
 
-| Decision | Notes |
-|---|---|
-| Harness | goose. Model-agnostic, headless, prepackages skills, AAIF-governed. |
-| Config | Baked into the image at `~/.config/goose/config.yaml`. No interactive setup. |
-| Sidecar | None. ACP is native to the goose binary. |
-| Invocation | `goose run --recipe` per agent step. ACP available but not needed. |
-| AuthN (local goose testing) | Either API key, or Claude subscription via ACP. The dev container agent itself is Claude Code / Codex ([ADR-007](./decisions/007-harness.md)). |
-| AuthN (cloud) | API keys via an AI gateway, vendor-agnostic. |
+| Date | Decision | Notes |
+|---|---|---|
+| 2026-10-21 | Invocation | `goose run --recipe` per agent step. ACP available but not needed. [ADR-007](./decisions/007-harness.md) |
+| 2026-10-21 | AuthN (cloud) | API keys via an AI gateway, vendor-agnostic. [ADR-006](./decisions/006-models-and-llm-access.md) |
+| 2026-10-21 | AuthN (local goose testing) | Either API key, or Claude subscription via ACP. The dev container agent itself is Claude Code / Codex. [ADR-007](./decisions/007-harness.md) |
+| 2026-10-21 | Skills location | goose reads `.agents/skills/` and `AGENTS.md` natively. [ADR-011](./decisions/011-skills-location.md) |
+| 2026-10-20 | Sidecar | None. ACP is native to the goose binary. [ADR-004](./decisions/004-orchestration-argo-workflows.md) |
+| 2026-10-19 | Config | Baked into the image at `~/.config/goose/config.yaml`. No interactive setup. [ADR-010](./decisions/010-agent-images.md) |
+| 2026-09-04 | Harness | goose. Model-agnostic, headless, AAIF-governed — a thin harness. [ADR-007](./decisions/007-harness.md) |
 
 ### Accepted Trade-Offs
 

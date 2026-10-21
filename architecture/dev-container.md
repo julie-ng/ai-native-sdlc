@@ -43,9 +43,11 @@ Trade-offs of skipping it:
 
 ## Decision log
 
-| Decision | Notes |
-|---|---|
-| Isolation | Dev container (Level 1). Filesystem boundary, shared kernel. |
-| Role | My session, and unattended agent runs started by my prompt + confirmed read-back. |
-| Mounts | `~/.claude` yes, `~/.claude.json` never. Mirror the host workspace path. |
-| MCP | In-repo `.mcp.json` instead of project-scoped config. |
+| Date | Decision | Notes |
+|---|---|---|
+| 2026-10-21 | Isolation | Dev container (Level 1). Filesystem boundary, shared kernel. [ADR-002](./decisions/002-isolation-levels.md) |
+| 2026-10-21 | LLM | My Claude Code / Codex subscription, browser login via Zed. [ADR-006](./decisions/006-models-and-llm-access.md) |
+| 2026-10-20 | Role | My session, and unattended agent runs started by my prompt + confirmed read-back. [ADR-001](./decisions/001-dev-container-agent-identity.md) |
+| 2026-10-20 | Agent identity | Own account, classic PAT, GPG signing — mounted read-only. [ADR-001](./decisions/001-dev-container-agent-identity.md) |
+| — | Mounts | `~/.claude` yes, `~/.claude.json` never. Mirror the host workspace path. |
+| — | MCP | In-repo `.mcp.json` instead of project-scoped config. |
