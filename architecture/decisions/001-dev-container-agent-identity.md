@@ -66,6 +66,20 @@ gpg --homedir "." \
   ed25519 sign 1y
 ```
 
+### Secrets — environment only, never repository
+
+The PAT includes the `workflow` scope on purpose — agents may write CI/CD. It "grants the ability to add and update GitHub Actions workflow files" ([scopes](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/scopes-for-oauth-apps)). So the agent can run any workflow on its own branches.
+
+- **Repository secrets: none in agent-worked repos.** "Any user with write access to your repository has read access to all secrets configured in your repository" ([security hardening](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions)) — that includes the agent.
+- **Environment secrets only**, behind protection rules. Jobs "can only access these secrets after any configured rules (for example, required reviewers) pass" ([environments](https://docs.github.com/actions/reference/environments)).
+- Production's rule limits deployment branches to `main`. Agents cannot push to `main`, so a workflow on an agent branch never gets production secrets — only a human (or other actor with access) merging into `main` does.
+
+> [!IMPORTANT]
+> An environment **without** a protection rule gates nothing. Its secrets are available to any job that names it, from any branch.
+
+> [!NOTE]
+> Plan dependency: "Users with GitHub Free plans can only configure environments for public repositories." Private repos need Pro (user) or Team (org). "If you convert a repository from public to private, any configured protection rules or environment secrets will be ignored."
+
 ## Alternatives considered
 
 | Option | Why not |
@@ -92,10 +106,6 @@ gpg --homedir "." \
 | Signing key has no passphrase | Required for unattended signing. Read-only mount stops writes, not reads — anything in the container can copy it. Blast radius: forged Verified commits as the agent, no access to anything. |
 | Long-lived secrets in the container | PAT (credential) and signing key (not a credential) persist across sessions and are available during unattended runs. Accepted for a dev container on my laptop. |
 | Key expiry | Rotate before 2027-10-20. Revocation certificate kept outside the container. |
-
-## Open
-
-- **The agent can read repository secrets.** The PAT includes the `workflow` scope — intended, agents may need to write CI/CD — which "grants the ability to add and update GitHub Actions workflow files" ([scopes](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/scopes-for-oauth-apps)). Secrets are **not** gated on the workflow being merged: "Any user with write access to your repository has read access to all secrets configured in your repository" ([security hardening](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions)). The documented gate is **environments with required reviewers**: "A workflow job cannot access environment secrets until approval is granted by a reviewer." Undecided: repo-level secrets in agent-worked repos, or environment secrets only.
 
 ## Verification
 
