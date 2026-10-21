@@ -23,7 +23,8 @@ Per feature, only the cap value and the definition of "green" change.
 - **Long human waits:** pause at a defined checkpoint and let the pod go away. Resume as a new run or sub-run from the workflow service's state.
 - Reviewers always start fresh.
 - **Gates that need an LLM: consider OpenAI's [Decisions API](https://developers.openai.com/api/docs/guides/decisions).** Returns typed answers — probability a condition holds, a pick from fixed choices, a rating on ordered levels — instead of free text. Cost-effective: input tokens only, $0.10 per 1M. Status: public beta, one model (`gpt-6-luna`). Checked 2026-10-21.
-  - Provider-agnosticism applies to **coding** — harness and coding models ([ADR-006](./006-models-and-llm-access.md), [ADR-007](./007-harness.md)). Workflow gates may use a provider-specific API where it is the best tool. No Anthropic equivalent known as of 2026-10-21.
+  - Provider-agnosticism applies **most strongly** to coding — harness and coding models ([ADR-006](./006-models-and-llm-access.md), [ADR-007](./007-harness.md)). Workflow gates may use a provider-specific API where it is the best tool. No Anthropic equivalent known as of 2026-10-21.
+  - **Alternative: [Jev](https://typesafe.ai/) by TypeSafe** — "returns typed decisions with calibrated probabilities." Early access. $42 per 1B input tokens. Its site does not answer whether output is deterministic or how it differs from structured outputs; self-hosting not stated. Checked 2026-10-21.
 
 ### Target design
 
