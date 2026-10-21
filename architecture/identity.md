@@ -1,13 +1,15 @@
 # Identity — me vs. the agent
 
-The agent is not me. Own GitHub identity, own credentials to everything in the SDLC.
+The agent is not me. Own GitHub identity, own credentials — never mine.
 
 ![Identity Separation](./../images/identity-separation.svg)
 
 Two things kept apart:
 
-- **Authentication** — can it push?
-- **Attribution** — whose name is on the commit?
+- **Access** — can it push, read issues, open PRs? A token. A credential.
+- **Attribution** — whose name is on the commit? A GPG signing key. A secret, but **not** a credential — it grants access to nothing.
+
+Decisions: [ADR-001](./decisions/001-dev-container-agent-identity.md) (dev container), [ADR-012](./decisions/012-cloud-agent-identity.md) (cloud). Repo-side controls: [GitHub configuration](./github-configuration.md).
 
 ## Why this changed — the agent needs the API, not just git
 
@@ -15,113 +17,81 @@ Two things kept apart:
 
 It does not. Reading issues and opening PRs means the GitHub REST API, which `gh` fronts — and the API takes a token. SSH gets you git transport and nothing more.
 
-Once a token is unavoidable, "no `GITHUB_TOKEN`, SSH covers all three" stops being achievable, and keeping an SSH key *as well* means two credentials for one identity. That forced the question of *which* token — and a long-lived PAT in a disposable pod is the worst of the options, which is what pointed at GitHub Apps and short-lived installation tokens.
+Once a token is unavoidable, keeping an SSH key *as well* means two credentials for one identity. So SSH is gone from both tiers: a token for access, GPG for signing. In the cloud, a long-lived PAT in a disposable pod is the worst option, which is what pointed at a GitHub App and short-lived, downscoped installation tokens.
 
 ## Two tiers, two mechanisms
 
-The split mirrors the one already made for [LLM auth](#llm-auth): what runs on my machine with me present is not what runs unattended in the cloud.
+Split by **where the agent runs** — laptop vs. cloud, subscription vs. API keys. Not by whether a human watches: the dev container agent also runs unattended once I've confirmed its read-back of the task.
 
-| | **Local — interactive** | **Cloud — autonomous** |
+| | **Dev container** ([ADR-001](./decisions/001-dev-container-agent-identity.md)) | **Cloud — unsupervised** ([ADR-012](./decisions/012-cloud-agent-identity.md)) |
 |---|---|---|
-| Where | Docker Sandbox / dev container on my machine | K8s pod, webhook-triggered |
-| Human | present | none |
-| Identity | dedicated bot account | GitHub App (`…[bot]`) |
-| Credential | ED25519 keypair, long-lived | installation token, 1-hour expiry |
-| Repo scope | deploy key, one repo | App install, selected repos |
-| Signing | SSH signing key → "Verified" | auto-verified by GitHub |
-
-**Neither replaces the other.** A standing SSH key suits a session where a filesystem and `ssh-agent` can hold it and I am there. It does not suit a disposable pod that exists for one task — there is no agent to hold the key open, and a long-lived credential at rest in a container is a worse trade than one that expires in an hour.
-
-> [!IMPORTANT]
-> **This supersedes the earlier "one ED25519 key, SSH covers all three" model, which assumed one mechanism for both tiers.** That was a change of mind, not a deviation discovered in implementation — see [Decision log](#decision-log).
+| Where | dev container on my laptop | K8s pod per agent step |
+| Started by | my prompt + confirmed read-back, then unattended | event, no human |
+| Committer | agent user account `julieio-agent` | same user account |
+| Signing | GPG key on that account → Verified | same |
+| Access | classic PAT, HTTPS for git and `gh` | GitHub App installation token from the [token broker](./token-broker.md), ≤ 1 hour |
+| Scope | collaborator role + repo rulesets | downscoped per request to role + one repo |
 
 ## Current status
 
 > [!IMPORTANT]
-> **What is actually built, as of 2026-09-11.**
+> **What is actually built in this repo, as of 2026-10-21.**
 >
 > | | State |
 > |---|---|
-> | Agent GitHub account (`julieio-goose`) | **exists**, push access to a test repo |
-> | Container reads an issue, pushes a branch, opens a PR as the agent | **working** — verified in [`goose-k8s-prep`](../spikes/goose-k8s-prep/) |
-> | Credential used to do it | **a classic PAT**, not SSH and not a GitHub App |
-> | Commit signing | **not attempted** |
+> | Agent GitHub account (`julieio-agent`) | **exists**, collaborator on its repos |
+> | Dev container: branch → signed commits → PR as the agent | **working**, classic PAT — e.g. [PR #8](https://github.com/julie-ng/autonomous-agents-setup/pull/8) |
+> | Commit signing | **working** — GPG, commits show Verified ([ADR-001](./decisions/001-dev-container-agent-identity.md#verification)) |
 > | GitHub App | **not registered** |
-> | Anything in K8s | **nothing** — all runs were plain `docker run` |
->
-> The PAT is a **spike-phase shortcut**: faster to set up, and `gh` cannot authenticate over SSH at all. It is not the intended destination for either tier.
+> | Token broker, anything in K8s | **not built** in this repo |
 
 ### What the PAT actually scopes
 
-A classic PAT (`ghp_`) carries account-wide scopes — the one in use holds `repo`, `gist`, `project`, `user`. It does **not** scope to a repository.
+A classic PAT (`ghp_`) carries account-wide scopes. It does **not** scope to a repository.
 
 > [!IMPORTANT]
-> The write boundary today is **GitHub's repo permissions on the agent account** (`push: true`, `admin: false`), not the token. Do not describe the current credential as repo-scoped. Both target mechanisms below fix this — a deploy key by construction, a GitHub App by install scope.
+> The boundary is **GitHub's repo permissions on the agent account** — collaborator role plus rulesets — not the token. Do not describe the PAT as repo-scoped. See [GitHub configuration](./github-configuration.md).
 
-## Where this is going — workload identity
+## Workload identity — platform services only
 
-The likely endpoint is to **drop long-lived credentials entirely** and move to workload identity: federated identities mapped to the agent, minted per run, no standing secret to rotate or leak. The GitHub App's installation token is a step in that direction — a credential that exists only as long as the task — but the full model is not designed yet.
+Workload identity is for **platform services** — workflow service, artifact service, token broker, Argo — to reach PostgreSQL, Blob Storage and Key Vault. **Agent pods get none.** Their GitHub access is a short-lived broker token; their access to platform services is an HMAC token ([ADR-003](./decisions/003-platform-services-vs-agent-pods.md)).
 
-**Unevaluated.** Recorded so the direction is not mistaken for something settled. Details get discovered in a later phase.
+## Dev container tier
 
-## Local tier — bot account + deploy key
+For runs on my laptop: I prompt, the agent reads back, I confirm, it runs unattended to the PR.
 
-For an interactive session on my machine, where I am present.
+- Dedicated GitHub user account, collaborator with write role.
+- Classic PAT over HTTPS, used by both `git` and `gh` (`GH_TOKEN` + `gh auth setup-git`).
+- GPG Ed25519 signing key, no passphrase, 1-year expiry. Generated outside the container, mounted read-only, imported at runtime.
+- Repo-local git config only (`--local`), so it cannot leak into my other repos.
 
-One ED25519 keypair (`ssh-keygen -t ed25519 -N ""`), registered in **two places for two different jobs**:
-
-| Registered as | Where | Gives |
-|---|---|---|
-| **Signing key** | on the bot account | commits verified under the agent's name |
-| **Deploy key**, write access | on the repo | push, one repo only |
-
-```sh
-git config --local user.name / user.email   # bot identity
-git config --local gpg.format ssh
-git config --local user.signingkey <pubkey>
-git config --local commit.gpgsign true
-git config --local core.sshCommand "ssh -i <key> -o IdentitiesOnly=yes"
-```
-
-> [!IMPORTANT]
-> `IdentitiesOnly=yes` is load-bearing. Without it SSH offers every key it can find — including mine.
-
-`--local` throughout: the config lives in the working copy, so it cannot leak into my other repos.
+Setup steps: [AGENTS.md → Git & GitHub Configuration](../AGENTS.md#git--github-configuration). Full reasoning: [ADR-001](./decisions/001-dev-container-agent-identity.md).
 
 > [!NOTE]
-> `-N ""` (no passphrase) is a deliberate choice for **unattended** invocation, not a default. For a key I trigger myself, a real passphrase in `ssh-agent` or the OS keychain is the better trade.
+> No passphrase is a deliberate choice for **unattended** signing, not a default. For a key I trigger myself, a real passphrase is the better trade.
 
-Branch protection on `main` still blocks the deploy key from pushing there, forcing feature branches.
+## Cloud tier — user commits, App token pushes
 
-## Cloud tier — GitHub App
+For a pod with no human and no standing session. **Design, not yet built in this repo.**
 
-For a pod with no human and no standing session.
+- Commits are made with plain `git commit` by the agent **user account** and GPG-signed — same as the dev container. Signing happens at commit time; the token only authenticates the push.
+- Push and forge API calls use a **GitHub App installation token**, minted per pod by the [token broker](./token-broker.md), downscoped to the pod's role and one repository.
+- The App private key lives **only in the broker**, read from Key Vault via the broker's workload identity. It never enters an agent pod.
 
-The App **is** the identity — no second account to create or maintain. Commits and PRs appear as `julieio-agent[bot]`, auto-verified, with no SSH signing config at all.
-
-**Three values the pod needs:** App ID, Installation ID (both plain config, not secrets) and the private key (Secret-level).
-
-The flow, per run:
+The broker's flow, per pod:
 
 1. Sign a JWT with the App's private key — RS256, `iss` = App ID, `exp` ≤ 10 min
-2. `POST /app/installations/<id>/access_tokens` → installation token (`ghs_…`), **1-hour expiry**
-3. Use it as an HTTPS credential: `https://x-access-token:<token>@github.com/…`
-4. Open the PR with the same token
+2. `POST /app/installations/<id>/access_tokens` with `repositories` and `permissions` for this pod → installation token (`ghs_…`), **1-hour expiry**
+3. Pod uses it as an HTTPS credential: `https://x-access-token:<token>@github.com/…`, and for `gh`
 
-Permissions granted at App level, repos chosen at install time:
+Permissions per role — the App needs the union:
 
-| Permission | Why |
+| Role | Permissions |
 |---|---|
-| Contents: read/write | push branches |
-| Pull requests: read/write | open PRs |
-| Metadata: read | required baseline |
-
-Nothing else. Add `Checks` or `Issues` only when the agent is actually expected to report back.
-
-> [!IMPORTANT]
-> **The private key is the only long-lived secret, and it never needs to be in the task pod.** Mount it as a Secret *volume*, never an env var — env vars surface in `kubectl describe` and logs.
->
-> Better still: mint the token **in the controller, before creating the Job**, and inject only the already-short-lived token. The private key then never enters the pod that runs untrusted model output.
+| planner | issues: write, contents: read |
+| coder | contents: write |
+| reviewer | contents: read, pull requests: write |
+| open-PR step | pull requests: write |
 
 > [!NOTE]
 > GitHub issues the key in **PKCS#1**; some JWT libraries (Node's `jsonwebtoken`) want PKCS#8. Convert with `openssl pkcs8 -topk8 -nocrypt`. Verify a key matches GitHub's record by comparing `openssl rsa -pubout | sha256 | base64` against the fingerprint on the App's settings page.
@@ -131,33 +101,28 @@ Nothing else. Add `Checks` or `Issues` only when the agent is actually expected 
 
 ### Open questions
 
-- **Where does token minting live** — init container, or the controller before Job creation? The controller keeps the private key out of the task pod entirely, which is the stronger position and worth prototyping first.
-- **Inbound webhook secret vs. outbound private key.** If the same App also receives triggering webhooks, those are two different secrets for two different directions. Do not conflate them.
+- **Inbound webhook secret vs. outbound private key.** The triggering webhook goes to the workflow service; the App private key sits in the broker. Two different secrets for two different directions. Do not conflate them.
+- More in [ADR-012 → Open](./decisions/012-cloud-agent-identity.md#open).
 
-## Scope — GitHub, nothing else
+## Scope — what the agent writes
 
-The agent's only outbound write is **pushing to its own branch**.
-
+- **GitHub:** its own prefixed branches; issues and PR reviews where its role allows.
+- **Platform services:** artifacts and step status, in-cluster.
 - No deploy credentials. No cloud keys. No package-registry tokens.
-- Downstream runs off **GitHub hooks** — CI, deploys, checks. Reacting to the branch, not driven by the agent.
-- Inputs come from the orchestrator.
+- Downstream runs off **GitHub** — CI, deploys, checks — reacting to merges, not driven by the agent.
 
 > [!IMPORTANT]
-> Blast radius. A compromised or hallucinating agent can only produce a branch. Branches are reviewable and revertible.
->
-> **Caveat for the current state:** this holds under a deploy key or an App install. It does **not** hold under the classic PAT in use today, whose scopes are account-wide — see [What the PAT actually scopes](#what-the-pat-actually-scopes).
+> Blast radius. A compromised or hallucinating agent can produce branches, comments and artifacts — reviewable and revertible. What keeps it from production and secrets is the repo configuration, not the token: [GitHub configuration](./github-configuration.md), including its known `workflow_dispatch` gap.
 
 ## LLM auth
 
-Depends on who's driving. Same local/cloud split as GitHub identity, for the same reason.
+Same split. Details: [ADR-006](./decisions/006-models-and-llm-access.md).
 
-| | Human-driven (local dev) | Headless (remote agent) |
+| | Dev container | Cloud |
 |---|---|---|
-| **Mechanism** | ACP → Claude Code CLI | API key |
-| **Binding** | My Claude subscription | Agent's own credential |
-| **Model** | Claude only | Model-agnostic, e.g. `codex`, `qwen` |
-
-ACP is a local-dev convenience — it borrows my subscription, so there's a human in the loop by definition. Headless agents get their own API key and no human account is involved.
+| **Mechanism** | Claude Code / Codex, browser login via Zed | API key via an AI gateway |
+| **Binding** | My subscription | Agent's own credential |
+| **Model** | Claude or OpenAI | Model-agnostic, chosen per step |
 
 > [!NOTE]
 > The agent has its own GitHub identity in both cases. Only the *LLM* credential differs.
@@ -166,22 +131,24 @@ ACP is a local-dev convenience — it borrows my subscription, so there's a huma
 
 | Date | Decision | Notes |
 |---|---|---|
-| — | GitHub identity separate from mine | Own account, not just a deploy key on my own. Attribution is the point. |
-| — | Write scope | Push to own branch. Downstream via hooks, inputs via orchestrator. |
-| — | LLM auth (human-driven) | ACP on my Claude subscription. |
-| — | LLM auth (headless) | API keys, vendor-agnostic. |
-| 2026-09-11 | **Split identity into local and cloud tiers** | **Triggered by `gh` requiring a token** — see [Why this changed](#why-this-changed--the-agent-needs-the-api-not-just-git). Once a token was unavoidable, one mechanism could not serve both. A standing SSH key fits a session I am present for; a disposable pod is better served by a credential that expires. Mirrors the split already made for LLM auth. |
-| 2026-09-11 | **Cloud tier: GitHub App, not SSH** | Chosen once `gh` forced a token: if a credential is required anyway, a 1-hour installation token beats a standing PAT. The App *is* the identity — no second account, auto-verified attribution, no signing config. Installation tokens expire in 1 hour, matching a stateless per-task pod. Supersedes "one ED25519 key, SSH covers all three." |
-| 2026-09-11 | Local tier: keep bot account + deploy key | Still the right fit where a human is present and something can hold a long-lived key. |
-| 2026-09-11 | **PAT during the spike** | Faster to set up, and `gh` cannot auth over SSH. Deliberate shortcut, not the destination. |
-| 2026-09-11 | Commit signing deferred | Not a Phase 1 blocker, and the App tier gets verification without a signing step. |
-| 2026-09-11 | Workload identity is the likely endpoint | Direction only — **unevaluated**, details in a later phase. Recorded so it is not mistaken for a plan. |
+| — | GitHub identity separate from mine | Own account. Attribution is the point. |
+| — | LLM auth (dev container) | My subscription. |
+| — | LLM auth (cloud) | API keys, vendor-agnostic. |
+| 2026-09-11 | Split identity into local and cloud tiers | **Triggered by `gh` requiring a token.** Once a token was unavoidable, one mechanism could not serve both. |
+| 2026-09-11 | Cloud tier: GitHub App, not SSH | A 1-hour installation token beats a standing PAT in a disposable pod. |
+| 2026-09-11 | ~~Local tier: bot account + deploy key~~ | **Superseded 2026-10-20** by ADR-001. |
+| 2026-09-11 | PAT during the spike | Faster to set up, and `gh` cannot auth over SSH. |
+| 2026-09-11 | ~~Commit signing deferred~~ | **Superseded 2026-10-20** — GPG signing working. |
+| 2026-09-11 | ~~Workload identity as endpoint for agents~~ | **Superseded 2026-10-10** — workload identity for platform services only. |
+| 2026-10-10 | Token broker mints per-pod tokens | Private key only in the broker. [token-broker.md](./token-broker.md). |
+| 2026-10-20 | Dev container: classic PAT + GPG, no SSH, no deploy key | [ADR-001](./decisions/001-dev-container-agent-identity.md). |
+| 2026-10-21 | Cloud: agent user commits and signs, App token pushes | Not "the App is the identity" — a bot cannot hold a GPG key and API-created commits are ruled out. [ADR-012](./decisions/012-cloud-agent-identity.md). |
 
 ### Accepted Trade-Offs
 
 | Tradeoff | Notes |
 |---|---|
-| Agent borrows my LLM identity | Local dev only. GitHub identity is separate either way. |
-| Local tier holds a long-lived key | Passphrase-less for unattended use. Scoped to one repo by the deploy key, rotatable. |
-| Cloud tier keeps one long-lived secret | The App's private key. Mitigated by minting tokens outside the task pod, so the pod only ever holds a 1-hour token. |
-| **Current PAT is account-scoped** | Accepted for the spike only. Real boundary is repo permissions, not the token. Both target mechanisms fix this. |
+| Dev container agent borrows my LLM subscription | GitHub identity is separate either way. |
+| Dev container holds long-lived secrets | PAT and signing key, no passphrase, for unattended runs. Boundary is repo configuration. |
+| Cloud keeps one long-lived access secret | The App's private key — only in the broker. Pods hold a ≤ 1-hour token. |
+| Signing key in committing pods | Secret, not a credential. Blast radius: forged Verified commits as the agent. |
