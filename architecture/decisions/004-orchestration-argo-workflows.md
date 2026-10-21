@@ -37,8 +37,12 @@ Not built. Proven so far: one goose container, issue → PR, with plain `docker 
 | Option | Why not |
 |---|---|
 | GitHub Actions | Runners outside the cluster; artifact handoff needs a complex secure integration; GitHub-only. |
-| Temporal, Dapr Workflows, Tekton, Vercel Workflow DevKit | Rejected. Reasons not recorded per option. |
-| LangGraph / CrewAI / OpenAI Agents SDK as orchestrator | Rejected. Reasons not recorded per option. |
+| Temporal | Expensive. |
+| Vercel Workflow DevKit | Provider-agnostic, but a hosted service — cannot run inside the cluster. |
+| Dapr Workflows | Argo judged more mature, wider adoption (**unverified**). Not CNCF status: both are graduated — Argo 2022-12-06, Dapr 2024-10-30 ([Argo](https://www.cncf.io/projects/argo/), [Dapr](https://www.cncf.io/projects/dapr/)). |
+| Tekton | Rejected. Reason not recorded. |
+| LangGraph | Licensing does not scale as a platform foundation; durable execution needs proprietary infrastructure by default (**unverified** — from memory). |
+| LLM-provider agent SDKs and infra (OpenAI Agents SDK, Anthropic's offerings) | Platform must be provider-agnostic — any cloud (Azure, AWS, GCP), any model (OpenAI, Anthropic, open-weight). Proprietary provider tooling breaks that. |
 | Bare K8s Job + init container | Earlier shape. One container, no DAG, no per-step role. |
 | Argo Events + one workflow per iteration, loop state in the PR | Puts intermediate state in GitHub. |
 
