@@ -19,6 +19,7 @@
 | Cloud identity | workload identity → PostgreSQL, Blob, Key Vault | **none** |
 | GitHub | broker holds the App key | short-lived token from the broker ([ADR-012](./012-cloud-agent-identity.md)) |
 | Kubernetes | normal | no API access; projected ServiceAccount token, audience `token-broker` only |
+| Platform services | — | HMAC token per run/task (below) |
 
 - **One `agents` namespace, one ServiceAccount per role.** ServiceAccount = role, pod = run.
 - Namespaces: `argo`, `platform` (workflow + artifact service), `github-broker`, `agents`. Namespaces stay free for tenancy (per team or client) later.
@@ -26,6 +27,17 @@
 - `automountServiceAccountToken: false` on agent pods; only the Argo controller may create pods in `agents`.
 
 Detail: [token-broker.md](../token-broker.md).
+
+### Agent → platform services: HMAC tokens
+
+Agents authenticate to the artifact service (and other platform services) with **HMAC tokens**, design borrowed from [Tally Split](https://tallysplit.ai.julie.io/):
+
+- Token binds: workflow run UUID, timestamp, resource type + ID, scoped permissions.
+- Request carries the token plus run UUID and task ID.
+- Service verifies by looking up the run, checking expiry against run creation, checking allowed task IDs, and **recomputing** the token from stored values.
+- HMAC key stays server-side; the pod only ever holds a token.
+
+Separate from the Kubernetes token, which is audience `token-broker` only.
 
 ### Target design
 
@@ -58,5 +70,5 @@ Not built.
 
 ## Open
 
-- **How agent pods authenticate to the artifact service.** The only token they hold is the projected ServiceAccount token with audience `token-broker`. Options: a second projected token (audience `artifact-service`), or the artifact service also validating via TokenReview. Not designed.
+- **HMAC token delivery** into the agent pod. Argo parameters carry no tokens (see [token-broker.md](../token-broker.md)), so not via a parameter. Not designed.
 - **Unverified:** default ServiceAccount token lifetime on AKS may be extended for compatibility. Not relied on — automount off, dedicated projected token.
