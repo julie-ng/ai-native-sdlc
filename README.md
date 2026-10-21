@@ -9,6 +9,7 @@ Design and context layer for an AI-native SDLC platform: **unsupervised coding a
 ## What's here
 
 - [Architecture](./architecture/) — how the platform works: use case, architecture, requirements, workflow
+- [Diagram design](./DESIGN.md) — visual guide, SVG references and authoring skill
 - [Decisions](./architecture/decisions/) — ADRs, one decision per file, target design vs. what the POC builds
 
 This repo is where I design the platform and scope work. The components are built in their own repositories, where agents pick up the scoped tickets — without context from here, so a badly scoped ticket shows up as a failure.

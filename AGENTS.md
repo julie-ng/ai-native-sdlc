@@ -72,6 +72,11 @@ credibility at layer 1. Flag category errors plainly.
   material not read every time.
 - No hard line breaks mid-paragraph.
 
+## Diagrams
+
+- Read [DESIGN.md](./DESIGN.md) when creating or revising SVG diagrams.
+- Use the [julie.io diagram skill](./.agents/skills/julie-io-diagrams/SKILL.md); reusable CSS and reference SVGs live in `images/`.
+
 ## Decisions
 
 - Every doc tracking an evolving design gets a decision log: date/context →

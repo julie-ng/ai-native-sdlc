@@ -1,6 +1,9 @@
 .DS_Store
 .env
-.agents/
+.agents/*
+!.agents/skills/
+.agents/skills/*
+!.agents/skills/julie-io-diagrams/
 .claude/skills/eraser-diagrams
 .devcontainer/devcontainer.json
 tmp/

@@ -22,7 +22,7 @@ As above, in every agent-worked repo.
 
 ### MVP / POC scope
 
-Not yet applied in this repo.
+Applied for the [julie.io diagram skill](../../.agents/skills/julie-io-diagrams/SKILL.md): tracked in `.agents/skills/`, with `.claude/skills` symlinked to it. Other local skills remain ignored. Harness discovery and duplicate loading have not been tested here.
 
 ## Consequences
 
@@ -38,3 +38,9 @@ Not yet applied in this repo.
 - `CLAUDE.md` as a one-line `@AGENTS.md` import — recommended, not formally decided.
 - Nested `AGENTS.md` handling: prose rule, generated per-directory `CLAUDE.md`, or a hook injecting the nearest one.
 - **Unverified:** Copilot may load both `AGENTS.md` and `CLAUDE.md`, ingesting instructions twice.
+
+## Decision log
+
+| Date | Decision | Notes |
+|---|---|---|
+| 2026-10-21 | Track the project diagram skill in the canonical directory and add the Claude symlink | Narrow ignore exceptions keep other local skills untracked. Discovery across harnesses remains unverified. |
