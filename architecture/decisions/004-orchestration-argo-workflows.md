@@ -2,6 +2,7 @@
 
 - **Status:** Accepted — design, not built
 - **Date:** 2026-10-21 (final decision 2026-10-20)
+- **Deciders:** Julie Ng
 - **Context:** Cloud tier. Supersedes the single-Job shape in [orchestration.md](../orchestration.md) and Argo Events in [phase 2](../../spikes/orchestration-k8s-phase-2.md).
 
 ## Context

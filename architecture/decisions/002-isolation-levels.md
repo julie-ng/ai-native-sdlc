@@ -2,6 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-21
+- **Deciders:** Julie Ng
 - **Context:** Every place an agent runs — laptop and cloud.
 
 ## Context
@@ -17,9 +18,9 @@
 |---|---|---|---|
 | **0** | `allow`/`deny` rules in agent settings | **No** — deterrent only | anywhere, as hints |
 | **1** | Dev container | **Yes** — filesystem: files outside the mounts don't exist. Shares the host kernel. | laptop, subscription-billed |
-| **2** | K8s pod | **Yes** — container, shares the node kernel. Plus: not on my machine, disposable per step. Target: no cloud identity, no K8s API access. | cloud, API keys |
+| **2** | K8s pod | **Yes** — container, shares the node kernel. Plus: not on the developer's machine, disposable per step. Target: no cloud identity, no K8s API access. | cloud, API keys |
 
-Level 2 is not a stronger *kernel* boundary than Level 1 — both are containers. It is a different *environment*: nothing of mine is reachable, and the pod dies with the task.
+Level 2 is not a stronger *kernel* boundary than Level 1 — both are containers. It is a different *environment*: nothing of the developer's is reachable, and the pod dies with the task.
 
 ### Target design
 

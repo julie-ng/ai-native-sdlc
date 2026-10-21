@@ -2,6 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-21 (goose chosen 2026-09-04)
+- **Deciders:** Julie Ng
 - **Context:** Both tiers. Detail: [goose-agent.md](../goose-agent.md).
 
 ## Context
@@ -14,7 +15,7 @@
 
 | Tier | Harness |
 |---|---|
-| Dev container | Claude Code or Codex, on my subscription ([ADR-006](./006-models-and-llm-access.md)) |
+| Dev container | Claude Code or Codex, on the developer's subscription ([ADR-006](./006-models-and-llm-access.md)) |
 | Cloud | **goose** ([AAIF](https://aaif.io/projects/goose)) |
 
 **Why goose:**

@@ -2,28 +2,29 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-20 · updated 2026-10-21
-- **Context:** **Dev containers** on my laptop, subscription-billed models. Cloud agents (K8s pods, API keys) are a separate decision, not covered here.
+- **Deciders:** Julie Ng
+- **Context:** **Dev containers** on the human developer's laptop, subscription-billed models. Cloud agents (K8s pods, API keys) are a separate decision, not covered here.
 - **Supersedes:** the local-tier "ED25519 key + deploy key + SSH signing" plan in [identity.md](../identity.md#local-tier--bot-account--deploy-key)
 
 ## Context
 
 **How the dev container agent runs:**
 
-1. I kick it off with a first prompt — e.g. "read this handoff doc" or "pull work item XYZ".
-2. The agent repeats back what it is supposed to do. I check that.
+1. The human developer kicks it off with a first prompt — e.g. "read this handoff doc" or "pull work item XYZ".
+2. The agent repeats back what it is supposed to do. The developer checks that.
 3. Once confirmed, it runs **unattended** through to opening the PR/MR.
 
 The difference to the cloud tier: there, no human prompt starts the run.
 
 | | Dev container (this ADR) | Cloud |
 |---|---|---|
-| Runs | on my laptop | K8s pod |
-| Started by | my prompt + confirmed read-back | event, no human |
-| Model auth | my Claude Code / Codex subscription, browser login via Zed | API keys |
+| Runs | on the developer's laptop | K8s pod |
+| Started by | developer's prompt + confirmed read-back | event, no human |
+| Model auth | developer's Claude Code / Codex subscription, browser login via Zed | API keys |
 
 **Why the identity looks like this:**
 
-- Commits and PRs must be attributed to the agent, not me.
+- Commits and PRs must be attributed to the agent, not the developer.
 - Its work does not end at `git push`. Reading issues and opening PRs goes through `gh`, i.e. the GitHub REST API over HTTPS, which needs a token.
 - An SSH key only covers git transport. Once a token is unavoidable, an SSH key on top means two credentials for one identity.
 - **Access and attribution are different things.** The token is a credential — it grants access. The signing key is a secret but **not a credential**: it authenticates and authorizes nothing, it only makes commits show as Verified. Keep them on separate mechanisms.
@@ -48,7 +49,7 @@ Setup steps: [AGENTS.md → Git & GitHub Configuration](../../AGENTS.md#git--git
 
 ### MVP / POC scope
 
-- Everything under my user account. **No org, no teams.**
+- Everything under the developer's personal account. **No org, no teams.**
 - Agent account `julieio-agent`, collaborator with write role.
 - **Classic PAT, all scopes** — including `workflow`, on purpose.
 
@@ -87,7 +88,7 @@ gpg --homedir "." \
 |---|---|
 | Classic PAT, all scopes (MVP) | Reach = every repo the agent account is a collaborator on, at its role, limited by that repo's rulesets. Enforced server-side by GitHub. Account-level scopes act on the agent's own account. Keep the collaborator list minimal. |
 | Signing key has no passphrase | Required for unattended signing. Read-only mount stops writes, not reads — anything in the container can copy it. Blast radius: forged Verified commits as the agent, no access to anything. |
-| Long-lived secrets in the container | PAT (credential) and signing key (not a credential) persist across sessions and are available during unattended runs. Accepted for a dev container on my laptop. |
+| Long-lived secrets in the container | PAT (credential) and signing key (not a credential) persist across sessions and are available during unattended runs. Accepted for a dev container on the developer's laptop. |
 | Key expiry | Rotate before 2027-10-20. Revocation certificate kept outside the container. |
 
 ## Verification

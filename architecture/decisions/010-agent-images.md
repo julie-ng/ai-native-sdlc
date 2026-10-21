@@ -2,6 +2,7 @@
 
 - **Status:** Accepted — base image preference pending measurement
 - **Date:** 2026-10-21 (image plan 2026-10-19)
+- **Deciders:** Julie Ng
 - **Context:** Cloud tier, agent pods.
 
 ## Context

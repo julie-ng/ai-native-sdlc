@@ -2,6 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-21
+- **Deciders:** Julie Ng
 - **Context:** Both tiers. Must work for GitHub and GitLab.
 
 ## Context

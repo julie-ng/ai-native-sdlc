@@ -2,18 +2,19 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-21
+- **Deciders:** Julie Ng
 - **Context:** Both tiers.
 
 ## Context
 
-- Laptop runs start with my prompt ([ADR-001](./001-dev-container-agent-identity.md)). Cloud runs start without a human.
+- Laptop runs start with the human developer's prompt ([ADR-001](./001-dev-container-agent-identity.md)). Cloud runs start without a human.
 - Goal: fit-for-purpose models — cheap for narrow, mechanical steps; stronger for judgment.
 
 ## Decision
 
 | | Dev container (Level 1) | Cloud (Level 2) |
 |---|---|---|
-| Billing | my Claude Code / Codex **subscription** | **API keys**, agent's own |
+| Billing | developer's Claude Code / Codex **subscription** | **API keys**, agent's own |
 | Login | browser login, integration via Zed | none — key supplied at runtime |
 | Models | Opus for interactive work | task-fit per step — Sonnet or Codex under consideration |
 | Gateway | — | Vercel AI Gateway |
@@ -36,7 +37,7 @@ Cloud: gateway choice open between Vercel AI Gateway and a cloud-provider gatewa
 
 | Option | Why not |
 |---|---|
-| Subscription for cloud agents | No human present; subscription is mine. |
+| Subscription for cloud agents | No human present; the subscription belongs to the developer. |
 | Claude-only | Model-agnostic is a goal; Codex, Qwen etc. via the gateway. |
 
 ## Consequences
@@ -45,7 +46,7 @@ Cloud: gateway choice open between Vercel AI Gateway and a cloud-provider gatewa
 
 | Trade-off | Notes |
 |---|---|
-| Laptop agent borrows my LLM subscription | GitHub identity stays separate. |
+| Laptop agent borrows the developer's LLM subscription | GitHub identity stays separate. |
 | Vercel AI Gateway is outside the VNet | Credits and easy provider swapping. |
 
 ## Open

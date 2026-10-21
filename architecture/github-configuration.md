@@ -42,8 +42,8 @@ Branch protection alone does not close path 1. **Secret placement** does.
 
 | | Target design | MVP / POC |
 |---|---|---|
-| Owner | GitHub organization | my user account |
-| Agent / human split | agents in their own **team**; rulesets (3) apply to that team, human collaborators create any branch | no teams; rulesets (3) bind **every** non-admin collaborator — fine while I am the only human |
+| Owner | GitHub organization | the developer's personal account |
+| Agent / human split | agents in their own **team**; rulesets (3) apply to that team, human collaborators create any branch | no teams; rulesets (3) bind **every** non-admin collaborator — fine while the developer is the only human |
 | Why | Bypass lists take repo roles, teams, GitHub Apps [^rulesets]. Humans and agents both hold write, so role alone cannot separate them. Teams require an organization. | — |
 
 ## Unverified

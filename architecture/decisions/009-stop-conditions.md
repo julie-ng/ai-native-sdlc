@@ -2,6 +2,7 @@
 
 - **Status:** Accepted — design, not built
 - **Date:** 2026-10-21 (decided 2026-10-20)
+- **Deciders:** Julie Ng
 - **Context:** Cloud tier, coder ↔ reviewer / QA loops ([ADR-004](./004-orchestration-argo-workflows.md)).
 
 ## Context

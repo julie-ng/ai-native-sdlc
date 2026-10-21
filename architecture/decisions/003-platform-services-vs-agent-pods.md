@@ -2,12 +2,13 @@
 
 - **Status:** Accepted — design, not built
 - **Date:** 2026-10-21 (decisions from 2026-10-10)
+- **Deciders:** Julie Ng
 - **Context:** Cloud tier (Level 2, K8s). See [ADR-002](./002-isolation-levels.md).
 
 ## Context
 
 - Agent pods run untrusted, model-driven code. Their only legitimate outbound write is GitHub.
-- Platform services (workflow service, artifact service, token broker) are authored by us and need cloud resources: database, Blob Storage, Key Vault.
+- Platform services (workflow service, artifact service, token broker) are authored by the platform team and need cloud resources: database, Blob Storage, Key Vault.
 - Per-role Kubernetes Secrets would force one namespace per role — any pod in a namespace can mount any Secret in it.
 
 ## Decision
