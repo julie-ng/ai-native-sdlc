@@ -107,7 +107,14 @@ the documented current setup as a contradiction — **the gap is the work.**
 
 ## Changes
 
-- Ask before destructive or hard-to-reverse actions.
-- Commit or push only when asked.
+- Work on a task branch prefixed with `agent/` (for example, `agent/update-branch-guidance`). Never edit or commit directly on `main`, push to `main`, or merge into it.
+- Use a separate worktree when another agent is working in the repository. Do not modify another agent's checkout or task branch.
+- Creating task branches and separate worktrees is authorized. In the dev container, using the configured agent identity, signed commits and normal (non-force) pushes of task changes to the agent's own `agent/` branch are also authorized without further user confirmation.
+- Request sandbox escalation when these authorized operations require it; use the harness's approval mechanism without asking the user to repeat this authorization. Repository instructions do not override harness-enforced restrictions.
+- Never delete branches outside `agent/`. Ask before deleting any `agent/` branch, locally or remotely; permission to manage these branches is not standing approval to delete them.
+- Commit completed, coherent changes at meaningful checkpoints without waiting for the user to ask. During interactive sessions, commit before switching tasks or handing back completed work; do not commit every conversational edit or leave completed changes uncommitted by default.
+- Amend or squash the agent's own unpushed task commits when it improves the history, preserving all task changes. This is authorized without further confirmation; do not rewrite another agent's commits or published history.
+- Push at review-ready milestones, handoffs, or session end when the task changes are coherent; do not push every intermediate commit. Local commits are checkpoints, not a remote backup. Report whether changes are uncommitted, committed locally, or pushed, and explain any deferred push.
+- Ask before destructive or hard-to-reverse actions, including force pushes and rewriting published history. The permission to tidy the agent's own unpushed commits above is the limited exception.
 - Prefer small, atomic commits with Conventional Commits messages (`type(scope): description`).
 - Never commit secrets, tokens, or keys. Provider keys arrive at runtime.
