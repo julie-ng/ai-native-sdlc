@@ -6,19 +6,13 @@ Cloud agents — no human prompt to start them — run in Kubernetes: see [02 ·
 
 [Isolation Level 1](../01-use-case.md#isolation-levels) — dev containers in Zed. [ADR-002](../decisions/002-isolation-levels.md).
 
-## Why
-
-- Agent cannot `cd ../` into the parent folder.
-- Memory persists across sessions.
-- My personal credential files — `~/.ssh`, `~/.aws/credentials` — aren't accessible.
-- The agent pushes and opens PRs as itself, not as me — its own account, PAT and GPG key, mounted read-only ([ADR-001](../decisions/001-dev-container-agent-identity.md)).
+Why a dev container at all — agents reading beyond the repo, and why it doesn't scale: [01 · Use case](../01-use-case.md). The agent pushes and opens PRs as itself, with its own account, PAT and GPG key mounted read-only ([ADR-001](../decisions/001-dev-container-agent-identity.md)).
 
 ## Limits
 
-Why the cloud tier exists as well:
+Beyond scale and manual prompting:
 
 - Shared host kernel.
-- Runs on my laptop, on my subscription — one machine, started by me.
 - Claude owns and drives subagents:
   - No _per-task_ model selection. Subagents inherit the main session's model, e.g. Opus — not cost effective. `CLAUDE_CODE_SUBAGENT_MODEL` isn't task-configurable.
   - No visibility into subagents. Wait until it finishes to find out it hallucinated. I want live inspection and course-correction.
