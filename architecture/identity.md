@@ -42,11 +42,11 @@ Production secrets and deploys are meant to be reachable only after a human merg
 
 | Date | Decision | Notes |
 |---|---|---|
-| — | GitHub identity separate from mine | Own account. Attribution is the point. |
-| 2026-09-11 | Split identity into dev container and cloud tiers | Triggered by `gh` requiring a token — one mechanism could not serve both. |
-| 2026-09-11 | Cloud: GitHub App, not SSH | A short-lived installation token beats a standing PAT in a disposable pod. |
-| 2026-09-11 | PAT during the spike | Faster to set up, and `gh` cannot authenticate over SSH. |
-| 2026-10-10 | Agent pods get no cloud identity; token broker mints per-pod GitHub tokens | [ADR-003](./decisions/003-platform-services-vs-agent-pods.md), [token broker](./token-broker.md) |
-| 2026-10-20 | Dev container: own account, classic PAT, GPG signing, no SSH | [ADR-001](./decisions/001-dev-container-agent-identity.md) |
-| 2026-10-21 | Repo configuration is the boundary, not the token | [GitHub configuration](./github-configuration.md) |
 | 2026-10-21 | Cloud: agent user commits and signs, App token pushes | [ADR-012](./decisions/012-cloud-agent-identity.md) |
+| 2026-10-21 | Repo configuration is the boundary, not the token | [GitHub configuration](./github-configuration.md) |
+| 2026-10-20 | Dev container: own account, classic PAT, GPG signing, no SSH | [ADR-001](./decisions/001-dev-container-agent-identity.md) |
+| 2026-10-10 | Agent pods get no cloud identity; token broker mints per-pod GitHub tokens | [ADR-003](./decisions/003-platform-services-vs-agent-pods.md), [token broker](./token-broker.md) |
+| 2026-09-11 | PAT during the spike | Faster to set up, and `gh` cannot authenticate over SSH. |
+| 2026-09-11 | Cloud: GitHub App, not SSH | A short-lived installation token beats a standing PAT in a disposable pod. |
+| 2026-09-11 | Split identity into dev container and cloud tiers | Triggered by `gh` requiring a token — one mechanism could not serve both. |
+| — | GitHub identity separate from mine | Own account. Attribution is the point. |
