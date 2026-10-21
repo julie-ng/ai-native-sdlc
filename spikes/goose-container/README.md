@@ -1,5 +1,8 @@
 # goose-container
 
+> [!NOTE]
+> **Point-in-time documentation.** Not updated after the spike and most likely out of date. Current decisions: [ADRs](../../architecture/decisions/).
+
 Local build/test image for goose. Custom user, own toolchain, baked skills and recipes.
 
 **Status: working end to end.** Builds, runs, discovers skills, and executes both recipes headlessly. `codebase-review` produced a verified, correctly-cited review of a real Nuxt project (`gpt-5.1-codex`, 2026-09-09), and obeyed read-only.

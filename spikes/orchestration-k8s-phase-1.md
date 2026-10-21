@@ -1,5 +1,8 @@
 # Phase 1: Local Kubernetes POC
 
+> [!NOTE]
+> **Point-in-time documentation.** Not updated after the spike and most likely out of date. Current decisions: [ADRs](../architecture/decisions/).
+
 **Objective:** Validate containerized, single-process goose execution on a local `k3d` cluster. No gVisor, no sidecars, no operators, no CRDs.
 
 **Goal:** a `kubectl apply` produces a pushed branch.

@@ -1,3 +1,6 @@
+> [!NOTE]
+> **Point-in-time documentation.** Not updated after the spike and most likely out of date. Current decisions: [ADRs](../../architecture/decisions/).
+
 Title: [smoke-test] Implement FizzBuzz variant with a twist
 
 ## Goal
