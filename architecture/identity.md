@@ -28,7 +28,12 @@ In the dev container the token is coarse on purpose. A classic PAT carries accou
 
 ## What the agent does not have
 
-Just as important as what it holds. The agent has **no cloud identity** — workload identity belongs to platform services such as the workflow service and the token broker, not to agent pods ([ADR-003](./decisions/003-platform-services-vs-agent-pods.md)). It holds **no deploy credentials**, has **no Kubernetes API access**, and never sees the **App private key**.
+Just as important as what it holds:
+
+- **No cloud identity** — workload identity belongs to platform services such as the workflow service and the token broker, not to agent pods ([ADR-003](./decisions/003-platform-services-vs-agent-pods.md))
+- **No deploy credentials**
+- **No Kubernetes API access**
+- **No access to the App private key**
 
 Production secrets and deploys are meant to be reachable only after a human merges to `main`. There is one known gap — `workflow_dispatch` on `main` — covered in [GitHub configuration](./github-configuration.md#controls).
 
