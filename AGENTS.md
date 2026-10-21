@@ -29,6 +29,13 @@ If running from inside a dev container:
 - **The docs are the memory.** If it matters and isn't written down, it didn't
   happen. Err toward writing it down.
 
+## Working mode and reading order
+
+- Default to an interactive session with the human architect. Follow the prompt; when the intended direction is unclear, ask rather than inventing a task or design decision. An explicit task or GitHub issue defines the scope for independent work.
+- Read the [architecture index](./architecture/README.md), then the [ADR index](./architecture/decisions/README.md), then the design docs and ADRs relevant to the prompt.
+- Design docs describe the evolving design and current state; ADRs record decisions and their reasoning. If they disagree, flag the discrepancy to the architect rather than silently choosing which to follow.
+- Build and update the design with the architect as learnings emerge. Record agreed changes and their reasoning in the relevant docs as the session progresses; distinguish proposals from agreed decisions and verified findings.
+
 ## Verify, don't guess
 
 - Never state a technical claim you have not checked. Read the file, run the
