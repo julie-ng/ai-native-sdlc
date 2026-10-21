@@ -66,7 +66,7 @@ The point is not to babysit sessions. No approving every change, no manually pus
 | [GitHub configuration](./architecture/github-configuration.md) | Rulesets, environment-only secrets — no indirect path to credentials or production |
 | [Decisions (ADRs)](./architecture/decisions/) | One decision per file, target design vs. MVP |
 
-Spikes and working code: [`spikes/`](./spikes/). Retired directions: [`stale/`](./stale/). Deferred decisions, reasoning kept: [`architecture/parked/`](./architecture/parked/).
+Spikes and working code: [`spikes/`](./spikes/). Retired directions: [`stale/`](./stale/).
 
 ## Current Progress
 

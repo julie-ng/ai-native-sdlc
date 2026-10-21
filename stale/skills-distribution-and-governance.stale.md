@@ -1,18 +1,18 @@
-# Skills — distribution and governance (parked)
+# Skills — distribution and governance
 
 How different agent types get different skill sets, and what makes that a boundary rather than a convention.
 
 > [!IMPORTANT]
-> **Status: decided — option A, bake per agent type.** See [ADR-010](../decisions/010-agent-images.md): skills baked into images, one image per role inheriting from a base. Options C and C′ need workload identity in agent pods, which [ADR-003](../decisions/003-platform-services-vs-agent-pods.md) rules out. Analysis below kept for the reasoning.
+> **Stale — reasoning kept.** Decided in [ADR-013](../architecture/decisions/013-skills-distribution.md): bake for the POC, target left to the platform. ADR-013 carries the condensed options analysis.
 
 ## Why this needs solving at all
 
-goose has **no governance layer for skills**. Extensions are scoped per-recipe; skills are filesystem discovery with no filter — no allowlist, no `skills:` recipe field, no `GOOSE_SKILLS_PATH`. See [`../coding-harness-design-summary.md`](../coding-harness-design-summary.md#applying-this-to-goose).
+goose has **no governance layer for skills**. Extensions are scoped per-recipe; skills are filesystem discovery with no filter — no allowlist, no `skills:` recipe field, no `GOOSE_SKILLS_PATH`. See [`../architecture/coding-harness-design-summary.md`](../architecture/coding-harness-design-summary.md#applying-this-to-goose).
 
 Consequences:
 
 - Agent types can't be expressed as recipes if they differ by skill set. The skill set is a property of the filesystem.
-- The model loads what it finds, based on skill descriptions. In [`../../spikes/goose-container/`](../../spikes/goose-container/), superpowers' `brainstorming` auto-loaded and killed two headless runs with an unanswered confirmation prompt.
+- The model loads what it finds, based on skill descriptions. In [`../spikes/goose-container/`](../spikes/goose-container/), superpowers' `brainstorming` auto-loaded and killed two headless runs with an unanswered confirmation prompt.
 
 So skill selection has to happen **before goose starts**. The question is what mechanism, and what it actually enforces.
 
@@ -99,4 +99,4 @@ Do not let "we scope skills per agent" get read as "we control skill loading." T
 | 2026-09-09 | Mount-based selection (B) is not a boundary | Confused deputy: the platform holds the credential and mounts what the manifest names. Only holds if the agent can't influence the manifest, which is not safe to assume here. |
 | 2026-09-09 | ~~Leaning C — fetch at startup under pod identity~~ | Credential and constraint travel together. Accepts a GitHub dependency at pod start. |
 | 2026-09-09 | Recorded that C′ exists | Same identity property against blob storage, without the GitHub dependency. C vs. C′ is freshness/simplicity, not security — do not justify C on security grounds alone. |
-| 2026-10-19 | **Decided: A — bake per agent type** | Supersedes the C leaning. Agent pods get no workload identity (ADR-003), so C/C′ are out. [ADR-010](../decisions/010-agent-images.md). |
+| 2026-10-19 | **Decided: A — bake per agent type** | Supersedes the C leaning. Agent pods get no workload identity (ADR-003), so C/C′ are out. [ADR-010](../architecture/decisions/010-agent-images.md). |

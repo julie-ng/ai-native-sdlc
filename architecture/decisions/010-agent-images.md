@@ -14,7 +14,7 @@
 - **Base image:** prefer the **official goose image** (`ghcr.io/aaif-goose/goose`), tag-pinned, **if it makes the image smaller**.
 - Base adds: Python environments, `jq`, `gh`, `glab`, recipes.
 - **Role images inherit from the base**, differing only in which skills are copied in, plus labels.
-- **Skills baked into images**, not pulled at runtime — less startup traffic, no runtime version management.
+- Skills: how they get into the image is [ADR-013](./013-skills-distribution.md) — baked for the POC, target left to the platform.
 - `CMD` is `bash`; the base image's `goose` `ENTRYPOINT` is reset.
 - Install as root, drop to the unprivileged user last.
 
@@ -24,6 +24,7 @@ As above, published per role.
 
 ### MVP / POC scope
 
+- Skills baked into images, one image per role ([ADR-013](./013-skills-distribution.md)).
 - One image, [goose-k8s-prep](../../spikes/goose-k8s-prep/), on `ghcr.io/aaif-goose/goose:v1.48.0`.
 
 ## What the size claim rests on
@@ -45,7 +46,7 @@ Measured in [goose-k8s-prep](../../spikes/goose-k8s-prep/README.md#base-image):
 | Option | Why not (yet) |
 |---|---|
 | `devcontainers/base:ubuntu` + install goose, `agent` user | Earlier plan. Unmeasured against the official base. |
-| Skills fetched at startup under the pod's identity | Leaning option in [parked skills doc](../parked/skills-distribution-and-governance.md); superseded by baking. |
+| Skills fetched at startup under the pod's identity | See [ADR-013](./013-skills-distribution.md) — options left to the platform; needs pod identity, ruled out here by ADR-003. |
 
 ## Consequences
 
