@@ -2,7 +2,6 @@
 
 - **Status:** Accepted — design, not built
 - **Date:** 2026-10-21 (decisions from 2026-10-10)
-- **Deciders:** Julie Ng
 - **Context:** Cloud tier (Level 2, K8s). See [ADR-002](./002-isolation-levels.md).
 
 ## Context

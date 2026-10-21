@@ -2,7 +2,6 @@
 
 - **Status:** Accepted — **design only. Not implemented, not verified.**
 - **Date:** 2026-10-21
-- **Deciders:** Julie Ng
 - **Context:** Cloud tier (Level 2, K8s pods), no human starts the run. Dev container identity is [ADR-001](./001-dev-container-agent-identity.md).
 
 > [!IMPORTANT]

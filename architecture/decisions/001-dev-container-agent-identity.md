@@ -2,7 +2,6 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-20 · updated 2026-10-21
-- **Deciders:** Julie Ng
 - **Context:** **Dev containers** on the human developer's laptop, subscription-billed models. Cloud agents (K8s pods, API keys) are a separate decision, not covered here.
 - **Supersedes:** the local-tier "ED25519 key + deploy key + SSH signing" plan in [identity.md](../identity.md#local-tier--bot-account--deploy-key)
 

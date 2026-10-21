@@ -2,7 +2,6 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-21
-- **Deciders:** Julie Ng
 - **Context:** Repos worked by Claude Code, Codex, Copilot, goose.
 
 ## Context

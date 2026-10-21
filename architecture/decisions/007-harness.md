@@ -2,7 +2,6 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-21 (goose chosen 2026-09-04)
-- **Deciders:** Julie Ng
 - **Context:** Both tiers. Detail: [goose-agent.md](../goose-agent.md).
 
 ## Context

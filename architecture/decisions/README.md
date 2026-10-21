@@ -2,11 +2,11 @@
 
 One decision per file, numbered. Accepted ADRs hold the reasoning and stay stable; evolving current state lives in the design docs, which link here.
 
-Written in role terms ("the human developer"), not first person. Who decided goes in **Deciders**.
+Written in role terms ("the human developer"), not first person.
 
 Sections:
 
-- Status · Date · Deciders · Context (where it applies)
+- Status · Date · Context (where it applies)
 - Context
 - Decision
   - **Target design** — best practice, where this is going
