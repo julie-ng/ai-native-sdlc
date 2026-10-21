@@ -93,15 +93,20 @@ Spikes and working code: [`spikes/`](./spikes/). Retired directions: [`stale/`](
 
 ## Decision Log
 
-| Decision | Notes |
-|---|---|
-| Isolation | `settings.json` allow/deny rules are a deterrent, not a boundary. Container is the boundary. |
-| My session | Dev container in Zed. Prompt + confirmed read-back, then unattended. [ADR-001](./architecture/decisions/001-dev-container-agent-identity.md) |
-| Harness | goose. Model-agnostic, headless, AAIF-governed — no vendor lock-in. |
-| LLM auth | My Claude Code / Codex subscription in the dev container; API keys via an AI gateway in the cloud. [ADR-006](./architecture/decisions/006-models-and-llm-access.md) |
-| Agent identity | Own GitHub user account, GPG-signed commits. PAT in the dev container; App token from the broker in the cloud. [ADR-001](./architecture/decisions/001-dev-container-agent-identity.md), [ADR-012](./architecture/decisions/012-cloud-agent-identity.md) |
-| Orchestration | Argo Workflows, one pod per agent step. No sidecar — ACP is native to goose. [ADR-004](./architecture/decisions/004-orchestration-argo-workflows.md) |
-| No nested agents | One step, one goose, one pod. Specialization comes from the DAG, not from a goose spawning subagents. |
+| Date | Decision | Notes |
+|---|---|---|
+| 2026-10-21 | Isolation | `settings.json` allow/deny rules are a deterrent, not a boundary. Container is the boundary. [ADR-002](./architecture/decisions/002-isolation-levels.md) |
+| 2026-10-21 | LLM auth | My Claude Code / Codex subscription in the dev container; API keys via an AI gateway in the cloud. [ADR-006](./architecture/decisions/006-models-and-llm-access.md) |
+| 2026-10-21 | Cloud agent identity | Agent user account commits, GPG-signed; App token from the broker pushes. [ADR-012](./architecture/decisions/012-cloud-agent-identity.md) |
+| 2026-10-21 | SCM-agnostic | Native git; forge CLI only for issues, PRs, reviews. [ADR-008](./architecture/decisions/008-scm-agnostic-native-git.md) |
+| 2026-10-20 | Orchestration | Argo Workflows, one pod per agent step. No sidecar — ACP is native to goose. [ADR-004](./architecture/decisions/004-orchestration-argo-workflows.md) |
+| 2026-10-20 | No nested agents | One step, one goose, one pod. Specialization comes from the DAG, not from a goose spawning subagents. [ADR-004](./architecture/decisions/004-orchestration-argo-workflows.md) |
+| 2026-10-20 | Stop conditions | Iteration cap, QA green, human escalation. [ADR-009](./architecture/decisions/009-stop-conditions.md) |
+| 2026-10-20 | State and artifacts | Workflow service DB + artifact service; intermediate state never in GitHub. [ADR-005](./architecture/decisions/005-state-and-artifacts.md) |
+| 2026-10-20 | Dev container agent identity | Own GitHub user account, GPG-signed commits, PAT. [ADR-001](./architecture/decisions/001-dev-container-agent-identity.md) |
+| 2026-10-20 | My session | Dev container in Zed. Prompt + confirmed read-back, then unattended. [ADR-001](./architecture/decisions/001-dev-container-agent-identity.md) |
+| 2026-10-10 | Trust split | Agent pods get no cloud identity; platform services do. [ADR-003](./architecture/decisions/003-platform-services-vs-agent-pods.md) |
+| 2026-09-04 | Harness | goose. Model-agnostic, headless, AAIF-governed — no vendor lock-in. [ADR-007](./architecture/decisions/007-harness.md) |
 
 ### Retired
 

@@ -58,14 +58,16 @@ Known and deferred.
 
 ## Decision log
 
-| Decision | Notes |
-|---|---|
-| Unit of work | One pod per agent step, in an Argo workflow. [ADR-004](./decisions/004-orchestration-argo-workflows.md). |
-| Trigger | GitHub webhook → workflow service. No Argo Events. |
-| Isolation | Standard container. No gVisor/Kata — no PII or compliance surface. [ADR-002](./decisions/002-isolation-levels.md). |
-| Containers per pod | One (goose). No sidecar. |
-| Observability | Step status and artifacts via platform services; `kubectl logs -f` while building. |
-| ~~K8s `Job` + init container (clone + identity)~~ | **Superseded** by Argo Workflows, one pod per step; identity via the token broker. |
+| Date | Decision | Notes |
+|---|---|---|
+| 2026-10-21 | Isolation | Standard container. No gVisor/Kata — no PII or compliance surface. [ADR-002](./decisions/002-isolation-levels.md). |
+| 2026-10-20 | Unit of work | One pod per agent step, in an Argo workflow. [ADR-004](./decisions/004-orchestration-argo-workflows.md). |
+| 2026-10-20 | Trigger | GitHub webhook → workflow service. No Argo Events. [ADR-004](./decisions/004-orchestration-argo-workflows.md). |
+| 2026-10-20 | Containers per pod | One (goose). No sidecar. [ADR-004](./decisions/004-orchestration-argo-workflows.md). |
+| 2026-10-20 | Stop conditions | Iteration cap, QA green, human escalation. [ADR-009](./decisions/009-stop-conditions.md). |
+| 2026-10-20 | State | Workflow service DB + artifact service; intermediate state never in GitHub. [ADR-005](./decisions/005-state-and-artifacts.md). |
+| 2026-10-10 | Agent pods vs. platform services | Agent pods get no cloud identity; GitHub token from the broker. [ADR-003](./decisions/003-platform-services-vs-agent-pods.md). |
+| — | Observability | Step status and artifacts via platform services; `kubectl logs -f` while building. |
 
 ### Accepted Trade-Offs
 

@@ -25,6 +25,8 @@ Scope: where things live at runtime across agent steps. `orchestration.md` cover
 
 | Date | Decision | Notes |
 |---|---|---|
-| 2026-09-04 | Model is chosen per step, not fixed cluster-wide | Falls out of pod-per-step; set via env on each step's container |
-| 2026-09-04 | Cross-agent artifacts in Azure Blob Storage, create-only | Avoids multi-writer problem by construction |
+| 2026-10-21 | Subscription on the laptop, API keys via AI gateway in the cloud | [ADR-006](./decisions/006-models-and-llm-access.md) |
 | 2026-10-20 | Agents reach artifacts through the artifact service | Agents hold no cloud identity. [ADR-005](./decisions/005-state-and-artifacts.md) |
+| 2026-10-10 | Agent pods get no cloud identity; platform services use workload identity | [ADR-003](./decisions/003-platform-services-vs-agent-pods.md) |
+| 2026-09-04 | Model is chosen per step, not fixed cluster-wide | Falls out of pod-per-step; set via env on each step's container. [ADR-006](./decisions/006-models-and-llm-access.md) |
+| 2026-09-04 | Cross-agent artifacts in Azure Blob Storage, create-only | Avoids multi-writer problem by construction. [ADR-005](./decisions/005-state-and-artifacts.md) |
