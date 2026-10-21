@@ -21,7 +21,7 @@
 
 - Model-agnostic — provider config, not front-end changes.
 - Headless: `goose run` with recipes; no interactive setup.
-- ACP native — `goose session`, `goose acp`, `goosed` are one agent core. No sidecar, no wrapper.
+- ACP native — `goose session`, `goose acp`, `goosed` are one agent core. No sidecar, no ACP adapter.
 - Recipes, skills, extensions configurable per agent role.
 - Foundation-governed.
 
