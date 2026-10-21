@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 800" width="1100" height="800" role="img" aria-labelledby="github-title github-desc">
-<title id="github-title">GitHub configuration: branches, secrets and the dispatch exception</title>
-<desc id="github-desc">GitHub server-side access control, not runtime isolation. Control 1: the autonomous agent is a write collaborator, while the human is an administrator. Control 3: the agent pushes to its own branch prefixes and opens pull requests. Control 2: restrict updates on main, with admin-only bypass, prevents the agent pushing or merging; a human merges. Agent-branch workflows can run, but control 4 keeps repository secrets and other environments empty. Control 5 restricts Production to main, blocking an agent-branch run. Control 6 keeps production secrets and deployment inside that environment. Exception: if a deploy workflow supports workflow_dispatch, the write collaborator can dispatch it on main; the branch filter passes without a new merge. Required reviewers on Production are a proposed mitigation, on Pro for public repositories only. Control numbers match the source document; they are not a sequence.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 640" width="1100" height="640" role="img" aria-labelledby="github-title github-desc">
+<title id="github-title">GitHub configuration: branches and secret placement</title>
+<desc id="github-desc">GitHub server-side access control, not runtime isolation. Control 1: the autonomous agent is a write collaborator, while the human is an administrator. Control 3: the agent pushes to its own branch prefixes and opens pull requests. Control 2: restrict updates on main, with admin-only bypass, prevents the agent pushing or merging; a human merges. Agent-branch workflows can run, but control 4 keeps repository secrets and other environments empty. Control 5 restricts Production to main, blocking an agent-branch run. Control 6 keeps production secrets and deployment inside that environment. Control numbers match the source document; they are not a sequence.</desc>
 <style><![CDATA[
 /* julie.io diagram style block
    Paste this whole file inside the style element of a standalone SVG document, wrapped in CDATA.
@@ -192,18 +192,4 @@ svg {
 <path d="M604 438l12 12m0-12l-12 12" class="cross"/>
 <text x="555" y="371" text-anchor="end" class="t-sans t-arrow">agent ref</text>
 <text x="555" y="389" text-anchor="end" class="t-sans t-arrow">≠ main</text>
-<rect x="16" y="642" width="1068" height="138" rx="8" class="box-gate"/>
-<path d="M38,659 L46.5,673.5 L29.5,673.5 Z" class="warn"/><rect x="37.2" y="663.5" width="1.6" height="5.6" rx="0.8" class="warn-mark"/><circle cx="38" cy="671.2" r="0.95" class="warn-mark"/>
-<text x="58" y="674" class="t-mono t-label">Exception: workflow_dispatch on main</text>
-<text x="40" y="702" class="t-mono t-body">Agent (write)</text>
-<text x="305" y="702" class="t-mono t-body">workflow on main</text>
-<text x="610" y="702" class="t-mono t-body">Production</text>
-<polyline points="170,697 290,697" class="arrow arrow-agent"/>
-<polygon points="288,692 297,697 288,702" class="head-agent"/>
-<text x="230" y="722" text-anchor="middle" class="t-sans t-arrow">dispatch</text>
-<polyline points="450,697 595,697" class="arrow"/>
-<polygon points="593,692 602,697 593,702" class="head"/>
-<text x="525" y="722" text-anchor="middle" class="t-sans t-arrow">branch rule passes</text>
-<text x="760" y="701" class="t-note">No new merge required.</text>
-<text x="40" y="757" class="t-note">If the deploy workflow supports dispatch. POC mitigation: required reviewers on Production (Pro: public repositories only).</text>
 </svg>

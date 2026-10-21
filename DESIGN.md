@@ -310,7 +310,7 @@ A gray arrow uses `class="arrow"` and `class="head"`.
 
 Known gap: in `two-modes.svg` the box fills stay light in dark mode while text turns white; don't copy that.
 
-New worked example: [`github-configuration.svg`](images/github-configuration.svg), based on the [GitHub configuration reference](architecture/reference/github-configuration.md). Its numbers identify controls, not ordered steps. It includes the documented dispatch exception. Third-party deploy integrations (control 7) and privileged-trigger details stay in the reference to keep the diagram focused.
+New worked example: [`github-configuration.svg`](images/github-configuration.svg), based on the [GitHub configuration reference](architecture/reference/github-configuration.md). Its numbers identify controls, not ordered steps. The dispatch exception, third-party deploy integrations (control 7) and privileged-trigger details stay in the reference to keep the diagram focused.
 
 ## Do's and Don'ts
 
@@ -339,3 +339,4 @@ New worked example: [`github-configuration.svg`](images/github-configuration.svg
 | 2026-10-21 | Reuse the six tracked SVGs in `images/` as references | No duplicate example tree. Keep existing artwork, including its noted dark-mode gap, unchanged. |
 | 2026-10-21 | Adopt supplied palette, fonts and geometry; conform token structure to upstream alpha | Visual choices inherited from the supplied guide, not newly evaluated. No UI components: this repo is documentation. |
 | 2026-10-21 | Replace GitHub diagram in place, showing the dispatch caveat | Existing embeds update automatically. Control numbers retain their meaning; the diagram does not claim branch filtering prevents dispatch on `main`. |
+| 2026-10-21 | Remove the dispatch warning panel from the GitHub diagram at the author's request | Keep the diagram focused on branches and secret placement; the exception remains documented in the source reference. Supersedes the visual scope of the previous decision. |
