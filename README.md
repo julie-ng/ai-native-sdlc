@@ -1,4 +1,4 @@
-# 🪿 autonomous-agents-setup
+# AI Native SDLC Platform
 
 Design and context layer for an AI-native SDLC platform: **unsupervised coding agents** that take a scoped GitHub issue to a reviewed pull request — with real isolation boundaries, their own identity, and an enforced multi-agent workflow. Built in public.
 
