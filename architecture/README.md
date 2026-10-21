@@ -10,10 +10,10 @@ Claude Code's default sandbox is read-permissive by design.
 
 ## Isolation Levels
 
-Referenced as "Level 1" etc. throughout these docs.
+Referenced as "Level 1" etc. throughout these docs. Decision and trade-offs: [ADR-002](./decisions/002-isolation-levels.md).
 
 | Level | Mechanism | Boundary? |
 |---|---|---|
 | **0** | `allow`/`deny` rules in `.claude/settings.json` | No — matches command strings, not paths. Deterrent only. |
-| **1** | Dev container | Yes — filesystem. Shares host kernel. |
-| **2** | MicroVM (`sbx`) | Yes — own kernel, hypervisor boundary. |
+| **1** | Dev container | Yes — filesystem. Shares host kernel. Laptop. |
+| **2** | K8s pod | Yes — container. Shares node kernel. Cloud. |

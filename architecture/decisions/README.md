@@ -17,3 +17,4 @@ Sections:
 | ADR | Decision | Status |
 |---|---|---|
 | [001](./001-dev-container-agent-identity.md) | Dev container agent identity — own account, classic PAT, GPG signing | Accepted |
+| [002](./002-isolation-levels.md) | Isolation levels — settings, dev container, K8s pod | Accepted |
