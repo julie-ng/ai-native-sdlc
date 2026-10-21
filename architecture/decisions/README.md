@@ -2,7 +2,17 @@
 
 One decision per file, numbered. Accepted ADRs hold the reasoning and stay stable; evolving current state lives in the design docs, which link here.
 
-Sections: Status · Context · Decision · Alternatives considered · Consequences · Verification.
+Sections:
+
+- Status · Date · Context (where it applies)
+- Context
+- Decision
+  - **Target design** — best practice, where this is going
+  - **MVP / POC scope** — what is actually built, and what it deliberately skips
+- Alternatives considered
+- Consequences — positive, accepted trade-offs
+- Open
+- Verification
 
 | ADR | Decision | Status |
 |---|---|---|
