@@ -1,126 +1,209 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 530" width="820" height="530" font-family="ui-sans-serif, system-ui, -apple-system, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 800" width="1100" height="800" role="img" aria-labelledby="github-title github-desc">
+<title id="github-title">GitHub configuration: branches, secrets and the dispatch exception</title>
+<desc id="github-desc">GitHub server-side access control, not runtime isolation. Control 1: the autonomous agent is a write collaborator, while the human is an administrator. Control 3: the agent pushes to its own branch prefixes and opens pull requests. Control 2: restrict updates on main, with admin-only bypass, prevents the agent pushing or merging; a human merges. Agent-branch workflows can run, but control 4 keeps repository secrets and other environments empty. Control 5 restricts Production to main, blocking an agent-branch run. Control 6 keeps production secrets and deployment inside that environment. Exception: if a deploy workflow supports workflow_dispatch, the write collaborator can dispatch it on main; the branch filter passes without a new merge. Required reviewers on Production are a proposed mitigation, on Pro for public repositories only. Control numbers match the source document; they are not a sequence.</desc>
+<style><![CDATA[
+/* julie.io diagram style block
+   Paste this whole file inside the style element of a standalone SVG document, wrapped in CDATA.
+   Tokens and classes are adapted from the supplied julie.io guide (21 Oct 2026),
+   with the site's Nuxt UI tokens resolved to hex and merged into one class vocabulary. */
 
-  <defs>
-    <marker id="arrowblue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-      <path d="M0,0 L6,3 L0,6 z" fill="#4a90e2"/>
-    </marker>
-    <marker id="arrowgreen" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-      <path d="M0,0 L6,3 L0,6 z" fill="#7cb342"/>
-    </marker>
-    <marker id="arrowgrey" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-      <path d="M0,0 L6,3 L0,6 z" fill="#6b7280"/>
-    </marker>
-  </defs>
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap");
 
-  <!-- ============ AGENT (left) ============ -->
-  <rect x="20" y="60" width="130" height="66" rx="6"
-        fill="#f4fce8" stroke="#7cb342" stroke-width="1" stroke-dasharray="5 4"/>
-  <text x="34" y="82" font-size="13" font-weight="600" fill="#7cb342">🪿 Agent</text>
-  <text x="34" y="99" font-size="10" fill="#7a8a6f">collaborator</text>
-  <text x="34" y="114" font-size="10" fill="#7a8a6f">write role</text>
+svg {
+  --font-sans: "Source Sans 3", Helvetica, Arial, sans-serif;
+  --font-mono: "Roboto Mono", Courier, monospace;
 
-  <!-- ============ HUMAN (right) ============ -->
-  <rect x="670" y="60" width="130" height="66" rx="6"
-        fill="#e8f1fd" stroke="#4a90e2" stroke-width="1" stroke-dasharray="5 4"/>
-  <text x="684" y="82" font-size="13" font-weight="600" fill="#2f6cb5">👤 Human</text>
-  <text x="684" y="99" font-size="10" fill="#7a8ba3">admin</text>
-  <text x="684" y="114" font-size="10" fill="#7a8ba3">approves + merges</text>
+  /* brand */
+  --primary-50: #eef0fb; --primary-300: #a3abe6; --primary-500: #4652c6;
+  --primary-600: #3a42b0; --primary-900: #262a5e;
+  --secondary-50: #f0fdfa; --secondary-300: #46edd5; --secondary-400: #00d5be;
+  --secondary-500: #00bba7; --secondary-900: #0b4f4a;
+  --k8s-blue: #326ce5;
 
-  <!-- ============ REPO ============ -->
-  <rect x="170" y="20" width="480" height="495" rx="8"
-        fill="none" stroke="#6b7280" stroke-width="1"/>
-  <text x="190" y="45" font-size="14" font-weight="600" fill="#6b7280">🐙 GitHub repository</text>
+  /* neutrals (light) */
+  --bg: #ffffff; --bg-elevated: #f3f4f6; --border-accented: #d1d5dc;
+  --text: #364153; --text-highlighted: #101828; --text-muted: #6a7282; --text-toned: #4a5565;
 
-  <!-- agent branches -->
-  <rect x="190" y="60" width="200" height="66" rx="6"
-        fill="#ffffff" stroke="#7cb342" stroke-width="1"/>
-  <text x="204" y="80" font-size="12" font-weight="600" fill="#7cb342">🌿 Agent branches</text>
-  <text x="204" y="97" font-size="10" fill="#7a8a6f">codex/* · claude/* · agent/*</text>
-  <text x="204" y="112" font-size="10" fill="#7a8a6f">agent creates + pushes (3)</text>
+  /* status */
+  --warn: #fdc700; --warn-on: #101828; --cross: #fb2c36;
 
-  <!-- main -->
-  <rect x="430" y="60" width="200" height="66" rx="6"
-        fill="#ffffff" stroke="#4a90e2" stroke-width="1"/>
-  <text x="444" y="80" font-size="12" font-weight="600" fill="#2f6cb5">🌿 main</text>
-  <text x="444" y="97" font-size="10" fill="#7a8ba3">no direct push (2)</text>
-  <text x="444" y="112" font-size="10" fill="#7a8ba3">changes only via human merge</text>
+  /* roles */
+  --local: var(--primary-600);          /* interactive/local agent, boundaries, loop steps */
+  --local-bg: var(--primary-50);
+  --platform: var(--primary-500);       /* services and orchestration I run */
+  --platform-bg: var(--primary-50);
+  --agent: var(--secondary-500);        /* autonomous cloud agents and their actions */
+  --agent-bg: var(--secondary-50);
+  --ok: var(--secondary-500);           /* lock = protected */
+  --step: var(--primary-600);
+  --cluster: var(--k8s-blue);
+  --cluster-bg: #f6f9ff;                /* color-mix(in oklab, #326ce5 4%, white) */
+  --gate: #bc945b;                      /* warning-600 60% + neutral-400 */
+  --gate-bg: #fefdef;
+  --github: #6a7282;
+}
 
-  <!-- agent → agent branches : push -->
-  <path d="M 150 93 L 188 93" fill="none" stroke="#7cb342" stroke-width="1.5" marker-end="url(#arrowgreen)"/>
-  <text x="169" y="86" font-size="10" fill="#7cb342" text-anchor="middle">push</text>
+@media (prefers-color-scheme: dark) {
+  svg {
+    --bg: #101828; --bg-elevated: #1e2939; --border-accented: #364153;
+    --text: #e5e7eb; --text-highlighted: #ffffff; --text-muted: #99a1af; --text-toned: #d1d5dc;
+    --cross: #ff6467;
+    --local: var(--primary-300);
+    --local-bg: color-mix(in srgb, var(--primary-900) 40%, var(--bg));
+    --platform: var(--primary-300);
+    --platform-bg: color-mix(in oklab, var(--primary-900) 30%, transparent);
+    --agent: var(--secondary-300);
+    --agent-bg: color-mix(in oklab, var(--secondary-900) 30%, transparent);
+    --ok: var(--secondary-400);
+    --cluster-bg: color-mix(in oklab, #326ce5 8%, var(--bg));
+    --gate: color-mix(in oklab, #ffdf20 60%, #99a1af);
+    --gate-bg: color-mix(in srgb, #733e0a 30%, var(--bg));
+  }
+}
+/* text */
+.t-mono { font-family: var(--font-mono); }
+.t-sans { font-family: var(--font-sans); }
+.t-title    { font-family: var(--font-sans); font-size: 16px; font-weight: 600; fill: var(--text-highlighted); }
+.t-heading  { font-size: 16px; font-weight: 700; fill: var(--text-highlighted); }   /* mono, e.g. "Kubernetes cluster" */
+.t-subtitle { font-family: var(--font-sans); font-size: 13px; fill: var(--text-muted); }
+.t-label    { font-size: 14px; font-weight: 600; fill: var(--text-highlighted); }    /* mono card name */
+.t-label-support { font-size: 12px; font-weight: 600; fill: var(--text-highlighted); } /* mono, supporting-service card */
+.t-container { font-family: var(--font-mono); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; fill: var(--text-muted); }
+.t-body     { font-size: 14px; fill: var(--text); }                                 /* mono node name */
+.t-ns       { font-size: 12px; fill: var(--text-muted); }                           /* mono "namespace: x" */
+.t-small    { font-size: 13px; fill: var(--text-muted); }                           /* sans descriptor */
+.t-arrow    { font-size: 13px; fill: var(--text-toned); }                           /* sans arrow label */
+.t-note     { font-family: var(--font-sans); font-size: 12px; font-weight: 500; fill: var(--text-highlighted); }
+.t-note-mono { font-family: var(--font-mono); font-size: 12px; font-weight: 500; fill: var(--text-highlighted); }
+.t-step     { font-family: var(--font-mono); font-size: 12px; font-weight: 700; fill: #ffffff; }
+.t-ghost    { fill: var(--text-muted); }
 
-  <!-- agent branches → main : PR -->
-  <path d="M 390 93 L 428 93" fill="none" stroke="#6b7280" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arrowgrey)"/>
-  <text x="410" y="86" font-size="10" fill="#6b7280" text-anchor="middle">PR</text>
+/* containers */
+.frame       { fill: none; stroke: var(--border-accented); stroke-width: 1.5; }
+.box-cluster { fill: var(--cluster-bg); stroke: var(--cluster); stroke-width: 1.5; }
+.box-ns      { fill: var(--bg); stroke: var(--border-accented); stroke-width: 1; stroke-dasharray: 5 4; }
+.boundary    { fill: var(--local-bg); stroke: var(--local); stroke-width: 1.5; stroke-dasharray: 6 5; } /* soft */
+.boundary-hard { fill: var(--local-bg); stroke: var(--local); stroke-width: 1.5; }
 
-  <!-- human → main : merge -->
-  <path d="M 670 93 L 632 93" fill="none" stroke="#4a90e2" stroke-width="1.5" marker-end="url(#arrowblue)"/>
-  <text x="651" y="86" font-size="10" fill="#2f6cb5" text-anchor="middle">merge</text>
+/* nodes */
+.box-platform { fill: var(--platform-bg); stroke: var(--platform); stroke-width: 1.5; }
+.box-agent    { fill: var(--agent-bg); stroke: var(--agent); stroke-width: 1.5; }
+.box-local    { fill: var(--local-bg); stroke: var(--local); stroke-width: 1.5; }
+.box-local-out { fill: none; stroke: var(--local); stroke-width: 1; stroke-dasharray: 6 5; }
+.box-agent-pill { fill: var(--bg); stroke: var(--local); stroke-width: 1.5; }
+.box-ext      { fill: var(--bg-elevated); stroke: var(--border-accented); stroke-width: 1.5; }
+.box-support  { fill: var(--bg); stroke: var(--border-accented); stroke-width: 1.5; }
+.box-github   { fill: var(--local-bg); stroke: var(--github); stroke-width: 1.5; }
+.box-gate     { fill: var(--gate-bg); stroke: var(--gate); stroke-width: 1.5; }
+.box-pr       { fill: var(--bg); stroke: var(--text-highlighted); stroke-width: 1.5; }
 
-  <!-- agent-authored workflow -->
-  <rect x="190" y="160" width="200" height="66" rx="6"
-        fill="#ffffff" stroke="#7cb342" stroke-width="1"/>
-  <text x="204" y="180" font-size="12" font-weight="600" fill="#7cb342">⚙️ Agent workflow</text>
-  <text x="204" y="197" font-size="10" fill="#7a8a6f">runs on the agent branch</text>
-  <text x="204" y="212" font-size="10" fill="#7a8a6f">possible via `workflow` scope</text>
+/* connectors */
+.arrow        { fill: none; stroke: var(--text-muted); stroke-width: 1.5; }
+.head         { fill: var(--text-muted); }
+.arrow-agent  { stroke: var(--agent); }
+.head-agent   { fill: var(--agent); }
+.arrow-local  { stroke: var(--local); }
+.head-local   { fill: var(--local); }
+.arrow-changes { stroke-dasharray: 6 4; }
+.reach        { fill: none; stroke: var(--text-toned); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+.reach-head   { fill: var(--text-toned); }
+.blocked      { stroke: var(--text-toned); stroke-width: 1.5; stroke-dasharray: 3 4; stroke-linecap: round; }
+.link         { stroke: var(--border-accented); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.link-dot     { fill: var(--bg); stroke: var(--border-accented); stroke-width: 1.5; }
+.divider      { stroke: var(--border-accented); stroke-width: 1.5; stroke-dasharray: 3 4; }
+.step         { fill: var(--step); }
 
-  <!-- workflow on main -->
-  <rect x="430" y="160" width="200" height="66" rx="6"
-        fill="#ffffff" stroke="#4a90e2" stroke-width="1"/>
-  <text x="444" y="180" font-size="12" font-weight="600" fill="#2f6cb5">⚙️ Workflow on main</text>
-  <text x="444" y="197" font-size="10" fill="#7a8ba3">runs after a human merge</text>
-
-  <!-- branches → workflows -->
-  <path d="M 290 126 L 290 158" fill="none" stroke="#7cb342" stroke-width="1.5" marker-end="url(#arrowgreen)"/>
-  <path d="M 530 126 L 530 158" fill="none" stroke="#4a90e2" stroke-width="1.5" marker-end="url(#arrowblue)"/>
-
-  <!-- ============ SECRETS ============ -->
-  <rect x="190" y="255" width="440" height="245" rx="6"
-        fill="none" stroke="#6b7280" stroke-width="1"/>
-  <text x="204" y="278" font-size="12" font-weight="600" fill="#6b7280">🔐 Actions secrets</text>
-
-  <!-- repository secrets: none -->
-  <rect x="205" y="295" width="160" height="60" rx="4"
-        fill="#ffffff" stroke="#6b7280" stroke-width="1"/>
-  <text x="217" y="314" font-size="11" font-weight="600" fill="#6b7280">Repository secrets</text>
-  <text x="217" y="330" font-size="10" fill="#9ca3af">none (4)</text>
-  <text x="217" y="344" font-size="10" fill="#9ca3af">write role could read them</text>
-
-  <!-- secret-free environments -->
-  <rect x="205" y="370" width="160" height="60" rx="4"
-        fill="#ffffff" stroke="#6b7280" stroke-width="1"/>
-  <text x="217" y="389" font-size="11" font-weight="600" fill="#6b7280">Other environments</text>
-  <text x="217" y="405" font-size="10" fill="#9ca3af">e.g. Preview</text>
-  <text x="217" y="419" font-size="10" fill="#9ca3af">no rule · no secrets</text>
-
-  <!-- Production environment -->
-  <rect x="420" y="295" width="195" height="190" rx="6"
-        fill="none" stroke="#6b7280" stroke-width="1"/>
-  <text x="434" y="316" font-size="12" font-weight="600" fill="#6b7280">🏭 Production environment</text>
-
-  <rect x="434" y="328" width="167" height="42" rx="4"
-        fill="#ffffff" stroke="#6b7280" stroke-width="1"/>
-  <text x="446" y="345" font-size="11" font-weight="600" fill="#6b7280">🛡️ Protection rule</text>
-  <text x="446" y="360" font-size="10" fill="#9ca3af">branches: main only (5)</text>
-
-  <rect x="434" y="378" width="167" height="42" rx="4"
-        fill="#ffffff" stroke="#6b7280" stroke-width="1"/>
-  <text x="446" y="395" font-size="11" font-weight="600" fill="#6b7280">🔑 Environment secrets</text>
-  <text x="446" y="410" font-size="10" fill="#9ca3af">only after the rule passes</text>
-
-  <rect x="434" y="428" width="167" height="42" rx="4"
-        fill="#ffffff" stroke="#6b7280" stroke-width="1"/>
-  <text x="446" y="445" font-size="11" font-weight="600" fill="#6b7280">🚀 Production deploy</text>
-  <text x="446" y="460" font-size="10" fill="#9ca3af">uses those secrets (6)</text>
-
-  <!-- workflow on main → Production : allowed -->
-  <path d="M 530 226 L 530 293" fill="none" stroke="#4a90e2" stroke-width="1.5" marker-end="url(#arrowblue)"/>
-  <text x="538" y="265" font-size="10" fill="#2f6cb5">✓ ref is main</text>
-
-  <!-- agent workflow → Production : blocked -->
-  <path d="M 378 226 L 378 349 L 404 349" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5 4"/>
-  <path d="M 404 343 L 416 355 M 404 355 L 416 343" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/>
-  <text x="397" y="376" font-size="10" fill="#dc2626" text-anchor="middle">branch</text>
-  <text x="397" y="389" font-size="10" fill="#dc2626" text-anchor="middle">≠ main</text>
-
+/* status glyphs and icons */
+.warn       { fill: var(--warn); stroke: var(--warn); stroke-width: 1.5; stroke-linejoin: round; }
+.warn-mark  { fill: var(--warn-on); }
+.cross      { fill: none; stroke: var(--cross); stroke-width: 1.5; stroke-linecap: round; }
+.ok         { fill: var(--ok); }
+.ok-shackle { fill: none; stroke: var(--ok); stroke-width: 2; stroke-linecap: round; }
+.ok-mark    { fill: var(--bg); }
+.ic-local   { color: var(--local); }
+.ic-platform { color: var(--platform); }
+.ic-agent   { color: var(--agent); }
+.ic-mono    { color: var(--text-highlighted); }
+.ic-muted   { color: var(--text-muted); }
+.ic-k8s     { color: var(--k8s-blue); }
+]]></style>
+<text x="16" y="25" class="t-title">GitHub configuration</text>
+<text x="16" y="47" class="t-subtitle">Server-side access control · control numbers match the reference · no runtime isolation</text>
+<rect x="232" y="68" width="636" height="546" rx="8" class="frame"/>
+<svg x="252" y="80" width="22" height="22" viewBox="0 0 24 24" class="ic-muted"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="4" r="2"/><circle cx="6" cy="20" r="2"/><circle cx="18" cy="6" r="2"/><path d="M6 6v12m0-6h4a8 8 0 0 0 8-4"/></g></svg>
+<text x="282" y="97" class="t-mono t-heading">GitHub repository</text>
+<rect x="16" y="130" width="180" height="64" rx="6" class="box-agent"/>
+<text x="106.0" y="156" text-anchor="middle" class="t-mono t-label">Agent (1)</text>
+<text x="106.0" y="177" text-anchor="middle" class="t-sans t-small">collaborator · write</text>
+<svg x="95" y="100" width="22" height="22" viewBox="0 0 24 24" class="ic-agent"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M2 14h2m16 0h2m-7-1v2m-6-2v2"/></g></svg>
+<rect x="904" y="130" width="180" height="64" rx="6" class="box-local"/>
+<text x="994.0" y="156" text-anchor="middle" class="t-mono t-label">Human</text>
+<text x="994.0" y="177" text-anchor="middle" class="t-sans t-small">admin · approves + merges</text>
+<svg x="983" y="100" width="22" height="22" viewBox="0 0 24 24" class="ic-local"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M4 22v-3a8 8 0 0 1 16 0v3"/></g></svg>
+<rect x="260" y="130" width="240" height="64" rx="6" class="box-agent"/>
+<text x="380.0" y="156" text-anchor="middle" class="t-mono t-label">Agent branches (3)</text>
+<text x="380.0" y="177" text-anchor="middle" class="t-sans t-small">agent/* · codex/* · claude/*</text>
+<rect x="600" y="130" width="240" height="64" rx="6" class="box-support"/>
+<text x="720.0" y="156" text-anchor="middle" class="t-mono t-label">main (2)</text>
+<text x="720.0" y="177" text-anchor="middle" class="t-sans t-small">restrict updates · admin bypass</text>
+<polyline points="196,162 253,162" class="arrow arrow-agent"/>
+<polygon points="251,157 260,162 251,167" class="head-agent"/>
+<text x="226" y="150" text-anchor="middle" class="t-sans t-arrow">push</text>
+<polyline points="500,162 593,162" class="arrow arrow-agent"/>
+<polygon points="591,157 600,162 591,167" class="head-agent"/>
+<text x="550" y="150" text-anchor="middle" class="t-sans t-arrow">open PR</text>
+<polyline points="904,162 847,162" class="arrow"/>
+<polygon points="849,157 840,162 849,167" class="head"/>
+<text x="872" y="150" text-anchor="middle" class="t-sans t-arrow">merge</text>
+<rect x="260" y="264" width="240" height="64" rx="6" class="box-agent"/>
+<text x="380.0" y="290" text-anchor="middle" class="t-mono t-label">Agent workflow</text>
+<text x="380.0" y="311" text-anchor="middle" class="t-sans t-small">runs on the agent branch</text>
+<rect x="600" y="264" width="240" height="64" rx="6" class="box-support"/>
+<text x="720.0" y="290" text-anchor="middle" class="t-mono t-label">Workflow on main</text>
+<text x="720.0" y="311" text-anchor="middle" class="t-sans t-small">merge-triggered run</text>
+<polyline points="380,194 380,257" class="arrow arrow-agent"/>
+<polygon points="375,255 380,264 385,255" class="head-agent"/>
+<text x="393" y="232" class="t-sans t-arrow">run CI</text>
+<polyline points="720,194 720,257" class="arrow"/>
+<polygon points="715,255 720,264 725,255" class="head"/>
+<text x="733" y="232" class="t-sans t-arrow">run CI</text>
+<rect x="260" y="382" width="240" height="214" rx="6" class="box-ns"/>
+<rect x="600" y="382" width="240" height="214" rx="6" class="frame"/>
+<rect x="280" y="412" width="200" height="64" rx="6" class="box-support"/>
+<text x="380.0" y="438" text-anchor="middle" class="t-mono t-label">Repository secrets</text>
+<text x="380.0" y="459" text-anchor="middle" class="t-sans t-small">none (4)</text>
+<rect x="280" y="510" width="200" height="64" rx="6" class="box-support"/>
+<text x="380.0" y="536" text-anchor="middle" class="t-mono t-label">Other environments</text>
+<text x="380.0" y="557" text-anchor="middle" class="t-sans t-small">no secrets · e.g. Preview</text>
+<text x="380" y="584" text-anchor="middle" class="t-mono t-ns">secret placement</text>
+<rect x="620" y="412" width="200" height="64" rx="6" class="box-gate"/>
+<text x="720.0" y="438" text-anchor="middle" class="t-mono t-label">main-only rule (5)</text>
+<text x="720.0" y="459" text-anchor="middle" class="t-sans t-small">deployment branch filter</text>
+<rect x="620" y="510" width="200" height="64" rx="6" class="box-support"/>
+<text x="720.0" y="536" text-anchor="middle" class="t-mono t-label">Secrets → deploy (6)</text>
+<text x="720.0" y="557" text-anchor="middle" class="t-sans t-small">environment secrets only</text>
+<text x="720" y="584" text-anchor="middle" class="t-mono t-ns">Production environment</text>
+<polyline points="720,328 720,405" class="arrow"/>
+<polygon points="715,403 720,412 725,403" class="head"/>
+<text x="733" y="363" class="t-sans t-arrow">ref is main</text>
+<polyline points="720,476 720,503" class="arrow"/>
+<polygon points="715,501 720,510 725,501" class="head"/>
+<polyline points="380,328 380,350 565,350 565,444 604,444" class="arrow blocked"/>
+<path d="M604 438l12 12m0-12l-12 12" class="cross"/>
+<text x="555" y="371" text-anchor="end" class="t-sans t-arrow">agent ref</text>
+<text x="555" y="389" text-anchor="end" class="t-sans t-arrow">≠ main</text>
+<rect x="16" y="642" width="1068" height="138" rx="8" class="box-gate"/>
+<path d="M38,659 L46.5,673.5 L29.5,673.5 Z" class="warn"/><rect x="37.2" y="663.5" width="1.6" height="5.6" rx="0.8" class="warn-mark"/><circle cx="38" cy="671.2" r="0.95" class="warn-mark"/>
+<text x="58" y="674" class="t-mono t-label">Exception: workflow_dispatch on main</text>
+<text x="40" y="702" class="t-mono t-body">Agent (write)</text>
+<text x="305" y="702" class="t-mono t-body">workflow on main</text>
+<text x="610" y="702" class="t-mono t-body">Production</text>
+<polyline points="170,697 290,697" class="arrow arrow-agent"/>
+<polygon points="288,692 297,697 288,702" class="head-agent"/>
+<text x="230" y="722" text-anchor="middle" class="t-sans t-arrow">dispatch</text>
+<polyline points="450,697 595,697" class="arrow"/>
+<polygon points="593,692 602,697 593,702" class="head"/>
+<text x="525" y="722" text-anchor="middle" class="t-sans t-arrow">branch rule passes</text>
+<text x="760" y="701" class="t-note">No new merge required.</text>
+<text x="40" y="757" class="t-note">If the deploy workflow supports dispatch. POC mitigation: required reviewers on Production (Pro: public repositories only).</text>
 </svg>
