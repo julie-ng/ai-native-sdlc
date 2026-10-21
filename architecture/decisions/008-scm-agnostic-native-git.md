@@ -18,7 +18,7 @@
 
 ### Target design
 
-- **SCM gateway (open):** keep git native; put only forge API calls behind a platform service with pipeline verbs (`open_change`, `submit_review`), not a lowest-common-denominator SCM API. Possibly co-located with the token broker.
+As above. No SCM gateway or other platform service for forge operations — the agent knows whether it is on GitHub or GitLab and uses the matching CLI.
 
 ### MVP / POC scope
 
@@ -40,7 +40,7 @@
 
 | Trade-off | Notes |
 |---|---|
-| Forge-specific prompts / tooling for issues and PRs | Until the gateway exists. |
+| Forge-specific CLIs in the image (`gh`, `glab`) | The agent picks the right one; no abstraction layer. |
 
 ## Open
 
