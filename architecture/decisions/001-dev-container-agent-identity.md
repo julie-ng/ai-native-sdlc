@@ -50,9 +50,9 @@ Setup steps: [AGENTS.md → Git & GitHub Configuration](../../AGENTS.md#git--git
 
 - Everything under the developer's personal account. **No org, no teams.**
 - Agent account `julieio-agent`, collaborator with write role.
-- **Classic PAT, all scopes** — including `workflow`, on purpose.
+- **Classic PAT**, including the `workflow` scope on purpose — agents author CI/CD, and adding or updating workflow files requires that scope. Granularity is not in the token but in the repository configuration.
 
-Repo-side configuration — rulesets, environment-only secrets, production tied to `main` — is in [GitHub configuration](../github-configuration.md). It is what makes the broad token acceptable.
+Repo-side configuration — rulesets, environment-only secrets, production tied to `main` — is in [GitHub configuration](../github-configuration.md). It is what makes a coarse classic PAT acceptable.
 
 Key generation, run outside the container in a dedicated directory:
 
@@ -85,10 +85,13 @@ gpg --homedir "." \
 
 | Trade-off | Notes |
 |---|---|
-| Classic PAT, all scopes (MVP) | Reach = every repo the agent account is a collaborator on, at its role, limited by that repo's rulesets. Enforced server-side by GitHub. Account-level scopes act on the agent's own account. Keep the collaborator list minimal. |
+| Classic PAT (MVP) | Granularity is in the repository configuration, not the token. Reach = every repo the agent account is a collaborator on, at its role, limited by that repo's rulesets. Enforced server-side by GitHub. Account-level scopes act on the agent's own account. Keep the collaborator list minimal. |
 | Signing key has no passphrase | Required for unattended signing. Read-only mount stops writes, not reads — anything in the container can copy it. Blast radius: forged Verified commits as the agent, no access to anything. |
 | Long-lived secrets in the container | PAT (credential) and signing key (not a credential) persist across sessions and are available during unattended runs. Accepted for a dev container on the developer's laptop. |
 | Key expiry | Rotate before 2027-10-20. Revocation certificate kept outside the container. |
+
+> [!IMPORTANT]
+> **POC gap:** with write role and `repo` scope, the agent can dispatch a deploy workflow on `main` and reach production without a new human merge (confirmed 2026-10-21). No GitHub plan was found to offer a role-level switch that removes dispatch. POC mitigation: required reviewers on Production. See [GitHub configuration](../github-configuration.md#controls).
 
 ## Verification
 
