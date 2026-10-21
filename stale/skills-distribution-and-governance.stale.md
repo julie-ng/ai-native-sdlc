@@ -7,7 +7,7 @@ How different agent types get different skill sets, and what makes that a bounda
 
 ## Why this needs solving at all
 
-goose has **no governance layer for skills**. Extensions are scoped per-recipe; skills are filesystem discovery with no filter — no allowlist, no `skills:` recipe field, no `GOOSE_SKILLS_PATH`. See [`../architecture/coding-harness-design-summary.md`](../architecture/coding-harness-design-summary.md#applying-this-to-goose).
+goose has **no governance layer for skills**. Extensions are scoped per-recipe; skills are filesystem discovery with no filter — no allowlist, no `skills:` recipe field, no `GOOSE_SKILLS_PATH`. See [ADR-013](../architecture/decisions/013-skills-distribution.md#context).
 
 Consequences:
 
