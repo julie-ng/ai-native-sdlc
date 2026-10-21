@@ -6,7 +6,7 @@
 
 ## Context
 
-- Agent pods run untrusted, model-driven code. Their only legitimate outbound write is GitHub.
+- Agent pods run untrusted, model-driven code. Legitimate outbound traffic: GitHub (push, forge API), platform services (artifacts, step status), the LLM gateway. No cloud APIs.
 - Platform services (workflow service, artifact service, token broker) are authored by the platform team and need cloud resources: database, Blob Storage, Key Vault.
 - Per-role Kubernetes Secrets would force one namespace per role — any pod in a namespace can mount any Secret in it.
 
@@ -58,4 +58,5 @@ Not built.
 
 ## Open
 
+- **How agent pods authenticate to the artifact service.** The only token they hold is the projected ServiceAccount token with audience `token-broker`. Options: a second projected token (audience `artifact-service`), or the artifact service also validating via TokenReview. Not designed.
 - **Unverified:** default ServiceAccount token lifetime on AKS may be extended for compatibility. Not relied on — automount off, dedicated projected token.

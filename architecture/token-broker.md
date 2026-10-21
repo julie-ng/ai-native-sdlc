@@ -7,7 +7,7 @@ A small platform service that issues each agent pod a short-lived GitHub install
 
 ## Why
 
-- Agent pods run untrusted, model-driven code. Their only legitimate outbound write is GitHub ("GitHub, nothing else" — see identity.md).
+- Agent pods run untrusted, model-driven code. Their only external write is GitHub; in-cluster they also write to platform services (artifacts, step status). See [ADR-003](./decisions/003-platform-services-vs-agent-pods.md).
 - Per-role Kubernetes Secrets would force one namespace per role, because any pod in a namespace can mount any Secret in it.
 - Pulling per-run tokens from a cloud vault (Key Vault, Secrets Manager, Secret Manager) fails two ways:
   - The pod needs a cloud identity to read the vault → per-pod workload identity comes back, or node identity loses per-role scoping, or a "secret zero" is needed.
