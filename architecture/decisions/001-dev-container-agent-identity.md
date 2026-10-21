@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-20
-- **Context:** **Dev containers** on my machine. I prompt the agent, then it works autonomously; no human needs to be present during the run. Decided and verified in this narrower context only. Cloud agents (K8s pods) may differ in details; GPG signing is expected to carry over (**not yet tested there**). See [identity.md](../identity.md#two-tiers-two-mechanisms).
+- **Context:** **Dev containers** on my machine. I prompt the agent, then it works autonomously; no human needs to be present during the run. Unsupervised cloud agents (K8s pods) are a separate decision, not covered here.
 - **Supersedes:** the local-tier "ED25519 key + deploy key + SSH signing" plan in [identity.md](../identity.md#local-tier--bot-account--deploy-key)
 
 ## Context
@@ -41,7 +41,6 @@ gpg --homedir "." \
 | SSH key + PAT | Two credentials for one identity. |
 | SSH signing instead of GPG | Semantically wrong signal. SSH reads as access/authentication; this key only verifies identity on commits and authenticates nothing. GPG is the plain, unambiguous fit. |
 | Fine-grained PAT / per-repo tokens | Token churn for every repo in an interactive dev container. Least privilege already lives on the repo via collaborator access. |
-| GitHub App installation tokens | Planned for the cloud tier. Token minting per run is overhead not justified for a long-lived dev container on my machine. |
 
 ## Consequences
 
@@ -58,7 +57,7 @@ gpg --homedir "." \
 |---|---|
 | Classic PAT is account-wide, not repo-scoped | Reach = every repo the agent account is a collaborator on, at its granted role. The boundary is GitHub's repo permissions, enforced server-side — keep the account's collaborator list minimal. Account-level scopes (e.g. `gist`, `user`) act on the agent's own account. |
 | Signing key has no passphrase | Required for unattended signing. Read-only mount stops writes, not reads — anything in the container can copy it. Blast radius: forged "Verified" commits as the agent, no repo access. |
-| Long-lived credentials in the container | PAT and signing key both persist across sessions and are available to the agent during autonomous runs. Accepted for a dev container on my machine; revisit for cloud. |
+| Long-lived credentials in the container | PAT and signing key both persist across sessions and are available to the agent during autonomous runs. Accepted for a dev container on my machine. |
 | Key expiry | Rotate before 2027-10-20. Revocation certificate kept outside the container. |
 
 > [!NOTE]
