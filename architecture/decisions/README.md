@@ -30,3 +30,4 @@ Sections:
 | [010](./010-agent-images.md) | Agent images — official goose base, skills baked, one image per role | Accepted — base pending measurement |
 | [011](./011-skills-location.md) | Skills location — `.agents/skills/`, symlinked for Claude Code | Accepted |
 | [012](./012-cloud-agent-identity.md) | Cloud agent identity — agent user commits, GitHub App token pushes | Accepted — design, not yet implemented or verified in this repo |
+| [013](./013-skills-distribution.md) | Skills distribution — baked for the POC, target left to the platform | Accepted |

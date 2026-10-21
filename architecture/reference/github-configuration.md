@@ -3,9 +3,9 @@
 Repository settings that stop an agent from reaching secrets or triggering a production deployment **indirectly**, through workflows it writes itself.
 
 > [!NOTE]
-> **Layer:** access control on GitHub resources, enforced server-side by GitHub. Not isolation of the agent's runtime — that is [Isolation levels](./README.md). Applies to every agent identity, dev container ([ADR-001](./decisions/001-dev-container-agent-identity.md)) and cloud.
+> **Layer:** access control on GitHub resources, enforced server-side by GitHub. Not isolation of the agent's runtime — that is [Isolation levels](../01-use-case.md#isolation-levels). Applies to every agent identity, dev container ([ADR-001](../decisions/001-dev-container-agent-identity.md)) and cloud.
 
-![GitHub configuration: agent pushes to its own branches and can run workflows there, but repository secrets are empty and Production secrets are released only to workflows running on main](./../images/github-configuration.svg)
+![GitHub configuration: agent pushes to its own branches and can run workflows there, but repository secrets are empty and Production secrets are released only to workflows running on main](../../images/github-configuration.svg)
 
 Numbers refer to [Controls](#controls). Write role does **not** mean access to production secrets: the agent can run its own workflows, but there is nothing for them to read. Repository secrets are empty, and the Production environment releases its secrets only to jobs running on `main`.
 
@@ -64,10 +64,10 @@ Branch protection alone does not close path 1. **Secret placement** does.
 
 | Date | Decision | Notes |
 |---|---|---|
-| 2026-10-21 | Least privilege on the repo, not the token | Role + rulesets + secret placement. The token is a classic PAT; granularity lives in the repo (see ADR-001). |
+| 2026-10-21 | Least privilege on the repo, not the token | Role + rulesets + secret placement. The token is a classic PAT; granularity lives in the repo. [ADR-001](../decisions/001-dev-container-agent-identity.md) |
 | 2026-10-21 | Environment secrets only | Repo secrets are readable by every write collaborator, agents included. |
 | 2026-10-21 | Production tied to `main` via environment protection rule | Agents cannot push to `main`, so cannot satisfy the rule. |
-| 2026-10-21 | `workflow` scope required | Agents author CI/CD; adding or updating workflow files needs the scope. Safe because of the two decisions above. |
+| 2026-10-21 | `workflow` scope required | Agents author CI/CD; adding or updating workflow files needs the scope. Safe because of the two decisions above. [ADR-001](../decisions/001-dev-container-agent-identity.md) |
 
 ## Sources
 

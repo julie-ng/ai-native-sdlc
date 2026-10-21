@@ -1,5 +1,8 @@
 # Spike: goose in a container, driven over ACP
 
+> [!NOTE]
+> **Point-in-time documentation.** Not updated after the spike and most likely out of date. Current decisions: [ADRs](../../architecture/decisions/).
+
 **Question:** can a controller spawn `goose acp` as a child process inside a container, talk to it over ACP, and have it run against an API-key provider — no Claude subscription, no interactive setup?
 
 **Status:** ✅ Done, 30 Aug 2026. Not being developed further — kept as a reference.

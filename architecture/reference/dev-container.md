@@ -1,0 +1,47 @@
+# Dev Container — laptop tier
+
+Where I work, and where an agent runs on my laptop. I pair with the LLM on design; for implementation I prompt the agent, it repeats back what it will do, I confirm, and it runs **unattended** through to the PR ([ADR-001](../decisions/001-dev-container-agent-identity.md)).
+
+Cloud agents — no human prompt to start them — run in Kubernetes: see [02 · Architecture](../02-architecture.md).
+
+[Isolation Level 1](../01-use-case.md#isolation-levels) — dev containers in Zed. [ADR-002](../decisions/002-isolation-levels.md).
+
+Why a dev container at all — agents reading beyond the repo, and why it doesn't scale: [01 · Use case](../01-use-case.md). The agent pushes and opens PRs as itself, with its own account, PAT and GPG key mounted read-only ([ADR-001](../decisions/001-dev-container-agent-identity.md)).
+
+## Limits
+
+Beyond scale and manual prompting:
+
+- Shared host kernel.
+- Claude owns and drives subagents:
+  - No _per-task_ model selection. Subagents inherit the main session's model, e.g. Opus — not cost effective. `CLAUDE_CODE_SUBAGENT_MODEL` isn't task-configurable.
+  - No visibility into subagents. Wait until it finishes to find out it hallucinated. I want live inspection and course-correction.
+- No enforced workflow — no separate reviewer, no stop conditions outside the session.
+
+## Setup
+
+To persist Claude's memory across sessions, via mounts:
+
+- **Persisted Memory** — `~/.claude`, keyed by workspace path slug
+- **Workspace Folder** — mirroring the exact host path so the slug matches
+
+The host path is hard-coded into the config. Working example: [`.devcontainer/devcontainer.sample.json`](../../.devcontainer/devcontainer.sample.json), explained in [`.devcontainer/README.md`](../../.devcontainer/README.md).
+
+> [!WARNING]
+> **Do not mount `~/.claude.json`.** Concurrent writes from host and container truncated it mid-write — invalid JSON, blocked new sessions from starting. No locking, two writers, one file.
+
+Trade-offs of skipping it:
+
+- folders need re-trusting every time
+- need in-repo `.mcp.json`
+
+## Decision log
+
+| Date | Decision | Notes |
+|---|---|---|
+| 2026-10-21 | Isolation | Dev container (Level 1). Filesystem boundary, shared kernel. [ADR-002](../decisions/002-isolation-levels.md) |
+| 2026-10-21 | LLM | My Claude Code / Codex subscription, browser login via Zed. [ADR-006](../decisions/006-models-and-llm-access.md) |
+| 2026-10-20 | Role | My session, and unattended agent runs started by my prompt + confirmed read-back. [ADR-001](../decisions/001-dev-container-agent-identity.md) |
+| 2026-10-20 | Agent identity | Own account, classic PAT, GPG signing — mounted read-only. [ADR-001](../decisions/001-dev-container-agent-identity.md) |
+| — | Mounts | `~/.claude` yes, `~/.claude.json` never. Mirror the host workspace path. |
+| — | MCP | In-repo `.mcp.json` instead of project-scoped config. |

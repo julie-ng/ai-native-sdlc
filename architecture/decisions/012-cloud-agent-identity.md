@@ -21,7 +21,7 @@
 |---|---|
 | Committer | Agent **user account** (`julieio-agent`), same as ADR-001 |
 | Commit verification | **GPG** signing key of that user account, signed at `git commit` |
-| Access — push + forge API | **GitHub App installation token**, minted per pod by the [token broker](../token-broker.md), ≤ 1 hour |
+| Access — push + forge API | **GitHub App installation token**, minted per pod by the [token broker](../reference/token-broker.md), ≤ 1 hour |
 | Token scope | Downscoped per request to the pod's role and one repository |
 | App private key | Only in the broker, read from Key Vault via the broker's workload identity. Never in an agent pod. |
 
@@ -86,6 +86,6 @@ Not built. Today's cloud-tier evidence is a `docker run` spike with a classic PA
 - **Signing key delivery** into pods — not designed.
 - **Unverified:** GitHub App bots cannot register GPG keys.
 - **App name vs. owner.** "You cannot use the same name as an existing GitHub account, unless it is your own user or organization name" ([GitHub docs](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app)). An App named `julieio-agent` must be registered **by the `julieio-agent` account itself**. Undecided: the agent account owns the App, or the developer's account owns it under a different name.
-- [identity.md](../identity.md) lists App permissions without **Issues**; the planner needs it.
+- [identity.md](../reference/identity.md) lists App permissions without **Issues**; the planner needs it.
 - Broker availability: replicas + readiness, or mint in the workflow service before the pod starts.
 - Projected token `expirationSeconds` (min 600) vs. longest step.

@@ -2,7 +2,7 @@
 
 - **Status:** Accepted — design, not built
 - **Date:** 2026-10-21 (decisions from 2026-09-04 to 2026-10-20)
-- **Context:** Cloud tier. Updates [infra-design.md](../infra-design.md): agents no longer write Blob directly.
+- **Context:** Cloud tier. Agents no longer write Blob directly — see [02 · Architecture](../02-architecture.md#state).
 
 ## Context
 

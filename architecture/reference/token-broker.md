@@ -1,13 +1,13 @@
 # Token broker — just-in-time GitHub credentials for agent pods
 
 > [!NOTE]
-> Design draft, 2026-10-10. Not built. Captured from a design session so it survives context loss. Cross-link with [identity.md](./identity.md) (cloud tier — GitHub App) and [orchestration.md](./orchestration.md).
+> Design draft, 2026-10-10. Not built. Captured from a design session so it survives context loss. See [identity](./identity.md) and [02 · Architecture](../02-architecture.md).
 
 A small platform service that issues each agent pod a short-lived GitHub installation token, downscoped to the pod's role and one repository. Agents never hold the GitHub App private key and never hold cloud credentials.
 
 ## Why
 
-- Agent pods run untrusted, model-driven code. Their only external write is GitHub; in-cluster they also write to platform services (artifacts, step status). See [ADR-003](./decisions/003-platform-services-vs-agent-pods.md).
+- Agent pods run untrusted, model-driven code. Their only external write is GitHub; in-cluster they also write to platform services (artifacts, step status). See [ADR-003](../decisions/003-platform-services-vs-agent-pods.md).
 - Per-role Kubernetes Secrets would force one namespace per role, because any pod in a namespace can mount any Secret in it.
 - Pulling per-run tokens from a cloud vault (Key Vault, Secrets Manager, Secret Manager) fails two ways:
   - The pod needs a cloud identity to read the vault → per-pod workload identity comes back, or node identity loses per-role scoping, or a "secret zero" is needed.
@@ -73,15 +73,18 @@ A small platform service that issues each agent pod a short-lived GitHub install
 | open-PR step | pull requests: write |
 
 > [!NOTE]
-> The App itself needs the **union** of these. identity.md currently lists Contents, Pull requests, Metadata — **Issues is missing** (needed to read issues on private repos and to comment).
+> The App itself needs the **union** of these — including **Issues**, which the planner needs to read issues on private repos and to comment.
 
 ## Implementation notes
 
-- Platform namespace, next to workflow service and artifact service. Workload identity → Key Vault (App private key) only.
+- Own `github-broker` namespace, separate from `platform` (workflow + artifact service) — see [ADR-003](../decisions/003-platform-services-vs-agent-pods.md). Workload identity → Key Vault (App private key) only.
 - Small surface: TokenReview, one pod lookup, one JWT sign, one GitHub API call. Estimate: a few hundred lines.
 - Broker's own Kubernetes RBAC: `tokenreviews: create`, `pods: get` in the `agents` namespace. Nothing else.
 - Label values can't contain `/` → put `owner/repo` in an **annotation**, or use the numeric repository ID as a label.
 - Shared namespace caveat: anyone allowed to create pods in `agents` could pick any role's ServiceAccount. Restrict pod creation there to the Argo controller via RBAC.
+- **JWT:** RS256, `iss` = App ID, `exp` ≤ 10 min. The minted token (`ghs_…`) is used as an HTTPS credential — `https://x-access-token:<token>@github.com/…` — and as `GH_TOKEN` for `gh`.
+- GitHub issues the App key in **PKCS#1**; some JWT libraries (Node's `jsonwebtoken`) want PKCS#8. Convert with `openssl pkcs8 -topk8 -nocrypt`. Verify a key matches GitHub's record by comparing `openssl rsa -pubout | sha256 | base64` against the fingerprint on the App's settings page.
+- Use Octokit (`@octokit/auth-app`) or PyGithub rather than hand-rolling JWT signing, unless debugging inside a container that lacks them.
 - Possible off-the-shelf alternative: HashiCorp Vault / OpenBao Kubernetes auth + a community GitHub App token plugin. **Unverified** — check plugin maturity before considering.
 
 ## Open questions
@@ -93,9 +96,11 @@ A small platform service that issues each agent pod a short-lived GitHub install
 
 | Date | Decision | Notes |
 |---|---|---|
-| 2026-10-10 | Agent pods get no cloud identity | Only GitHub access needed. Workload identity reserved for platform services (DB, Blob, Key Vault). |
-| 2026-10-10 | One `agents` namespace, one ServiceAccount per role | Replaces namespace-per-role. Possible because no per-role K8s Secrets exist. Namespaces freed for tenancy (per team/client). |
+| 2026-10-21 | Cloud: agent user commits and signs, broker's App token pushes | [ADR-012](../decisions/012-cloud-agent-identity.md) |
+| 2026-10-21 | Broker in its own `github-broker` namespace | [ADR-003](../decisions/003-platform-services-vs-agent-pods.md) |
+| 2026-10-11 | Reviewer posts review comments on the pull request | Reviewer token gets pull requests: write. Resolves the open question. |
+| 2026-10-10 | Agent pods get no cloud identity | Only GitHub access needed. Workload identity reserved for platform services (DB, Blob, Key Vault). [ADR-003](../decisions/003-platform-services-vs-agent-pods.md) |
+| 2026-10-10 | One `agents` namespace, one ServiceAccount per role | Replaces namespace-per-role. Possible because no per-role K8s Secrets exist. Namespaces freed for tenancy (per team/client). [ADR-003](../decisions/003-platform-services-vs-agent-pods.md) |
 | 2026-10-10 | Pull model via token broker, not cloud vault | Vault needs per-pod cloud identity and isn't built for per-run secret churn. Broker auth uses the cloud-agnostic K8s ServiceAccount token. |
 | 2026-10-10 | Repository derived from pod metadata, never from the request | Denied by construction. |
 | 2026-10-10 | Argo parameters carry references (broker URL, role), never tokens | Workflow objects are readable; tokens must not land there. |
-| 2026-10-11 | Reviewer posts review comments on the pull request | Reviewer token gets pull requests: write. Resolves the open question. |

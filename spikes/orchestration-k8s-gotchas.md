@@ -1,3 +1,6 @@
+> [!NOTE]
+> **Point-in-time documentation.** Not updated after the spike and most likely out of date. Current decisions: [ADRs](../architecture/decisions/).
+
 Fair call. Prototyping first and letting real failure modes dictate Phase 3 is much wiser than over-engineering for scale you don't need yet.
 
 Here is a pragmatic critique of the Phase 2 design—the sharp edges and potential failure modes you'll likely encounter when testing it.

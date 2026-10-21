@@ -1,118 +1,33 @@
 # 🪿 autonomous-agents-setup
 
-Working notes on running coding agents autonomously — real isolation boundaries, their own git identity, orchestrated outside the IDE.
+Design and context layer for an AI-native SDLC platform: **unsupervised coding agents** that take a scoped GitHub issue to a reviewed pull request — with real isolation boundaries, their own identity, and an enforced multi-agent workflow. Built in public.
 
-## AI-Native SDLC
+![Two modes: an interactive session on my laptop writes scoped issues to GitHub; unsupervised agents in the cloud pull issues and open pull requests](./images/two-modes.svg)
 
-```
-   👤 me — human architect                 🪿 geese — autonomous agents
-   ─────────────────────────                ────────────────────────────
-   interactive, in the loop                 headless, nobody watching
+**Pair & delegate.** Architecture and scoping stay interactive — me and a coding agent, on my laptop. Implementation runs headless in the cloud, one pod per agent step. GitHub issues are the handoff.
 
-┌──────────────────────────┐             ┌──────────────────────────────┐
-│ 💻 Host (my machine)     │             │ ☸️  Kubernetes                │
-│                          │             │                              │
-│  ┌────────────────────┐  │             │  ┌────────────────────────┐  │
-│  │ 🐳 Dev Container   │  │             │  │ 🐳 Job (one per task)  │  │
-│  │                    │  │             │  │                        │  │
-│  │  Zed + Claude      │  │             │  │  🪿 goose              │  │
-│  │  pair on design    │  │             │  │  runs the task         │  │
-│  └────────────────────┘  │             │  └────────────────────────┘  │
-└──────────────────────────┘             └──────────────────────────────┘
-             │                                          │
-             │  defines the work                        │  git push
-             ▼                                          ▼
-      ┌──────────────────────────────────────────────────────┐
-      │ 🐙 GitHub — issues in, branches out                  │
-      └──────────────────────────────────────────────────────┘
-```
+## What's here
 
-- **Me — the human architect.** Interactive session in a [dev container](./architecture/dev-container.md), paired with the LLM on my host. I define the work and review what comes back.
-- **The geese — autonomous agents.** Pick up work I've already defined, run headless in a pod, push a branch. Nobody watching.
+- [Architecture](./architecture/) — how the platform works: use case, architecture, requirements, workflow
+- [Decisions](./architecture/decisions/) — ADRs, one decision per file, target design vs. what the POC builds
 
-The point is not to babysit sessions. No approving every change, no manually pushing to GitHub.
+This repo is where I design the platform and scope work. The components are built in their own repositories, where agents pick up the scoped tickets — without context from here, so a badly scoped ticket shows up as a failure.
 
-## Design Goals
+## Status
 
-### Security
+- **Design** — [ADR-001 – 013](./architecture/decisions/) accepted
+- **Dev container agent** — working: own GitHub account, GPG-signed commits, unattended runs after a confirmed read-back ([ADR-001](./architecture/decisions/001-dev-container-agent-identity.md))
+- **goose in a container** — working with `docker run`: issue in, PR out
+- **Cloud platform on AKS** — not yet built
 
-- Isolation is a boundary, not config rules.
-- Agent has own identity
-  - separate cryptographically signed commits
-  - own credentials to SDLC services, e.g. git, deployments, etc.
-  - only write scope is pushing its own branch
+### Next
 
-### Orchestration
-
-- Runs headless. GitHub issue in, PR out.
-- Visibility into a stuck or crashed agent that doesn't depend on it reaching GitHub.
-
-### Agents (fit-for-purpose)
-
-- Run _autonomously_ outside the IDE, in parallel, without them colliding.
-- Task specific agents, e.g. `frontend-dev` vs `backend-dev`, vs `qa-checker`
-- Size-for-purpose, e.g. use cheaper models, which work fine in decomposed tasks.
-- **One task, one goose, one pod.** No nesting — a goose spawning its own subagents means no per-task model control and no visibility, which is what I'm moving away from.
-
-## Architecture
-
-| | |
-|---|---|
-| [Isolation levels](./architecture/README.md) | What counts as a boundary, what's only a deterrent |
-| [Dev container](./architecture/dev-container.md) | My interactive session. Current setup. |
-| [goose](./architecture/goose-agent.md) | The agent runtime. ACP built in, model-agnostic. |
-| [Identity](./architecture/identity.md) | Agent vs. me. Two tiers: bot account + deploy key locally, GitHub App in the cloud. |
-| [Orchestration](./architecture/orchestration.md) | GitHub → K8s Job → branch → PR |
-| [GitHub configuration](./architecture/github-configuration.md) | Rulesets, environment-only secrets — no indirect path to credentials or production |
-| [Decisions (ADRs)](./architecture/decisions/) | One decision per file, target design vs. MVP |
-
-Spikes and working code: [`spikes/`](./spikes/). Retired directions: [`stale/`](./stale/). Deferred decisions, reasoning kept: [`architecture/parked/`](./architecture/parked/).
-
-## Current Progress
-
-### Agent Setup
-
-- [X] Install and test goose
-- [X] Connect Claude subscription via ACP (local dev)
-- [X] Containerize goose — headless, API key, zero interactive setup
-- [X] Drive goose programmatically over ACP
-- [x] `gh` CLI in the image — pinned, and the credential is settled for the spike: a PAT on the agent account. [Detail](./spikes/goose-k8s-prep/).
-- [x] Agent identity — issue read, branch pushed, PR opened as `julieio-goose`. **Via PAT, not SSH** — direction change, see the spike's decision log. Signing deferred.
-- [ ] Workload identity — the likely endpoint, replacing long-lived credentials. Details in a later phase.
-
-### Orchestration
-
-- [ ] Phase 1 — local `k3d` cluster, `kubectl apply` a Job, push a branch
-- [ ] Phase 2 — GitHub webhook triggers the Job
-- [ ] Phase 3 — TBD, whatever the first two make obvious
-
-### Customization
-
-- [ ] Package custom skills, MCP servers, plugins with goose agent.
-- [ ] Deploy custom goose-agent as Docker image
-
-## Decision Log
-
-| Decision | Notes |
-|---|---|
-| Isolation | `settings.json` allow/deny rules are a deterrent, not a boundary. Container is the boundary. |
-| My session | Dev container in Zed. Interactive, me in the loop. |
-| Harness | goose. Model-agnostic, headless, AAIF-governed — no vendor lock-in. |
-| LLM auth | API keys for headless agents. ACP on my Claude subscription for local dev only. |
-| Agent identity | Own GitHub identity, split by tier — bot account + deploy key locally, GitHub App (`…[bot]`) for autonomous pods. PAT during the spike. |
-| Orchestration | K8s `Job`, one task per pod, fire-and-die. No sidecar — ACP is native to goose. |
-| No nested agents | One task, one goose, one pod. Specialization comes from what I dispatch, not from a goose spawning subagents. |
-
-### Retired
-
-| | Why |
-|---|---|
-| Docker Sandbox (`sbx`) | Worked, but local-machine only. Doesn't lead to remote agents. |
-| `agent-manager` / session managers | Built for attaching to interactive panes. Webhook → pod → PR has no pane. |
-
-Detail in [`stale/`](./stale/).
+- [ ] AKS cluster — straight to Azure, no local cluster
+- [ ] Platform services — workflow service, artifact service, token broker
+- [ ] Argo Workflows — webhook in, one pod per agent step
+- [ ] Agent images — one per role, skills baked in
 
 ## References
 
 - [agents.md](https://agents.md/)
-- [goose](https://goose-docs.ai/) - open source AI Agent (part of [AAIF](https://github.com/aaif-goose/goose))
+- [goose](https://goose-docs.ai/) — open-source agent, part of [AAIF](https://github.com/aaif-goose/goose)

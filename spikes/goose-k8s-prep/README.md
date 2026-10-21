@@ -1,5 +1,8 @@
 # Containerizing goose
 
+> [!NOTE]
+> **Point-in-time documentation.** Not updated after the spike and most likely out of date. Current decisions: [ADRs](../../architecture/decisions/).
+
 `goose-in-a-box` — build notes, gotchas, and what goes in the image.
 
 **Status: builds, runs, opens PRs.** Rebased onto the official goose image (2026-09-11). Completes a real issue→PR task end to end against a live repo as the agent's own GitHub identity — see [Issue to PR](#issue-to-pr--2026-09-11). Never run in K8s.

@@ -1,19 +1,20 @@
 # Architecture
 
-## Security Principle
+How the platform works — unsupervised coding agents taking a scoped issue to a reviewed pull request. Read in order:
 
-Claude Code's default sandbox is read-permissive by design.
+1. [Use case](./01-use-case.md) — agents read beyond the repo, dev containers don't scale, pair locally and delegate to the cloud. Isolation levels.
+2. [Architecture](./02-architecture.md) — Kubernetes architecture, workflow sequence, short-lived credentials, runs on any cloud, design decisions
+3. [Requirements](./03-requirements.md) — features of an AI-native SDLC platform, challenge → solution
+4. [Workflow](./04-workflow.md) — any bounded loop maps to a DAG, stop conditions, example WorkflowTemplate
 
-- Nothing in-app is a security boundary — not `settings.json` rules, not permission prompts.
-- Real isolation needs an OS-level mechanism: container, VM, restricted user account.
-- Credential files (`~/.aws/credentials`, `~/.ssh/`) are not protected by default. Level 0 needs explicit `deny` rules; Level 1+ makes them invisible by construction.
+**Decisions:** [ADRs](./decisions/) — one per file, target design vs. what the POC builds.
 
-## Isolation Levels
+## Reference
 
-Referenced as "Level 1" etc. throughout these docs. Decision and trade-offs: [ADR-002](./decisions/002-isolation-levels.md).
+Deep dives, linked from the pages above.
 
-| Level | Mechanism | Boundary? |
-|---|---|---|
-| **0** | `allow`/`deny` rules in `.claude/settings.json` | No — matches command strings, not paths. Deterrent only. |
-| **1** | Dev container | Yes — filesystem. Shares host kernel. Laptop. |
-| **2** | K8s pod | Yes — container. Shares node kernel. Cloud. |
+- [Identity](./reference/identity.md) — agent vs. me: access vs. attribution, both tiers
+- [GitHub configuration](./reference/github-configuration.md) — rulesets, environment-only secrets; no indirect path to credentials or production
+- [Token broker](./reference/token-broker.md) — just-in-time, downscoped GitHub tokens for agent pods
+- [goose](./reference/goose.md) — the thin harness: provider config, invocation
+- [Dev container](./reference/dev-container.md) — laptop tier: setup and mounts

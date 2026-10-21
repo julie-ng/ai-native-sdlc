@@ -1,0 +1,96 @@
+<svg viewBox="8 0 786 318" role="img" aria-labelledby="sdlc-loop-dag-title sdlc-loop-dag-desc" xmlns="http://www.w3.org/2000/svg" width="786" height="318">
+<title id="sdlc-loop-dag-title">A bounded loop unrolls into a DAG</title>
+<desc id="sdlc-loop-dag-desc"> Top: a coding loop as designed, left to right: plan, implement, review, open PR. Review sends work back to implement when changes are requested, at most twice. Bottom: the same loop executed in Argo Workflows, unrolled left to right: plan, implement 1, review 1 with changes requested, implement 2, review 2 approved, open PR. </desc>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&amp;family=Source+Sans+3:wght@400;500;600;700&amp;display=swap");
+svg { --font-sans: "Source Sans 3", Helvetica, Arial, sans-serif; --font-mono: "Roboto Mono", Courier, monospace; --ui-color-primary-600: #3a42b0; --ui-color-primary-50: #eef0fb; --ui-color-warning-600: #d08700; --ui-color-neutral-400: #99a1af; --ui-color-warning-50: #fefce8; --ui-bg: #ffffff; --ui-text-highlighted: #101828; --ui-color-primary-300: #a3abe6; --ui-color-primary-900: #262a5e; --ui-color-warning-300: #ffdf20; --ui-color-warning-900: #733e0a; --ui-text: #364153; --ui-text-muted: #6a7282; }
+svg { --step: var(--ui-color-primary-600); --step-bg: var(--ui-color-primary-50); --gate: color-mix(in oklab, var(--ui-color-warning-600) 60%, var(--ui-color-neutral-400)); --gate-bg: color-mix(in oklab, var(--ui-color-warning-50) 70%, var(--ui-bg)); --pr: var(--ui-text-highlighted); }
+.t-mono { font-family: var(--font-mono); }
+.t-sans { font-family: var(--font-sans); }
+.t-heading { fill: var(--step); font-size: 16px; font-weight: 600; }
+.t-body { fill: var(--ui-text); font-size: 13px; }
+.t-muted, .t-small { fill: var(--ui-text-muted); font-size: 12px; }
+.box-step { fill: var(--step-bg); stroke: var(--step); }
+.arrow, .box-gate, .box-pr, .box-step { stroke-width: 1.5px; }
+.box-gate { fill: var(--gate-bg); stroke: var(--gate); }
+.box-pr { fill: var(--ui-bg); stroke: var(--pr); }
+.arrow { fill: none; stroke: var(--ui-text-muted); }
+.head { fill: var(--ui-text-muted); }
+.arrow-changes { stroke-dasharray: 6, 4; }
+@media (prefers-color-scheme: dark) {
+  svg { --ui-bg: #101828; --ui-text-highlighted: #ffffff; --ui-text: #e5e7eb; --ui-text-muted: #99a1af; }
+  svg { --step: var(--ui-color-primary-300); --step-bg: color-mix(in srgb, var(--ui-color-primary-900) 40%, var(--ui-bg)); --gate: color-mix(in oklab, var(--ui-color-warning-300) 60%, var(--ui-color-neutral-400)); --gate-bg: color-mix(in srgb, var(--ui-color-warning-900) 30%, var(--ui-bg)); }
+}
+</style>
+<text x="10" y="22" class="t-sans t-heading">Designed as a loop</text>
+<text x="10" y="40" class="t-mono t-muted">(max 2 reviews)</text>
+<rect x="10" y="62" width="110" height="30" rx="4" class="box-step"/>
+<text x="65" y="82" text-anchor="middle" class="t-mono t-body">plan</text>
+<rect x="180" y="62" width="110" height="30" rx="4" class="box-step"/>
+<text x="235" y="82" text-anchor="middle" class="t-mono t-body">implement</text>
+<polygon points="359,77 405,43 451,77 405,111" class="box-gate"/>
+<text x="405" y="82" text-anchor="middle" class="t-mono t-body">review</text>
+<rect x="520" y="62" width="110" height="30" rx="4" class="box-pr"/>
+<text x="575" y="82" text-anchor="middle" class="t-mono t-body">open PR</text>
+<line x1="120" y1="77" x2="174" y2="77" class="arrow"/>
+<polygon points="172,72 181,77 172,82" class="head"/>
+<line x1="290" y1="77" x2="353" y2="77" class="arrow"/>
+<polygon points="351,72 360,77 351,82" class="head"/>
+<line x1="451" y1="77" x2="514" y2="77" class="arrow"/>
+<polygon points="512,72 521,77 512,82" class="head"/>
+<text x="482" y="68" text-anchor="middle" class="t-mono t-small">approved</text>
+<path d="M405,111 C405,146 235,146 235,100" class="arrow arrow-changes"/>
+<polygon points="230,102 235,93 240,102" class="head"/>
+<text x="320" y="156" text-anchor="middle" class="t-mono t-small">changes requested</text>
+<text x="410" y="178" text-anchor="middle" class="t-mono t-muted">unrolls into ↓</text>
+<text x="10" y="202" class="t-sans t-heading">Executed as a DAG</text>
+<text x="10" y="220" class="t-mono t-muted">(Argo Workflows)</text>
+<g>
+<rect x="10" y="240" width="112" height="30" rx="4" class="box-step"/>
+<text x="66" y="260" text-anchor="middle" class="t-mono t-body">plan</text>
+</g>
+<g>
+<rect x="144" y="240" width="112" height="30" rx="4" class="box-step"/>
+<text x="200" y="260" text-anchor="middle" class="t-mono t-body">implement · 1</text>
+</g>
+<g>
+<polygon points="288,255 334,221 380,255 334,289" class="box-gate"/>
+<text x="334" y="253" text-anchor="middle" class="t-mono t-body">review</text>
+<text x="334" y="270" text-anchor="middle" class="t-mono t-body">1</text>
+<text x="334" y="310" text-anchor="middle" class="t-mono t-small">changes requested</text>
+</g>
+<g>
+<rect x="412" y="240" width="112" height="30" rx="4" class="box-step"/>
+<text x="468" y="260" text-anchor="middle" class="t-mono t-body">implement · 2</text>
+</g>
+<g>
+<polygon points="556,255 602,221 648,255 602,289" class="box-gate"/>
+<text x="602" y="253" text-anchor="middle" class="t-mono t-body">review</text>
+<text x="602" y="270" text-anchor="middle" class="t-mono t-body">2</text>
+<text x="602" y="310" text-anchor="middle" class="t-mono t-small">approved</text>
+</g>
+<g>
+<rect x="680" y="240" width="112" height="30" rx="4" class="box-pr"/>
+<text x="736" y="260" text-anchor="middle" class="t-mono t-body">open PR</text>
+</g>
+<g>
+<line x1="122" y1="255" x2="138" y2="255" class="arrow"/>
+<polygon points="136,250 145,255 136,260" class="head"/>
+</g>
+<g>
+<line x1="256" y1="255" x2="282" y2="255" class="arrow"/>
+<polygon points="280,250 289,255 280,260" class="head"/>
+</g>
+<g>
+<line x1="380" y1="255" x2="406" y2="255" class="arrow"/>
+<polygon points="404,250 413,255 404,260" class="head"/>
+</g>
+<g>
+<line x1="524" y1="255" x2="550" y2="255" class="arrow"/>
+<polygon points="548,250 557,255 548,260" class="head"/>
+</g>
+<g>
+<line x1="648" y1="255" x2="674" y2="255" class="arrow"/>
+<polygon points="672,250 681,255 672,260" class="head"/>
+</g>
+</svg>

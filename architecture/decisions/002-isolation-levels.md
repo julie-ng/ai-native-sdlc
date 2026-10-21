@@ -23,13 +23,13 @@ Level 2 is not a stronger *kernel* boundary than Level 1 — both are containers
 
 ### Target design
 
-- Level 2 pods: `automountServiceAccountToken: false`, only a projected token with audience `token-broker` ([token broker](../token-broker.md)). Agent pods hold no cloud identity and no K8s API access.
+- Level 2 pods: `automountServiceAccountToken: false`, only a projected token with audience `token-broker` ([token broker](../reference/token-broker.md)). Agent pods hold no cloud identity and no K8s API access.
 - Egress firewall: network designed so one can be added.
 
 ### MVP / POC scope
 
-- Level 1 in daily use ([ADR-001](./001-dev-container-agent-identity.md), [dev container](../dev-container.md)).
-- Level 2 not built. Local cluster first; cloud target AKS.
+- Level 1 in daily use ([ADR-001](./001-dev-container-agent-identity.md), [dev container](../reference/dev-container.md)).
+- Level 2 not built. Straight to AKS — no local cluster.
 - No egress firewall (cost).
 
 ## Alternatives considered

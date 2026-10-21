@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-21 (goose chosen 2026-09-04)
-- **Context:** Both tiers. Detail: [goose-agent.md](../goose-agent.md).
+- **Context:** Both tiers. Detail: [goose](../reference/goose.md).
 
 ## Context
 
@@ -55,6 +55,7 @@ goose headless in a container, issue → PR, proven with `docker run` ([goose-k8
 |---|---|
 | Claude Code headless in pods | Vendor-specific. |
 | LangChain Deep Agents | Harness library; more plumbing. |
+| Custom harness on goose primitives — orchestrator + sub-agents, Summon delegation, cycle guards | The harness tax: minimal gains for the extra tokens (see Evidence). Orchestration, gates and delegation live in the Argo DAG instead ([ADR-004](./004-orchestration-argo-workflows.md)). |
 
 ## Consequences
 

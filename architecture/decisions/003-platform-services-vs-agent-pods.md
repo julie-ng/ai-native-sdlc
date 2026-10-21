@@ -26,7 +26,7 @@
 - Agents reach artifacts and report status **through platform services**, never cloud APIs directly.
 - `automountServiceAccountToken: false` on agent pods; only the Argo controller may create pods in `agents`.
 
-Detail: [token-broker.md](../token-broker.md).
+Detail: [token-broker.md](../reference/token-broker.md).
 
 ### Agent → platform services: HMAC tokens
 
@@ -70,5 +70,5 @@ Not built.
 
 ## Open
 
-- **HMAC token delivery** into the agent pod. Argo parameters carry no tokens (see [token-broker.md](../token-broker.md)), so not via a parameter. Not designed.
+- **HMAC token delivery** into the agent pod. Argo parameters carry no tokens (see [token-broker.md](../reference/token-broker.md)), so not via a parameter. Not designed.
 - **Unverified:** default ServiceAccount token lifetime on AKS may be extended for compatibility. Not relied on — automount off, dedicated projected token.

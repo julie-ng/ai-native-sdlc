@@ -1,5 +1,8 @@
 # Phase 2: Event-Driven GitHub Orchestration
 
+> [!NOTE]
+> **Point-in-time documentation.** Not updated after the spike and most likely out of date. Current decisions: [ADRs](../architecture/decisions/).
+
 **Objective:** Trigger the Phase 1 `Job` from a GitHub webhook instead of `kubectl apply`. Same execution unit, automated dispatch.
 
 **Prerequisite:** [Phase 1](./orchestration-k8s-phase-1.md) is a go.
