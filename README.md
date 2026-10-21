@@ -1,22 +1,22 @@
 # 🪿 autonomous-agents-setup
 
-Working notes on running coding agents autonomously — real isolation boundaries, their own git identity, orchestrated outside the IDE.
+Working notes on running unsupervised coding agents — real isolation boundaries, their own git identity, orchestrated outside the IDE.
 
 ## AI-Native SDLC
 
 ```
-   👤 me — human architect                 🪿 geese — autonomous agents
+   👤 me — human architect                 🪿 geese — unsupervised agents
    ─────────────────────────                ────────────────────────────
-   interactive, in the loop                 headless, nobody watching
+   prompt + confirm, then unattended        headless, no human to start
 
 ┌──────────────────────────┐             ┌──────────────────────────────┐
 │ 💻 Host (my machine)     │             │ ☸️  Kubernetes                │
 │                          │             │                              │
 │  ┌────────────────────┐  │             │  ┌────────────────────────┐  │
-│  │ 🐳 Dev Container   │  │             │  │ 🐳 Job (one per task)  │  │
+│  │ 🐳 Dev Container   │  │             │  │ 🐳 Pod per agent step  │  │
 │  │                    │  │             │  │                        │  │
 │  │  Zed + Claude      │  │             │  │  🪿 goose              │  │
-│  │  pair on design    │  │             │  │  runs the task         │  │
+│  │  design, then runs │  │             │  │  runs the step         │  │
 │  └────────────────────┘  │             │  └────────────────────────┘  │
 └──────────────────────────┘             └──────────────────────────────┘
              │                                          │
@@ -27,8 +27,8 @@ Working notes on running coding agents autonomously — real isolation boundarie
       └──────────────────────────────────────────────────────┘
 ```
 
-- **Me — the human architect.** Interactive session in a [dev container](./architecture/dev-container.md), paired with the LLM on my host. I define the work and review what comes back.
-- **The geese — autonomous agents.** Pick up work I've already defined, run headless in a pod, push a branch. Nobody watching.
+- **Me — the human architect.** [Dev container](./architecture/dev-container.md) on my laptop. I pair with the LLM on design; for implementation I prompt the agent, confirm its read-back, and it runs unattended to the PR.
+- **The geese — unsupervised agents.** Pick up work I've already defined, run headless in Kubernetes, push a branch. No human prompt starts them.
 
 The point is not to babysit sessions. No approving every change, no manually pushing to GitHub.
 
@@ -39,8 +39,8 @@ The point is not to babysit sessions. No approving every change, no manually pus
 - Isolation is a boundary, not config rules.
 - Agent has own identity
   - separate cryptographically signed commits
-  - own credentials to SDLC services, e.g. git, deployments, etc.
-  - only write scope is pushing its own branch
+  - own credentials for git and the forge — never deploy credentials
+  - writes only to its own branches, issues / PR reviews where its role allows, and platform services
 
 ### Orchestration
 
@@ -49,10 +49,10 @@ The point is not to babysit sessions. No approving every change, no manually pus
 
 ### Agents (fit-for-purpose)
 
-- Run _autonomously_ outside the IDE, in parallel, without them colliding.
+- Run _unsupervised_ outside the IDE, in parallel, without them colliding.
 - Task specific agents, e.g. `frontend-dev` vs `backend-dev`, vs `qa-checker`
 - Size-for-purpose, e.g. use cheaper models, which work fine in decomposed tasks.
-- **One task, one goose, one pod.** No nesting — a goose spawning its own subagents means no per-task model control and no visibility, which is what I'm moving away from.
+- **One step, one goose, one pod.** No nesting — a goose spawning its own subagents means no per-step model control and no visibility, which is what I'm moving away from.
 
 ## Architecture
 
@@ -61,8 +61,8 @@ The point is not to babysit sessions. No approving every change, no manually pus
 | [Isolation levels](./architecture/README.md) | What counts as a boundary, what's only a deterrent |
 | [Dev container](./architecture/dev-container.md) | My interactive session. Current setup. |
 | [goose](./architecture/goose-agent.md) | The agent runtime. ACP built in, model-agnostic. |
-| [Identity](./architecture/identity.md) | Agent vs. me. Two tiers: bot account + deploy key locally, GitHub App in the cloud. |
-| [Orchestration](./architecture/orchestration.md) | GitHub → K8s Job → branch → PR |
+| [Identity](./architecture/identity.md) | Agent vs. me. Agent user account + GPG signing in both tiers; PAT in the dev container, broker-minted App token in the cloud. |
+| [Orchestration](./architecture/orchestration.md) | GitHub → workflow service → Argo workflow → pod per step → PR |
 | [GitHub configuration](./architecture/github-configuration.md) | Rulesets, environment-only secrets — no indirect path to credentials or production |
 | [Decisions (ADRs)](./architecture/decisions/) | One decision per file, target design vs. MVP |
 
@@ -76,15 +76,15 @@ Spikes and working code: [`spikes/`](./spikes/). Retired directions: [`stale/`](
 - [X] Connect Claude subscription via ACP (local dev)
 - [X] Containerize goose — headless, API key, zero interactive setup
 - [X] Drive goose programmatically over ACP
-- [x] `gh` CLI in the image — pinned, and the credential is settled for the spike: a PAT on the agent account. [Detail](./spikes/goose-k8s-prep/).
-- [x] Agent identity — issue read, branch pushed, PR opened as `julieio-goose`. **Via PAT, not SSH** — direction change, see the spike's decision log. Signing deferred.
-- [ ] Workload identity — the likely endpoint, replacing long-lived credentials. Details in a later phase.
+- [x] `gh` CLI in the image — pinned. [Detail](./spikes/goose-k8s-prep/).
+- [x] Agent identity (dev container) — own account `julieio-agent`, classic PAT, GPG-signed commits show Verified. [ADR-001](./architecture/decisions/001-dev-container-agent-identity.md).
+- [ ] Agent identity (cloud) — App token via the token broker. [ADR-012](./architecture/decisions/012-cloud-agent-identity.md).
 
 ### Orchestration
 
-- [ ] Phase 1 — local `k3d` cluster, `kubectl apply` a Job, push a branch
-- [ ] Phase 2 — GitHub webhook triggers the Job
-- [ ] Phase 3 — TBD, whatever the first two make obvious
+- [ ] AKS cluster — straight to Azure, no local cluster
+- [ ] Workflow service + Argo Workflows — webhook in, one pod per agent step
+- [ ] Token broker, artifact service
 
 ### Customization
 
@@ -96,12 +96,12 @@ Spikes and working code: [`spikes/`](./spikes/). Retired directions: [`stale/`](
 | Decision | Notes |
 |---|---|
 | Isolation | `settings.json` allow/deny rules are a deterrent, not a boundary. Container is the boundary. |
-| My session | Dev container in Zed. Interactive, me in the loop. |
+| My session | Dev container in Zed. Prompt + confirmed read-back, then unattended. [ADR-001](./architecture/decisions/001-dev-container-agent-identity.md) |
 | Harness | goose. Model-agnostic, headless, AAIF-governed — no vendor lock-in. |
-| LLM auth | API keys for headless agents. ACP on my Claude subscription for local dev only. |
-| Agent identity | Own GitHub identity, split by tier — bot account + deploy key locally, GitHub App (`…[bot]`) for autonomous pods. PAT during the spike. |
-| Orchestration | K8s `Job`, one task per pod, fire-and-die. No sidecar — ACP is native to goose. |
-| No nested agents | One task, one goose, one pod. Specialization comes from what I dispatch, not from a goose spawning subagents. |
+| LLM auth | My Claude Code / Codex subscription in the dev container; API keys via an AI gateway in the cloud. [ADR-006](./architecture/decisions/006-models-and-llm-access.md) |
+| Agent identity | Own GitHub user account, GPG-signed commits. PAT in the dev container; App token from the broker in the cloud. [ADR-001](./architecture/decisions/001-dev-container-agent-identity.md), [ADR-012](./architecture/decisions/012-cloud-agent-identity.md) |
+| Orchestration | Argo Workflows, one pod per agent step. No sidecar — ACP is native to goose. [ADR-004](./architecture/decisions/004-orchestration-argo-workflows.md) |
+| No nested agents | One step, one goose, one pod. Specialization comes from the DAG, not from a goose spawning subagents. |
 
 ### Retired
 
