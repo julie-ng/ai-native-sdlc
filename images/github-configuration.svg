@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 530" width="820" height="530" font-family="ui-sans-serif, system-ui, -apple-system, sans-serif">
+
+  <defs>
+    <marker id="arrowblue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 z" fill="#4a90e2"/>
+    </marker>
+    <marker id="arrowgreen" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 z" fill="#7cb342"/>
+    </marker>
+    <marker id="arrowgrey" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 z" fill="#6b7280"/>
+    </marker>
+  </defs>
+
+  <!-- ============ AGENT (left) ============ -->
+  <rect x="20" y="60" width="130" height="66" rx="6"
+        fill="#f4fce8" stroke="#7cb342" stroke-width="1" stroke-dasharray="5 4"/>
+  <text x="34" y="82" font-size="13" font-weight="600" fill="#7cb342">🪿 Agent</text>
+  <text x="34" y="99" font-size="10" fill="#7a8a6f">collaborator</text>
+  <text x="34" y="114" font-size="10" fill="#7a8a6f">write role</text>
+
+  <!-- ============ HUMAN (right) ============ -->
+  <rect x="670" y="60" width="130" height="66" rx="6"
+        fill="#e8f1fd" stroke="#4a90e2" stroke-width="1" stroke-dasharray="5 4"/>
+  <text x="684" y="82" font-size="13" font-weight="600" fill="#2f6cb5">👤 Human</text>
+  <text x="684" y="99" font-size="10" fill="#7a8ba3">admin</text>
+  <text x="684" y="114" font-size="10" fill="#7a8ba3">approves + merges</text>
+
+  <!-- ============ REPO ============ -->
+  <rect x="170" y="20" width="480" height="495" rx="8"
+        fill="none" stroke="#6b7280" stroke-width="1"/>
+  <text x="190" y="45" font-size="14" font-weight="600" fill="#6b7280">🐙 GitHub repository</text>
+
+  <!-- agent branches -->
+  <rect x="190" y="60" width="200" height="66" rx="6"
+        fill="#ffffff" stroke="#7cb342" stroke-width="1"/>
+  <text x="204" y="80" font-size="12" font-weight="600" fill="#7cb342">🌿 Agent branches</text>
+  <text x="204" y="97" font-size="10" fill="#7a8a6f">codex/* · claude/* · agent/*</text>
+  <text x="204" y="112" font-size="10" fill="#7a8a6f">agent creates + pushes (3)</text>
+
+  <!-- main -->
+  <rect x="430" y="60" width="200" height="66" rx="6"
+        fill="#ffffff" stroke="#4a90e2" stroke-width="1"/>
+  <text x="444" y="80" font-size="12" font-weight="600" fill="#2f6cb5">🌿 main</text>
+  <text x="444" y="97" font-size="10" fill="#7a8ba3">no direct push (2)</text>
+  <text x="444" y="112" font-size="10" fill="#7a8ba3">changes only via human merge</text>
+
+  <!-- agent → agent branches : push -->
+  <path d="M 150 93 L 188 93" fill="none" stroke="#7cb342" stroke-width="1.5" marker-end="url(#arrowgreen)"/>
+  <text x="169" y="86" font-size="10" fill="#7cb342" text-anchor="middle">push</text>
+
+  <!-- agent branches → main : PR -->
+  <path d="M 390 93 L 428 93" fill="none" stroke="#6b7280" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arrowgrey)"/>
+  <text x="410" y="86" font-size="10" fill="#6b7280" text-anchor="middle">PR</text>
+
+  <!-- human → main : merge -->
+  <path d="M 670 93 L 632 93" fill="none" stroke="#4a90e2" stroke-width="1.5" marker-end="url(#arrowblue)"/>
+  <text x="651" y="86" font-size="10" fill="#2f6cb5" text-anchor="middle">merge</text>
+
+  <!-- agent-authored workflow -->
+  <rect x="190" y="160" width="200" height="66" rx="6"
+        fill="#ffffff" stroke="#7cb342" stroke-width="1"/>
+  <text x="204" y="180" font-size="12" font-weight="600" fill="#7cb342">⚙️ Agent workflow</text>
+  <text x="204" y="197" font-size="10" fill="#7a8a6f">runs on the agent branch</text>
+  <text x="204" y="212" font-size="10" fill="#7a8a6f">possible via `workflow` scope</text>
+
+  <!-- workflow on main -->
+  <rect x="430" y="160" width="200" height="66" rx="6"
+        fill="#ffffff" stroke="#4a90e2" stroke-width="1"/>
+  <text x="444" y="180" font-size="12" font-weight="600" fill="#2f6cb5">⚙️ Workflow on main</text>
+  <text x="444" y="197" font-size="10" fill="#7a8ba3">runs after a human merge</text>
+
+  <!-- branches → workflows -->
+  <path d="M 290 126 L 290 158" fill="none" stroke="#7cb342" stroke-width="1.5" marker-end="url(#arrowgreen)"/>
+  <path d="M 530 126 L 530 158" fill="none" stroke="#4a90e2" stroke-width="1.5" marker-end="url(#arrowblue)"/>
+
+  <!-- ============ SECRETS ============ -->
+  <rect x="190" y="255" width="440" height="245" rx="6"
+        fill="none" stroke="#6b7280" stroke-width="1"/>
+  <text x="204" y="278" font-size="12" font-weight="600" fill="#6b7280">🔐 Actions secrets</text>
+
+  <!-- repository secrets: none -->
+  <rect x="205" y="295" width="160" height="60" rx="4"
+        fill="#ffffff" stroke="#6b7280" stroke-width="1"/>
+  <text x="217" y="314" font-size="11" font-weight="600" fill="#6b7280">Repository secrets</text>
+  <text x="217" y="330" font-size="10" fill="#9ca3af">none (4)</text>
+  <text x="217" y="344" font-size="10" fill="#9ca3af">write role could read them</text>
+
+  <!-- secret-free environments -->
+  <rect x="205" y="370" width="160" height="60" rx="4"
+        fill="#ffffff" stroke="#6b7280" stroke-width="1"/>
+  <text x="217" y="389" font-size="11" font-weight="600" fill="#6b7280">Other environments</text>
+  <text x="217" y="405" font-size="10" fill="#9ca3af">e.g. Preview</text>
+  <text x="217" y="419" font-size="10" fill="#9ca3af">no rule · no secrets</text>
+
+  <!-- Production environment -->
+  <rect x="420" y="295" width="195" height="190" rx="6"
+        fill="none" stroke="#6b7280" stroke-width="1"/>
+  <text x="434" y="316" font-size="12" font-weight="600" fill="#6b7280">🏭 Production environment</text>
+
+  <rect x="434" y="328" width="167" height="42" rx="4"
+        fill="#ffffff" stroke="#6b7280" stroke-width="1"/>
+  <text x="446" y="345" font-size="11" font-weight="600" fill="#6b7280">🛡️ Protection rule</text>
+  <text x="446" y="360" font-size="10" fill="#9ca3af">branches: main only (5)</text>
+
+  <rect x="434" y="378" width="167" height="42" rx="4"
+        fill="#ffffff" stroke="#6b7280" stroke-width="1"/>
+  <text x="446" y="395" font-size="11" font-weight="600" fill="#6b7280">🔑 Environment secrets</text>
+  <text x="446" y="410" font-size="10" fill="#9ca3af">only after the rule passes</text>
+
+  <rect x="434" y="428" width="167" height="42" rx="4"
+        fill="#ffffff" stroke="#6b7280" stroke-width="1"/>
+  <text x="446" y="445" font-size="11" font-weight="600" fill="#6b7280">🚀 Production deploy</text>
+  <text x="446" y="460" font-size="10" fill="#9ca3af">uses those secrets (6)</text>
+
+  <!-- workflow on main → Production : allowed -->
+  <path d="M 530 226 L 530 293" fill="none" stroke="#4a90e2" stroke-width="1.5" marker-end="url(#arrowblue)"/>
+  <text x="538" y="265" font-size="10" fill="#2f6cb5">✓ ref is main</text>
+
+  <!-- agent workflow → Production : blocked -->
+  <path d="M 378 226 L 378 349 L 404 349" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <path d="M 404 343 L 416 355 M 404 355 L 416 343" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/>
+  <text x="397" y="376" font-size="10" fill="#dc2626" text-anchor="middle">branch</text>
+  <text x="397" y="389" font-size="10" fill="#dc2626" text-anchor="middle">≠ main</text>
+
+</svg>

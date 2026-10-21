@@ -5,6 +5,10 @@ Repository settings that stop an agent from reaching secrets or triggering a pro
 > [!NOTE]
 > **Layer:** access control on GitHub resources, enforced server-side by GitHub. Not isolation of the agent's runtime — that is [Isolation levels](./README.md). Applies to every agent identity, dev container ([ADR-001](./decisions/001-dev-container-agent-identity.md)) and cloud.
 
+![GitHub configuration: agent pushes to its own branches and can run workflows there, but repository secrets are empty and Production secrets are released only to workflows running on main](./../images/github-configuration.svg)
+
+Numbers refer to [Controls](#controls). Write role does **not** mean access to production secrets: the agent can run its own workflows, but there is nothing for them to read. Repository secrets are empty, and the Production environment releases its secrets only to jobs running on `main`.
+
 ## The problem
 
 - The agent is a collaborator with **write** role.
@@ -20,7 +24,7 @@ Branch protection alone does not close path 1. **Secret placement** does.
 | # | Setting | Closes |
 |---|---|---|
 | 1 | Agent account = collaborator, **write** role. Never maintain or admin. | Changing rulesets, environments, secrets |
-| 2 | Ruleset on `main`: collaborators cannot push directly. Bypass: admin only. | Agent code reaching `main` without a human merge |
+| 2 | Ruleset on `main`: **Restrict updates**. Bypass: admin only. A merge is an update, so the agent can neither push nor merge. "Require a pull request" alone is not enough — the PR "doesn't necessarily have to be approved, but it must be opened." [^available-rules] | Agent code reaching `main` without a human merge |
 | 3 | Ruleset on branches: create / update / delete only for agent prefixes, e.g. `agent/`, `codex/`, `claude/`. Bypass: admin only. | Agent touching other people's branches |
 | 4 | **No repository secrets.** | Path 1 — "Any user with write access to your repository has read access to all secrets configured in your repository." [^hardening] |
 | 5 | **Environment secrets only**, and every environment holding secrets has a **protection rule** — deployment branches limited to `main`. | Path 1 — jobs "can only access these secrets after any configured rules (for example, required reviewers) pass." [^environments] |
@@ -31,7 +35,7 @@ Branch protection alone does not close path 1. **Secret placement** does.
 
 ## Pitfalls
 
-- **Environment without a protection rule gates nothing.** Its secrets are available to any job that references it, from any branch. Keep secret-free environments secret-free.
+- **Environment without a protection rule gates nothing.** "Secrets stored in an environment are only available to workflow jobs that reference the environment" — and without a deployment-branch rule there is "no restriction on which branch or tag can deploy to the environment." [^deployments] Any job on any branch can reference it. Keep secret-free environments secret-free.
 - **Write role in a bypass list.** Bypass actors can include "the maintain or write role." [^rulesets] The agent holds write — adding that role to a bypass list exempts the agent.
 - **Privileged triggers.** `pull_request_target` and `workflow_run` "are privileged, which means they share the same cache of the main branch with other privileged workflow triggers, and may have repository write access and access to referenced secrets." [^hardening] They run the workflow from the base branch, but must not check out and execute agent-authored code.
 - **The fork rule does not help here.** Secrets "are not passed to workflows that are triggered by a pull request from a fork." [^ui] Agents push branches to the same repo, not from a fork.
@@ -52,12 +56,12 @@ Branch protection alone does not close path 1. **Secret placement** does.
 
 ## Decision log
 
-| Decision | Notes |
-|---|---|
-| Least privilege on the repo, not the token | Role + rulesets + secret placement. The token stays broad (see ADR-001). |
-| Environment secrets only | Repo secrets are readable by every write collaborator, agents included. |
-| Production tied to `main` via environment protection rule | Agents cannot push to `main`, so cannot satisfy the rule. |
-| `workflow` scope kept | Agents may author CI/CD. Safe because of the two decisions above. |
+| Date | Decision | Notes |
+|---|---|---|
+| 2026-10-21 | Least privilege on the repo, not the token | Role + rulesets + secret placement. The token stays broad (see ADR-001). |
+| 2026-10-21 | Environment secrets only | Repo secrets are readable by every write collaborator, agents included. |
+| 2026-10-21 | Production tied to `main` via environment protection rule | Agents cannot push to `main`, so cannot satisfy the rule. |
+| 2026-10-21 | `workflow` scope kept | Agents may author CI/CD. Safe because of the two decisions above. |
 
 ## Sources
 
@@ -66,12 +70,13 @@ Primary — GitHub docs, checked 2026-10-21:
 [^scopes]: [Scopes for OAuth apps](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/scopes-for-oauth-apps) — `workflow`, `repo`
 [^hardening]: [Security hardening for GitHub Actions](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions)
 [^environments]: [Environments reference](https://docs.github.com/actions/reference/environments)
+[^deployments]: [Deployments and environments](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments) — deployment protection rules, deployment branches and tags
 [^rulesets]: [Creating rulesets for a repository](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository) — bypass actors
+[^available-rules]: [Available rules for rulesets](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets) — restrict creations / updates / deletions, require a pull request, file path restrictions (push rulesets: private/internal repos only)
 [^ui]: GitHub UI, repo **Settings → Secrets and variables → Actions**, observed 2026-10-21
 
 Also consulted:
 
-- [Available rules for rulesets](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets) — restrict creations / updates / deletions, file path restrictions (push rulesets: private/internal repos only)
 - [Using secrets in GitHub Actions](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions) — forks, Dependabot
 
 Observed in a working repo, 2026-10-21 (screenshots of its settings): three environments, only Production has a protection rule and holds secrets; no repository secrets.
