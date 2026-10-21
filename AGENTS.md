@@ -16,8 +16,10 @@ If running from inside a dev container:
 - Set repository-local Git `user.name` and `user.email` from `GIT_USER_NAME` and `GIT_USER_EMAIL`.
 - Import the private GPG key mounted read-only by the local `devcontainer.json` into GPG, configure repository-local `user.signingkey` and `commit.gpgsign=true`, and sign all commits.
 - Authenticate as `GITHUB_USERNAME` using `GITHUB_PAT`. For `gh`, export `GH_TOKEN="$GITHUB_PAT"`; use `gh auth setup-git` for HTTPS Git authentication.
-- Codex or Claude `Co-authored-by:` trailers are allowed; include the model name and version (e.g., Sol 6.1 or Sonnet 5.5). Keep the configured agent as author.
+- Claude `Co-authored-by:` trailers are allowed; include the model name and version (e.g., Sonnet 5.5). Keep the configured agent as author.
 - Never copy credential values into documentation or commit them.
+
+Codex commits must include a trailer in the pattern `Co-Authored-By: Codex <version> <model> <codex@users.noreply.github.com>`, for example `Co-Authored-By: Codex 6.1 Sol <codex@users.noreply.github.com>`. Keep the configured agent as author and sign commits as configured above.
 
 ## About this repo
 
