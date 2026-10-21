@@ -12,7 +12,7 @@ Numbers refer to [Controls](#controls). Write role does **not** mean access to p
 ## The problem
 
 - The agent is a collaborator with **write** role.
-- Its token includes the `workflow` scope on purpose — agents may write CI/CD. The scope "grants the ability to add and update GitHub Actions workflow files." [^scopes]
+- Its token needs the `workflow` scope — agents author CI/CD. The scope "grants the ability to add and update GitHub Actions workflow files." [^scopes] Without it, a workflow file can only be committed if the same file "exists on another branch in the same repository." [^scopes]
 - So the agent can push a workflow to its own branch and have it run. Two indirect paths follow:
   1. **Secrets** — a workflow reads secrets and leaks them.
   2. **Production** — a workflow deploys.
@@ -58,10 +58,10 @@ Branch protection alone does not close path 1. **Secret placement** does.
 
 | Date | Decision | Notes |
 |---|---|---|
-| 2026-10-21 | Least privilege on the repo, not the token | Role + rulesets + secret placement. The token stays broad (see ADR-001). |
+| 2026-10-21 | Least privilege on the repo, not the token | Role + rulesets + secret placement. The token is a classic PAT; granularity lives in the repo (see ADR-001). |
 | 2026-10-21 | Environment secrets only | Repo secrets are readable by every write collaborator, agents included. |
 | 2026-10-21 | Production tied to `main` via environment protection rule | Agents cannot push to `main`, so cannot satisfy the rule. |
-| 2026-10-21 | `workflow` scope kept | Agents may author CI/CD. Safe because of the two decisions above. |
+| 2026-10-21 | `workflow` scope required | Agents author CI/CD; adding or updating workflow files needs the scope. Safe because of the two decisions above. |
 
 ## Sources
 
