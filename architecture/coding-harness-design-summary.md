@@ -1,8 +1,15 @@
 # Coding harness design — summary
 
-This document describes a coding harness built on top of [goose](https://goose-docs.ai/) — itself a harness framework. We're building a harness, assembled *from* Goose's primitives (orchestrator + N sub-agents, code-gated inner loops, cycle guards).
+This document describes a coding harness design on top of [goose](https://goose-docs.ai/) — orchestrator + N sub-agents, code-gated inner loops, cycle guards.
 
-## Working architecture (current state)
+> [!IMPORTANT]
+> **Superseded in parts by the ADRs — under review.**
+>
+> - goose is a **thin harness**: a unified interface over swappable models, not a harness built from its primitives ([ADR-007](./decisions/007-harness.md)).
+> - Across agents, delegation is the **Argo DAG — one pod per agent step, no agent spawning agents** ([ADR-004](./decisions/004-orchestration-argo-workflows.md)). The orchestrator → sub-agent delegation below does not span pods.
+> - Code for objective gates, prose for judgment still holds ([ADR-009](./decisions/009-stop-conditions.md)).
+
+## Working architecture (earlier design)
 
 <img src="./../images/goose-harness/orchestrator_subagent_delegation.png" width="600" alt="HLD">
 
