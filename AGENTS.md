@@ -37,6 +37,15 @@ If running from inside a dev container:
 - Design docs describe the evolving design and current state; ADRs record decisions and their reasoning. If they disagree, flag the discrepancy to the architect rather than silently choosing which to follow.
 - Build and update the design with the architect as learnings emerge. Record agreed changes and their reasoning in the relevant docs as the session progresses; distinguish proposals from agreed decisions and verified findings.
 
+## Cross-session memory
+
+- At session start, read the project's `MEMORY.md` index and any linked memory files relevant to the task.
+- In the dev container, Claude Markdown memory files are persisted through a mount. Consult the local `.devcontainer/devcontainer.json` to locate the mounted Claude directory, then find the project's `projects/<workspace-path-slug>/memory/` directory. In a task worktree, use the original workspace's memory directory.
+- All harnesses, including Codex, must explicitly read the mounted Markdown memories. Do not assume they were included in the session context or infer their absence from an empty native memory database.
+- Build on the existing Markdown memory system: save reusable learnings and user preferences there, update existing entries when appropriate, and maintain the `MEMORY.md` index. Keep entries harness-agnostic unless a detail is specific to one harness. Coordinate with other sessions before editing shared memory files.
+- Memory is a retrieval aid. Repository docs and ADRs remain authoritative; verify remembered technical claims against current sources and flag discrepancies.
+- If the memory directory is missing or unreadable, report that limitation and continue with the repository docs.
+
 ## Verify, don't guess
 
 - Never state a technical claim you have not checked. Read the file, run the
