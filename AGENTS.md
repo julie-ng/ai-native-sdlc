@@ -120,14 +120,20 @@ the documented current setup as a contradiction — **the gap is the work.**
 
 ## Changes
 
-- Work on a task branch prefixed with `agent/` (for example, `agent/update-branch-guidance`). Never edit or commit directly on `main`, push to `main`, or merge into it.
-- Use a worktree for unattended feature work; interactive sessions may use the current checkout. Do not modify another agent's checkout or task branch.
-- Creating task branches and separate worktrees is authorized. In the dev container, using the configured agent identity, signed commits and normal (non-force) pushes of task changes to the agent's own `agent/` branch are also authorized without further user confirmation.
-- Request sandbox escalation when these authorized operations require it; use the harness's approval mechanism without asking the user to repeat this authorization. Repository instructions do not override harness-enforced restrictions.
-- Never delete branches outside `agent/`. Ask before deleting any `agent/` branch, locally or remotely; permission to manage these branches is not standing approval to delete them.
-- Commit completed, coherent changes at meaningful checkpoints without waiting for the user to ask. During interactive sessions, commit before switching tasks or handing back completed work; do not commit every conversational edit or leave completed changes uncommitted by default.
-- Amend or squash the agent's own unpushed task commits when it improves the history, preserving all task changes. This is authorized without further confirmation; do not rewrite another agent's commits or published history.
-- Push at review-ready milestones, handoffs, or session end when the task changes are coherent; do not push every intermediate commit. Local commits are checkpoints, not a remote backup. Report whether changes are uncommitted, committed locally, or pushed, and explain any deferred push.
-- Ask before destructive or hard-to-reverse actions, including force pushes and rewriting published history. The permission to tidy the agent's own unpushed commits above is the limited exception.
-- Prefer small, atomic commits with Conventional Commits messages (`type(scope): description`).
+### Security and authorization
+
+- Never edit or commit directly on `main` or another protected branch, push to it, or merge into it. Do not change or bypass branch protections. [GitHub rulesets](./architecture/reference/github-configuration.md#controls) provide additional server-side enforcement; they do not grant permission.
+- Creating task branches and worktrees is authorized. In the configured dev container, signed commits and normal pushes of task changes to the agent's own branch are authorized without further confirmation. Session-specific instructions about pushing take precedence.
+- Amends, rebases, squashes, force pushes, and rewriting published history on the agent's own non-protected task branches are allowed and encouraged when they improve history. No additional confirmation is needed. Preserve task changes and use `--force-with-lease` for force pushes; if the lease fails, inspect the remote changes before retrying.
+- **Sandbox escalation is pre-authorized for the Git operations allowed here.** Request escalation through the harness when needed, without asking the human to repeat authorization. Repository instructions do not override harness-enforced restrictions.
+- Never delete branches outside `agent/`. Ask before deleting any `agent/` branch, locally or remotely; permission to rewrite history is not permission to delete branches.
 - Never commit secrets, tokens, or keys. Provider keys arrive at runtime.
+
+### Branch and delivery guidance
+
+- Determine the repository's remote default branch and fetch it before creating a task branch or worktree. Create independent task branches prefixed with `agent/` from that fetched remote branch, not the current checkout or another task branch.
+- Target PRs at the repository's default branch. Only stack branches or PRs when explicitly requested; state the dependency before creating them.
+- After a prerequisite PR merges, retarget dependent PRs to the default branch and verify their base, commits, and diff before requesting branch cleanup.
+- Use a worktree for unattended feature work or when another agent is working in the repository; interactive sessions may use the current checkout when it is not shared. Establish ownership before concurrent writes. Do not modify another agent's checkout or task branch.
+- Commit completed, coherent changes at meaningful checkpoints, before handoff or switching tasks, without waiting to be asked. Prefer small, atomic Conventional Commits (`type(scope): description`); do not commit every conversational edit.
+- Push at review-ready milestones, handoffs, or session end when authorized; do not push every intermediate commit. Report whether work is uncommitted, committed locally, or pushed, and explain any deferred push.
