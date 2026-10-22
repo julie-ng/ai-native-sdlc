@@ -18,3 +18,4 @@ Deep dives, linked from the pages above.
 - [Token broker](./reference/token-broker.md) — just-in-time, downscoped GitHub tokens for agent pods
 - [goose](./reference/goose.md) — the thin harness: provider config, invocation
 - [Dev container](./reference/dev-container.md) — laptop tier: setup and mounts
+- [Cost and sizing](./reference/cost-and-sizing.md) — target scale to zero; POC min-one pools, cluster start/stop and provisional agent resource budgets

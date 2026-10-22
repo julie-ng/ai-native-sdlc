@@ -96,10 +96,19 @@ The full reasoning lives in the [ADRs](./decisions/). In short — decided for t
 
 **Interim choices** — POC shortcuts, each with a production path:
 
-| Choice | Production path | ADR |
+| Choice | Production path | Reference |
 |---|---|---|
 | Vercel AI Gateway | the cloud provider's network-integrated model gateway | [006](./decisions/006-models-and-llm-access.md) |
 | No egress firewall | route agent egress through a firewall, allow only GitHub, the model gateway and package registries | [002](./decisions/002-isolation-levels.md) |
 | Skills baked into the image | left to the platform — reuse its existing distribution mechanism | [013](./decisions/013-skills-distribution.md) |
+| Min-one node pools and cluster start/stop; no scale to zero in the POC | **Scale to zero** for eligible idle user-node capacity; platform wake-up remains to be designed | [Cost and sizing notes](./reference/cost-and-sizing.md) |
+
+Initial sizing and cost estimates are unverified: D2s system/platform pools, D4s agents, each min 1 / max 2; uniform agent requests of 1 CPU / 2 GiB and limits of 2 CPU / 2 GiB. System-pool compatibility and real workload demand still need checking. [Details and cost assumptions](./reference/cost-and-sizing.md).
+
+## Decision log
+
+| Date/context | Decision and reasoning |
+|---|---|
+| 2026-10-22 cost and wake-up discussion | Keep **scale to zero** as the target design, deferred for the POC like the egress firewall. Start with min-one pools and cluster start/stop; avoid building a platform wake-up path before testing the coding workflow. Sizing and savings remain unverified. |
 
 Next: [03 · Requirements](./03-requirements.md)
