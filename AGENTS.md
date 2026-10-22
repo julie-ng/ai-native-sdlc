@@ -144,6 +144,8 @@ the documented current setup as a contradiction — **the gap is the work.**
 
 - Determine the repository's remote default branch and fetch it before creating a task branch or worktree. Create independent task branches prefixed with `agent/` from that fetched remote branch, not the current checkout or another task branch.
 - Target PRs at the repository's default branch. Only stack branches or PRs when explicitly requested; state the dependency before creating them.
+- Before review-ready pushes and PR handoffs, fetch `origin/main`. If it has new commits, rebase the task branch onto `origin/main`; do not merge `main` into the task branch.
+- Resolve rebase conflicts while preserving the intended changes from both branches, sign rewritten commits, and verify the resulting PR diff. When updating an already-pushed branch, use `--force-with-lease`; if the lease fails, inspect the remote changes before retrying.
 - After a prerequisite PR merges, retarget dependent PRs to the default branch and verify their base, commits, and diff before requesting branch cleanup.
 - Use a worktree for unattended feature work or when another agent is working in the repository; interactive sessions may use the current checkout when it is not shared. Establish ownership before concurrent writes. Do not modify another agent's checkout or task branch.
 - Commit completed, coherent changes at meaningful checkpoints, before handoff or switching tasks, without waiting to be asked. Prefer small, atomic Conventional Commits (`type(scope): description`); do not commit every conversational edit.
