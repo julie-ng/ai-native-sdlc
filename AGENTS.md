@@ -13,8 +13,9 @@ Rules for any agent working in this repo, regardless of harness or model.
 If running from inside a dev container:
 
 - Load the agent environment file mounted read-only by the local `devcontainer.json` and follow its instructions. Consult that file for mount paths; do not add them to documentation.
-- Set repository-local Git `user.name` and `user.email` from `GIT_USER_NAME` and `GIT_USER_EMAIL`.
-- Import the private GPG key mounted read-only by the local `devcontainer.json` into GPG, configure repository-local `user.signingkey` and `commit.gpgsign=true`, and sign all commits.
+- Import the mounted agent GPG key. The human's private signing key is unavailable to agents.
+- For each agent worktree, confirm `extensions.worktreeConfig=true`, then use `git config --worktree` to set `user.name` / `user.email` from `GIT_USER_NAME` / `GIT_USER_EMAIL`, `user.signingkey` to the agent key fingerprint, and `commit.gpgsign=true`. Check the effective settings once after setup. Leave the human's shared identity settings unchanged.
+- `dubious ownership` in the shared checkout reflects host/container user ownership differences. Trust this known repo with `git -c safe.directory="$PWD" ...` or add its exact path to global [`safe.directory`](https://git-scm.com/docs/git-config#Documentation/git-config.txt-safedirectory).
 - Authenticate as `GITHUB_USERNAME` using `GITHUB_PAT`. For `gh`, export `GH_TOKEN="$GITHUB_PAT"`; use `gh auth setup-git` for HTTPS Git authentication.
 - Keep the configured agent as commit author. Claude `Co-Authored-By:` trailers are allowed; include model name and version (e.g., Sonnet 5.5). Codex trailers are required, e.g., `Co-Authored-By: Codex 6.1 Sol <codex@users.noreply.github.com>`.
 - Never copy credential values into documentation or commit them.
@@ -120,7 +121,7 @@ the documented current setup as a contradiction — **the gap is the work.**
 ## Changes
 
 - Work on a task branch prefixed with `agent/` (for example, `agent/update-branch-guidance`). Never edit or commit directly on `main`, push to `main`, or merge into it.
-- Use a separate worktree when another agent is working in the repository. Do not modify another agent's checkout or task branch.
+- Use a worktree for unattended feature work; interactive sessions may use the current checkout. Do not modify another agent's checkout or task branch.
 - Creating task branches and separate worktrees is authorized. In the dev container, using the configured agent identity, signed commits and normal (non-force) pushes of task changes to the agent's own `agent/` branch are also authorized without further user confirmation.
 - Request sandbox escalation when these authorized operations require it; use the harness's approval mechanism without asking the user to repeat this authorization. Repository instructions do not override harness-enforced restrictions.
 - Never delete branches outside `agent/`. Ask before deleting any `agent/` branch, locally or remotely; permission to manage these branches is not standing approval to delete them.
