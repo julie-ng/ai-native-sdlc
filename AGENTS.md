@@ -10,6 +10,8 @@ Rules for any agent working in this repo, regardless of harness or model.
 
 ## Git & GitHub Configuration
 
+- Codex must not use GitHub MCP tools or the GitHub connector. This restriction does not apply to other MCP tools or connectors. Use native `git` for repository operations and `gh`, authenticated as the configured agent, for GitHub issues, pull requests, and reviews ([ADR-008](./architecture/decisions/008-scm-agnostic-native-git.md)).
+
 If running from inside a dev container:
 
 - Load the agent environment file mounted read-only by the local `devcontainer.json` and follow its instructions. Consult that file for mount paths; do not add them to documentation.
@@ -36,6 +38,15 @@ If running from inside a dev container:
 - Read the [architecture index](./architecture/README.md), then the [ADR index](./architecture/decisions/README.md), then the design docs and ADRs relevant to the prompt.
 - Design docs describe the evolving design and current state; ADRs record decisions and their reasoning. If they disagree, flag the discrepancy to the architect rather than silently choosing which to follow.
 - Build and update the design with the architect as learnings emerge. Record agreed changes and their reasoning in the relevant docs as the session progresses; distinguish proposals from agreed decisions and verified findings.
+
+## Cross-session memory
+
+- At session start, read the project's `MEMORY.md` index and any linked memory files relevant to the task.
+- In the dev container, Claude Markdown memory files are persisted through a mount. Consult the local `.devcontainer/devcontainer.json` to locate the mounted Claude directory, then find the project's `projects/<workspace-path-slug>/memory/` directory. In a task worktree, use the original workspace's memory directory.
+- All harnesses, including Codex, must explicitly read the mounted Markdown memories. Do not assume they were included in the session context or infer their absence from an empty native memory database.
+- Build on the existing Markdown memory system: save reusable learnings and user preferences there, update existing entries when appropriate, and maintain the `MEMORY.md` index. Keep entries harness-agnostic unless a detail is specific to one harness. Coordinate with other sessions before editing shared memory files.
+- Memory is a retrieval aid. Repository docs and ADRs remain authoritative; verify remembered technical claims against current sources and flag discrepancies.
+- If the memory directory is missing or unreadable, report that limitation and continue with the repository docs.
 
 ## Verify, don't guess
 
@@ -133,6 +144,9 @@ the documented current setup as a contradiction — **the gap is the work.**
 
 - Determine the repository's remote default branch and fetch it before creating a task branch or worktree. Create independent task branches prefixed with `agent/` from that fetched remote branch, not the current checkout or another task branch.
 - Target PRs at the repository's default branch. Only stack branches or PRs when explicitly requested; state the dependency before creating them.
+- Before review-ready pushes and PR handoffs, fetch `origin/main`. If it has new commits, rebase the task branch onto `origin/main`; do not merge `main` into the task branch.
+- Resolve rebase conflicts while preserving the intended changes from both branches, sign rewritten commits, and verify the resulting PR diff. When updating an already-pushed branch, use `--force-with-lease`; if the lease fails, inspect the remote changes before retrying.
+- Resolve routine conflicts without asking the human. For numerous or complex conflicts, use judgment: pause and ask for context when the intended result is unclear or resolution requires a design decision. Conflict count alone is not a reason to stop.
 - After a prerequisite PR merges, retarget dependent PRs to the default branch and verify their base, commits, and diff before requesting branch cleanup.
 - Use a worktree for unattended feature work or when another agent is working in the repository; interactive sessions may use the current checkout when it is not shared. Establish ownership before concurrent writes. Do not modify another agent's checkout or task branch.
 - Commit completed, coherent changes at meaningful checkpoints, before handoff or switching tasks, without waiting to be asked. Prefer small, atomic Conventional Commits (`type(scope): description`); do not commit every conversational edit.
