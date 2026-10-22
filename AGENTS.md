@@ -10,6 +10,8 @@ Rules for any agent working in this repo, regardless of harness or model.
 
 ## Git & GitHub Configuration
 
+- Codex must not use the GitHub connector or its MCP tools. Use native `git` for repository operations and `gh`, authenticated as the configured agent, for GitHub issues, pull requests, and reviews ([ADR-008](./architecture/decisions/008-scm-agnostic-native-git.md)).
+
 If running from inside a dev container:
 
 - Load the agent environment file mounted read-only by the local `devcontainer.json` and follow its instructions. Consult that file for mount paths; do not add them to documentation.
