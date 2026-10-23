@@ -19,7 +19,7 @@ This repo is where I design the platform and scope work. The components are buil
 >
 > For most individuals this setup is overkill. For most organizations, however, as a former enterprise architect, I consider this to be _minimum_ due diligence.
 
-## Status
+## Project Status
 
 - **Design** — [ADR-001 – 013](./architecture/decisions/) accepted
 - **Dev container agent** — working: own GitHub account, GPG-signed commits, unattended runs after a confirmed read-back ([ADR-001](./architecture/decisions/001-dev-container-agent-identity.md))
@@ -33,6 +33,29 @@ This repo is where I design the platform and scope work. The components are buil
 - [ ] Argo Workflows — webhook in, one pod per agent step
 - [x] Agent images — shared [`agent-base`](./agent-images/) built
 - [ ] Role images — one per role, skills baked in
+
+## What's New?
+
+### 2026-10-22
+
+**Added**
+
+- **Azure infrastructure deployed:** AKS cluster, networking, shared services and workload identities. See [Infrastructure](./infrastructure/).
+- **Agent base image built:** Goose on Debian, with Python and Node, running as a non-root user. AMD64 build and offline smoke checks passed. See [Agent images](./agent-images/).
+
+**Decided**
+
+- Use GitHub CLI for GitHub operations and keep Goose a light wrapper around capable models, prioritizing API-token cost efficiency. See [Image ADRs](./agent-images/architecture/decisions/).
+
+### 2026-10-20
+
+**Design**
+
+- Established the platform architecture and ADRs covering isolation, Argo orchestration, agent identity, credentials and completion gates. See [Architecture](./architecture/).
+
+**Validated**
+
+- Dev container agents commit under their own GitHub identity with GPG signatures. See [ADR-001](./architecture/decisions/001-dev-container-agent-identity.md)
 
 ## Resources
 
