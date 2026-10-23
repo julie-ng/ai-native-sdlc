@@ -19,14 +19,15 @@ This repo is where I design the platform and scope work. The components are buil
 - **Design** — [ADR-001 – 013](./architecture/decisions/) accepted
 - **Dev container agent** — working: own GitHub account, GPG-signed commits, unattended runs after a confirmed read-back ([ADR-001](./architecture/decisions/001-dev-container-agent-identity.md))
 - **goose in a container** — working with `docker run`: issue in, PR out
-- **Cloud platform on AKS** — not yet built
+- **Cloud platform on AKS** — [cluster deployed](./infrastructure/); platform services and workflows next
 
 ### Next
 
-- [ ] AKS cluster — straight to Azure, no local cluster
+- [x] AKS cluster — deployed on Azure
 - [ ] Platform services — workflow service, artifact service, token broker
 - [ ] Argo Workflows — webhook in, one pod per agent step
-- [ ] Agent images — one per role, skills baked in
+- [x] Agent images — shared [`agent-base`](./agent-images/) built
+- [ ] Role images — one per role, skills baked in
 
 ## References
 
