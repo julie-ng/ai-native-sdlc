@@ -21,7 +21,7 @@ One workflow run, from issue to pull request. The POC runs on Azure (AKS); the d
 4. The agent requests a scoped GitHub token from the broker.
 5. The agent calls models through the AI gateway.
 6. The agent pushes commits and comments on GitHub.
-7. The agent updates status and stores artifacts through the platform services.
+7. The agent reports status to the workflow service. For artifact access, it calls the artifact service with an HMAC token; after validating the run, artifact and permission, the service returns a Blob SAS URL. The agent transfers artifact bytes directly to/from Azure Storage.
 
 Steps 3–7 repeat for each agent in the loop. Decisions: [ADR-003](./decisions/003-platform-services-vs-agent-pods.md), [ADR-004](./decisions/004-orchestration-argo-workflows.md), [ADR-005](./decisions/005-state-and-artifacts.md).
 
@@ -29,7 +29,7 @@ Steps 3–7 repeat for each agent in the loop. Decisions: [ADR-003](./decisions/
 
 - **Workflow service** owns runs, retries, start times and per-task cost in PostgreSQL — the system of record.
 - **Argo** holds minimal execution state, well under etcd's 1 MB object limit.
-- **Artifact service** carries handoffs between steps — summaries, notes, logs, screenshots — backed by object storage. Create-only: each agent creates its own artifacts, none overwrites another's.
+- **Artifact service** authorizes handoffs between steps — summaries, notes, logs, screenshots — by validating HMAC tokens and issuing scoped Blob SAS URLs. Artifact bytes transfer directly between pods and object storage, never through the service. Create-only: each agent creates its own artifacts, none overwrites another's.
 - Intermediate working state never lands in GitHub.
 
 ### Model per step
@@ -47,7 +47,7 @@ Same Kubernetes identity, two exchanges. Every token expires. Pods never name th
 
 ![Short-lived credentials: Kubernetes issues tokens to platform services and agent pods; platform services exchange theirs with the cloud identity provider, agent pods get a scoped token from the GitHub token broker](../images/credentials.svg)
 
-When agents call the platform services — for status and artifacts — they use **HMAC tokens** scoped to their workflow run, design borrowed from [Tally Split](https://tallysplit.ai.julie.io/).
+When agents call the platform services — for status and artifact authorization — they use **HMAC tokens** scoped to their workflow run, resource and permissions, design borrowed from [Tally Split](https://tallysplit.ai.julie.io/).
 
 ### GitHub access per agent role
 
