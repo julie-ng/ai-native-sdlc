@@ -29,7 +29,13 @@ This repo is where I design the platform and scope work. The components are buil
 - [x] Agent images — shared [`agent-base`](./agent-images/) built
 - [ ] Role images — one per role, skills baked in
 
-## References
+## Resources
 
-- [agents.md](https://agents.md/)
-- [goose](https://goose-docs.ai/) — open-source agent, part of [AAIF](https://github.com/aaif-goose/goose)
+Inspired by
+
+- [Build Systems, Not Code - Angie Jones, Agentic AI Foundation](https://www.youtube.com/watch?v=ZD9-4fW2HhM) AI Engineer, YouTube, 25 June 2026
+- [Building an Autonomous Engineering Org - Angie Jones, Agentic AI Foundation](https://youtu.be/whue9_YquGA?si=7K0xn9DqN3oSDtUT) – AI Engineer, YouTube, 28 June 2026
+- [Agents Without Code: Skills, YAML, and Filesystems Replaced Python — Philipp Schmid, Google DeepMind](https://www.youtube.com/watch?v=fjF8EKnxKCU) – AI Engineer, YouTube, 28 June 2026
+- [Why Software Factories Fail – Dex Horthy, Human Layer](https://www.youtube.com/watch?v=Ib5GBkD555M)  AI Engineer, YouTube, 23 July 2026
+- [The State of AI in Software Development: Data from 400+ Orgs — Justin Reock, DX](https://www.youtube.com/watch?v=Se8jHLliLXE) – AI Engineer, YouTube, 30 Sept. 2026.
+- [12 Factor Agents - Principles for building reliable LLM applications](https://github.com/humanlayer/12-factor-agents) Human Layer, 2025.
