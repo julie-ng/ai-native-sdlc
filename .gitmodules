@@ -1,3 +1,6 @@
 [submodule "infrastructure"]
 	path = infrastructure
 	url = https://github.com/julie-ng/ai-native-sdlc-infrastructure.git
+[submodule "agent-images"]
+	path = agent-images
+	url = https://github.com/julie-ng/ai-native-sdlc-agent-images.git
