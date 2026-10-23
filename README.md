@@ -8,11 +8,16 @@ Design and context layer for an AI-native SDLC platform: **unsupervised coding a
 
 ## What's here
 
+This repo is where I design the platform and scope work. The components are built in their own repositories, where agents pick up the scoped tickets — without context from here, so a badly scoped ticket shows up as a failure.
+
 - [Architecture](./architecture/) — how the platform works: use case, architecture, requirements, workflow
 - [Diagram design](./DESIGN.md) — visual guide, SVG references and authoring skill
 - [Decisions](./architecture/decisions/) — ADRs, one decision per file, target design vs. what the POC builds
 
-This repo is where I design the platform and scope work. The components are built in their own repositories, where agents pick up the scoped tickets — without context from here, so a badly scoped ticket shows up as a failure.
+> [!IMPORTANT]
+> This is _not_ a reference architecture. It's a portfolio piece and proof of concept I'm building out in public to share my learnings – and to put my money where my mouth is. Although a POC, I'm still applying 10+ years of cloud engineering experience to set up enough guardrails and enforced security boundaries that I will let agents work unsupervised for me.
+>
+> For most individuals this setup is overkill. For most organizations, however, as a former enterprise architect, I consider this to be _minimum_ due diligence.
 
 ## Status
 
