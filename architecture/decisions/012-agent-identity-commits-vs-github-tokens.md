@@ -13,7 +13,7 @@
 - Pods are disposable and run untrusted code. Each step needs short-lived GitHub access issued on demand, rather than a standing credential shared across runs.
 - That access must also be scoped to the step's role and **one** repository. Expiration alone is insufficient.
 - Commits must show **Verified** — unverified commits are not acceptable.
-- Commits are made with plain `git commit` ([ADR-008](./008-scm-agnostic-native-git.md)), not via the API.
+- Commits are made with plain `git commit` ([ADR-008](./008-scm-agnostic-cli-over-mcp.md)), not via the API.
 
 ## Decision
 
