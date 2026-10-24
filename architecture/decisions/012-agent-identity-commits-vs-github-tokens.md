@@ -1,4 +1,4 @@
-# ADR-012: Cloud agent identity — agent user commits, GitHub App token pushes
+# ADR-012: Agent identity — commits vs. GitHub tokens
 
 - **Status:** Accepted — **design. Not yet implemented or verified in this repo.**
 - **Date:** 2026-10-21
@@ -10,12 +10,15 @@
 ## Context
 
 - Same principle as ADR-001: the agent has its own identity, never commits as the human developer.
-- Pods are disposable and run untrusted code; a standing, account-wide PAT is the wrong fit.
-- Each step should get a token scoped to its role and **one** repository.
+- Pods are disposable and run untrusted code. Each step needs short-lived GitHub access issued on demand, rather than a standing credential shared across runs.
+- That access must also be scoped to the step's role and **one** repository. Expiration alone is insufficient.
 - Commits must show **Verified** — unverified commits are not acceptable.
 - Commits are made with plain `git commit` ([ADR-008](./008-scm-agnostic-native-git.md)), not via the API.
 
 ## Decision
+
+> [!IMPORTANT]
+> **Decisive requirement: short-lived GitHub credentials issued on demand for each agent step, scoped to its repository and role.** The broker obtains installation tokens for the assigned step; the platform does not distribute a standing access token across runs. Keeping the long-lived App private key in one trusted issuer is the accepted cost of this lifecycle.
 
 | Concern | Mechanism |
 |---|---|
@@ -25,7 +28,9 @@
 | Token scope | Downscoped per request to the pod's role and one repository |
 | App private key | Only in the broker, read from Key Vault via the broker's workload identity. Never in an agent pod. |
 
-**Why a GitHub App:** only the installation-token endpoint takes `repositories` and `permissions` per request ([GitHub docs](https://docs.github.com/en/rest/apps/apps#create-an-installation-access-token-for-an-app)). That is what lets the broker narrow each token to role + repo. One token covers git over HTTPS (`x-access-token`) and the API ([GitHub docs](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation)). Tokens expire after one hour.
+**Why a GitHub App + broker:** the installation-token API supports on-demand issuance with repository and permission restrictions. The broker derives those restrictions from the validated pod's assignment and keeps the App private key out of agent pods. Tokens expire after one hour ([issuance and scope](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-an-installation-access-token-for-a-github-app)). They work for native Git over HTTPS and the forge API ([installation authentication](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation)).
+
+**Per-step issuance is platform policy, not single-use or run-bound enforcement by GitHub.** Installation tokens remain reusable within their granted repository/permissions until expiry or revocation. Deleting the pod does not automatically revoke its issued GitHub token. The broker avoids intentionally sharing credentials across runs; it does not make a stolen token unusable elsewhere during its lifetime.
 
 **Why a user account still commits:** the App's `…[bot]` identity cannot hold a GPG key (**unverified**), and API-created commits are ruled out by ADR-008. A separate user account is needed for integrations anyway (Vercel preview builds, see ADR-001).
 
@@ -54,13 +59,15 @@ Not built. Today's cloud-tier evidence is a `docker run` spike with a classic PA
 
 ## Alternatives considered
 
+The requirement combines on-demand short-lived issuance, per-step repository/role scoping, and trusted custody of the issuer key. [PATs can expire](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens); expiry alone is not why they lose this comparison. [Deploy keys have no expiry date](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/managing-deploy-keys#cons-of-deploy-keys).
+
 | Option | Why not |
 |---|---|
-| Classic PAT in pods (as ADR-001) | Long-lived, account-wide credential in a disposable pod running untrusted code. |
-| Fine-grained PAT | Scope fixed at creation; no per-request downscoping. |
-| Deploy key | One repo, but no permission granularity and no API access. |
+| Classic PAT in pods (as ADR-001) | Supports Git + API and configurable expiration, but distributes a standing user credential instead of using the per-step issuance exchange. |
+| Fine-grained PAT | Supports repository/permission scoping and configurable expiration, but scope is configured at creation; no per-request installation-token exchange for step-specific access. |
+| Deploy key | One-repository Git access, but no expiry date or forge API access; does not meet the short-lived Git + API requirement. |
 | App commits via API (auto-signed) | Forge-specific commit path; ruled out by ADR-008. |
-| App private key mounted in the pod | Key can mint for every installed repo with all permissions. Lives only in the broker. |
+| App private key mounted in the pod | Can mint short-lived tokens, but exposes long-lived issuance authority to untrusted code. Keeping that authority in the broker is part of the requirement. |
 | Codex / claude.ai GitHub connectors | OAuth as the developer — commits attributed to them. |
 | Cloud vault per-run secrets | Needs per-pod cloud identity; vaults not built for per-run churn. See token-broker.md. |
 
@@ -78,8 +85,15 @@ Not built. Today's cloud-tier evidence is a `docker run` spike with a classic PA
 |---|---|
 | Two GitHub identities | Commits show the user; pushes, PRs, comments show the App bot. |
 | Signing key in every committing pod | Secret, not a credential. Blast radius: forged Verified commits as the agent. |
-| App private key is the crown jewel | Mints for every installed repo. Exactly one place: the broker. |
+| Long-lived App private key and broker operations | Accepted to obtain short-lived, per-step GitHub access without giving agents the issuer key. The key can mint for installed repos within App permissions; its custody and rotation remain platform responsibilities. |
 | Broker is a hard dependency | If it is down, no agent starts. |
+
+## Decision log
+
+| Date | Clarification | Reasoning |
+|---|---|---|
+| 2026-10-24 | Highlight short-lived per-step issuance and distinguish it from single-use/run binding | This lifecycle justifies managing the long-lived App key in a trusted broker; configurable PAT expiry alone does not supply the chosen issuance/scoping exchange. |
+| 2026-10-24 | Rename ADR to commits vs. GitHub tokens | Makes the separation between attribution/signing and access credentials discoverable by filename. |
 
 ## Open
 

@@ -16,7 +16,7 @@ The agent runs in two places. On my laptop, in a [dev container](./dev-container
 
 | | Dev container | Cloud |
 |---|---|---|
-| Decision | [ADR-001](../decisions/001-dev-container-agent-identity.md) | [ADR-012](../decisions/012-cloud-agent-identity.md) |
+| Decision | [ADR-001](../decisions/001-dev-container-agent-identity.md) | [ADR-012](../decisions/012-agent-identity-commits-vs-github-tokens.md) |
 | Committer | agent user account `julieio-agent` | same account |
 | Signing | GPG key on that account | same |
 | Access | classic PAT, HTTPS for `git` and `gh` | GitHub App installation token from the [token broker](./token-broker.md), ≤ 1 hour, per pod |
@@ -47,7 +47,7 @@ Production secrets and deploys are meant to be reachable only after a human merg
 
 | Date | Decision | Notes |
 |---|---|---|
-| 2026-10-21 | Cloud: agent user commits and signs, App token pushes | [ADR-012](../decisions/012-cloud-agent-identity.md) |
+| 2026-10-21 | Cloud: agent user commits and signs, App token pushes | [ADR-012](../decisions/012-agent-identity-commits-vs-github-tokens.md) |
 | 2026-10-21 | Repo configuration is the boundary, not the token | [GitHub configuration](./github-configuration.md) |
 | 2026-10-20 | Dev container: own account, classic PAT, GPG signing, no SSH | [ADR-001](../decisions/001-dev-container-agent-identity.md) |
 | 2026-10-10 | Agent pods get no cloud identity; token broker mints per-pod GitHub tokens | [ADR-003](../decisions/003-platform-services-vs-agent-pods.md), [token broker](./token-broker.md) |

@@ -60,7 +60,7 @@ Each role is limited to one repository.
 | reviewer | read code, comment on pull requests |
 | open-PR step | open pull requests |
 
-Commits are made by the agent's own GitHub user account and GPG-signed; the broker's token only authenticates the push ([ADR-012](./decisions/012-cloud-agent-identity.md)). Deep dives: [identity](./reference/identity.md), [GitHub configuration](./reference/github-configuration.md).
+Commits are made by the agent's own GitHub user account and GPG-signed; the broker's token only authenticates the push ([ADR-012](./decisions/012-agent-identity-commits-vs-github-tokens.md)). Deep dives: [identity](./reference/identity.md), [GitHub configuration](./reference/github-configuration.md).
 
 ## Runs on any cloud
 
@@ -90,7 +90,7 @@ The full reasoning lives in the [ADRs](./decisions/). In short — decided for t
 |---|---|
 | Argo Workflows, one pod per agent step, no nesting | [004](./decisions/004-orchestration-argo-workflows.md) |
 | Agent pods: no cloud identity; HMAC tokens to platform services; one `agents` namespace, ServiceAccount per role | [003](./decisions/003-platform-services-vs-agent-pods.md) |
-| GitHub token broker instead of tokens in a cloud vault | [003](./decisions/003-platform-services-vs-agent-pods.md), [012](./decisions/012-cloud-agent-identity.md) |
+| GitHub token broker instead of tokens in a cloud vault | [003](./decisions/003-platform-services-vs-agent-pods.md), [012](./decisions/012-agent-identity-commits-vs-github-tokens.md) |
 | Workflow service is the system of record; webhook goes straight to it | [004](./decisions/004-orchestration-argo-workflows.md), [005](./decisions/005-state-and-artifacts.md) |
 | One PostgreSQL server, separate databases; Argo via workload identity | [005](./decisions/005-state-and-artifacts.md) |
 

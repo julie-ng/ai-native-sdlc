@@ -8,7 +8,7 @@
 
 - Agent pods run untrusted, model-driven code. Legitimate outbound traffic: GitHub (push, forge API), platform services (artifacts, step status), the LLM gateway. No cloud APIs.
 - Platform services (workflow service, artifact service, token broker) are authored by the platform team and need cloud resources: database, Blob Storage, Key Vault.
-- Per-role Kubernetes Secrets would force one namespace per role — any pod in a namespace can mount any Secret in it.
+- Distinct Secret mounts do not require a namespace per role. Anyone authorized to create pods in a namespace can mount its Secrets, so trusted controllers choose mounts; agents must have neither Secret-read permissions nor permissions to create/modify workloads ([Kubernetes Secret access](https://kubernetes.io/docs/concepts/configuration/secret/#information-security-for-secrets)).
 
 ## Decision
 
@@ -17,7 +17,7 @@
 | Examples | workflow service, artifact service, token broker, Argo | planner, coder, reviewer, open-PR step |
 | Trust | trusted | untrusted |
 | Cloud identity | workload identity → PostgreSQL (incl. Argo), Blob, Key Vault | **none** |
-| GitHub | broker holds the App key | short-lived token from the broker ([ADR-012](./012-cloud-agent-identity.md)) |
+| GitHub | broker holds the App key | short-lived token from the broker ([ADR-012](./012-agent-identity-commits-vs-github-tokens.md)) |
 | Kubernetes | normal | no API access; projected ServiceAccount token, audience `token-broker` only |
 | Platform services | — | HMAC token per run/task (below) |
 
@@ -51,7 +51,7 @@ Not built.
 
 | Option | Why not |
 |---|---|
-| Namespace per role with per-role Secrets | Secret-per-role forces namespace-per-role. Not needed once no per-role Secrets exist. |
+| Namespace per role solely to separate Secret mounts | Not required when trusted controllers select mounts and agents cannot read Secrets or create/modify workloads. |
 | Workload identity for agent pods | Gives untrusted code cloud access it does not need. |
 
 ## Consequences
@@ -67,6 +67,12 @@ Not built.
 |---|---|
 | Shared `agents` namespace | Anyone allowed to create pods there could pick any role's ServiceAccount. Mitigated by RBAC: only the Argo controller creates pods. |
 | Every agent capability needs a platform service | Artifacts, status, tokens — all mediated. More services to build. |
+
+## Decision log
+
+| Date | Clarification | Reasoning |
+|---|---|---|
+| 2026-10-24 | Secret mounts do not inherently require namespaces per role | Access depends on API permissions and control of pod creation/mounts, not on the mere presence of Secrets in a shared namespace. |
 
 ## Open
 

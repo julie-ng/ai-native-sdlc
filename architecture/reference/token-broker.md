@@ -7,8 +7,9 @@ A small platform service that issues each agent pod a short-lived GitHub install
 
 ## Why
 
+- **Short-lived access issued on demand per agent step.** Avoid sharing a standing GitHub credential across runs; restrict each issuance to the assigned repository and role. This is the decisive lifecycle requirement behind accepting a long-lived App private key in the broker ([ADR-012](../decisions/012-agent-identity-commits-vs-github-tokens.md)).
 - Agent pods run untrusted, model-driven code. Their only external write is GitHub; in-cluster they also write to platform services (artifacts, step status). See [ADR-003](../decisions/003-platform-services-vs-agent-pods.md).
-- Per-role Kubernetes Secrets would force one namespace per role, because any pod in a namespace can mount any Secret in it.
+- Secret mounts can share the `agents` namespace when trusted controllers select them and agents cannot read Secrets through the API or create/modify workloads. Secret-per-role does not force namespace-per-role ([ADR-003](../decisions/003-platform-services-vs-agent-pods.md)).
 - Pulling per-run tokens from a cloud vault (Key Vault, Secrets Manager, Secret Manager) fails two ways:
   - The pod needs a cloud identity to read the vault → per-pod workload identity comes back, or node identity loses per-role scoping, or a "secret zero" is needed.
   - Cloud vaults are built for long-lived secrets. Writing and deleting one secret per run hits rate limits, soft-delete/recovery windows, per-secret billing and audit noise. **Unverified:** exact limits and pricing per provider.
@@ -61,7 +62,7 @@ A small platform service that issues each agent pod a short-lived GitHub install
 - **Metadata set only by trusted code:** workflow service → Argo. Agent pods have no Kubernetes API access, so they cannot relabel themselves.
 - **Broker trusts the API, never the request body.** The body is agent-controlled, ultimately model-controlled.
 - **Private key never enters an agent pod.** Only the broker reads it, via its own workload identity.
-- **Token lifetime ≤ 1 hour, pod-bound K8s token:** a leaked broker credential dies with the pod.
+- **Two credential lifetimes:** the Kubernetes credential is pod-bound and validated with TokenReview. The issued GitHub token expires after one hour and remains reusable within its scope until expiry or revocation; pod deletion does not automatically revoke it. Per-step issuance is platform policy, not GitHub-enforced run binding.
 
 ## Role → permission mapping (draft)
 
@@ -96,11 +97,12 @@ A small platform service that issues each agent pod a short-lived GitHub install
 
 | Date | Decision | Notes |
 |---|---|---|
-| 2026-10-21 | Cloud: agent user commits and signs, broker's App token pushes | [ADR-012](../decisions/012-cloud-agent-identity.md) |
+| 2026-10-24 | Clarify short-lived issuance and shared-namespace Secret access | Fresh per-step issuance avoids standing shared access tokens; issued GitHub tokens remain reusable until expiry/revocation. Secret mounts do not force per-role namespaces. |
+| 2026-10-21 | Cloud: agent user commits and signs, broker's App token pushes | [ADR-012](../decisions/012-agent-identity-commits-vs-github-tokens.md) |
 | 2026-10-21 | Broker in its own `github-broker` namespace | [ADR-003](../decisions/003-platform-services-vs-agent-pods.md) |
 | 2026-10-11 | Reviewer posts review comments on the pull request | Reviewer token gets pull requests: write. Resolves the open question. |
 | 2026-10-10 | Agent pods get no cloud identity | Only GitHub access needed. Workload identity reserved for platform services (DB, Blob, Key Vault). [ADR-003](../decisions/003-platform-services-vs-agent-pods.md) |
-| 2026-10-10 | One `agents` namespace, one ServiceAccount per role | Replaces namespace-per-role. Possible because no per-role K8s Secrets exist. Namespaces freed for tenancy (per team/client). [ADR-003](../decisions/003-platform-services-vs-agent-pods.md) |
+| 2026-10-10 | One `agents` namespace, one ServiceAccount per role | Replaces namespace-per-role. Clarified 2026-10-24: shared namespaces also support distinct Secret mounts under controlled pod creation and restricted agent API permissions. Namespaces remain available for tenancy. [ADR-003](../decisions/003-platform-services-vs-agent-pods.md) |
 | 2026-10-10 | Pull model via token broker, not cloud vault | Vault needs per-pod cloud identity and isn't built for per-run secret churn. Broker auth uses the cloud-agnostic K8s ServiceAccount token. |
 | 2026-10-10 | Repository derived from pod metadata, never from the request | Denied by construction. |
 | 2026-10-10 | Argo parameters carry references (broker URL, role), never tokens | Workflow objects are readable; tokens must not land there. |
