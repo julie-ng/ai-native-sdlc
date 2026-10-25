@@ -23,10 +23,12 @@ Installation tokens authenticate Git/API requests; they do not sign local commit
 
 ### Advantages
 
-- No pod GPG-key delivery or maintenance; the broker's App key remains.
+- No pod GPG-key delivery or maintenance (but the broker's App key remains).
 - No local author/signing setup for API-created commits. Bot attribution supports repository analysis.
 
 ### Disadvantages
+
+_Sorted by severity (high to low)_
 
 - **History rewriting:** the API appends commits. Rebased replacements need additional signing/publication steps; the push token does not sign them.
 - **Forge-specific instructions:** GitHub and GitLab need different publication/signing paths, beyond selecting `gh` versus `glab`.
@@ -39,9 +41,13 @@ Evidence and untested workarounds: [research note](../reference/commit-signing-r
 
 **Retain native Git with local GPG signing.** Re-sign rewritten commits during local rebases; authenticate pushes with broker-issued tokens.
 
-Clean history, conventional `git rebase -S` and one Git workflow across forges outweigh removing GPG-key management and adding specialized publication skills.
-
 A new remote signing service is also rejected: it adds infrastructure and API/client work.
+
+### Advantages
+
+- Clean commit history with conventional `git rebase -S` and re-signing.
+- One Git workflow across forges, without specialized publication/signing skills.
+- Familiar commit/push behavior with fewer synchronization and history-reconstruction paths to debug.
 
 ### Role attribution
 
@@ -49,7 +55,10 @@ A new remote signing service is also rejected: it adds infrastructure and API/cl
 - Set distinct `git user.name` and `git user.email` per role. These are Git metadata, not authentication or separate GitHub accounts.
 - Tag roles now for later code-quality/maintainability comparisons across different instructions and skills. The effort is low; the analytical value remains unproven.
 
-GitHub's **Verified** badge requires the committer email to match the key and a verified email on the account holding its public key. Both roles can share one agent account. [Email/key requirements](https://docs.github.com/en/authentication/managing-commit-signature-verification/associating-an-email-with-your-gpg-key).
+GitHub links both roles to the same account in its author labels and aggregates their contributor counts. Role names/emails remain in the Git metadata for analysis; pushing with an App token does not change them. [Account linking](https://docs.github.com/en/account-and-profile/how-tos/email-preferences/setting-your-commit-email-address), [contributor grouping](https://docs.github.com/en/rest/repos/repos#list-repository-contributors).
+
+> [!IMPORTANT]
+> GitHub's **Verified** badge requires the committer email to match the key and a verified email on the account holding its public key. Both roles can share one agent account. [Email/key requirements](https://docs.github.com/en/authentication/managing-commit-signature-verification/associating-an-email-with-your-gpg-key).
 
 Optional: **one long-lived GPG key per role**, reused across runs, distinguishes signing fingerprints. These keys serve signing/verification, not repository authentication or authorization.
 
@@ -71,6 +80,7 @@ Dev-container GPG signing exists ([ADR-001](./001-dev-container-agent-identity.m
 
 | Date | Decision / clarification | Reasoning |
 |---|---|---|
+| 2026-10-25 | Distinguish role metadata from GitHub account display | Role names/emails remain in commits; GitHub links verified aliases to one account and groups its contributions. |
 | 2026-10-25 | Retain native Git + GPG | Clean rebases, portability and less custom behavior to debug. |
 | 2026-10-25 | Tag architect/coder; role keys optional | Low-effort data for later quality/maintainability comparisons. |
 | 2026-10-25 | Record App signing research | Separate documented behavior from untested workarounds. |
