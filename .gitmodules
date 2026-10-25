@@ -10,3 +10,6 @@
 [submodule "platform-services"]
 	path = platform-services
 	url = https://github.com/julie-ng/ai-native-sdlc-platform-services
+[submodule "github-broker"]
+	path = github-broker
+	url = https://github.com/julie-ng/ai-native-sdlc-github-broker
