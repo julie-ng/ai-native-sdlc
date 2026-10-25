@@ -1,6 +1,6 @@
 # Commit signing — research for ADR-014
 
-2026-10-25. Findings for the [undecided signing ADR](../decisions/014-commit-signing.md). Primary GitHub, Git and GitLab documentation; public GitHub API reads as noted below. No App was registered, no test commits or branches were created, and no signing mechanism was selected.
+2026-10-25. Research conducted before the [signing decision in ADR-014](../decisions/014-commit-signing.md). Primary GitHub, Git and GitLab documentation; public GitHub API reads as noted below. No App was registered and no test commits or branches were created. ADR-014 subsequently retained native Git + GPG; the App workflow proposals below remain archived research.
 
 ## Are App commits counted and attributable?
 
@@ -64,15 +64,16 @@ The App approach is viable to investigate, but the simple six-step publication f
 - Local GPG verification requires an uploaded public key and matching verified account/key/committer email. This part of the portability assumption is documented. [GPG requirements](https://docs.gitlab.com/user/project/repository/signed_commits/gpg/).
 - GitLab also documents server signing for REST-created commits when web-based signing is enabled; custom author fields must match the authenticated user. Availability/configuration depends on the deployment. The same documentation warns that UI rebasing makes those rewritten commits unsigned. This is a possible forge-specific route, not an untested assumption that only GitHub supports server signing. No GitLab runtime was tested. [Web/API signing and rebase caveat](https://docs.gitlab.com/user/project/repository/signed_commits/web_commits/).
 
-## Remaining evaluation
+## Evaluation at the research checkpoint — archived
 
 - Choose whether personal-profile contribution tooling is a requirement or repository/API analysis suffices; verify the intended analytics tool includes bots.
 - Decide whether separate GitHub role actors are needed, or platform run/role records suffice.
 - Test App attribution and Verified signatures for ordinary publication, stale HEAD rejection, required file types, and the chosen conflict/rebase strategy. A successful simple commit does not establish success for history rewriting.
-- Native Git + GPG is the **research recommendation** if conventional rebasing and general Git operations are priorities. The App route trades key delivery for a more specialized publication workflow. ADR-014 remains undecided.
+- Native Git + GPG was the **research recommendation** if conventional rebasing and general Git operations were priorities. The App route trades key delivery for a more specialized publication workflow. The resulting decision is recorded in ADR-014.
 
 ## Decision log
 
 | Date | Finding / disposition | Reasoning |
 |---|---|---|
+| 2026-10-25 | Archive evaluation after native Git + GPG was selected | ADR-014 now records the decision; the evidence and untested App proposals remain available for reference. |
 | 2026-10-25 | Preserve research separately; do not select a signing mechanism | API analytics were inspected live; App publication/rebase approaches still require project-specific validation. |

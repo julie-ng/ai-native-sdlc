@@ -17,11 +17,11 @@
 - Keep output compact with selected fields, filters and result limits rather than returning entire API responses.
 - CLI selection does not determine access permissions. Authentication and credential scoping remain separate platform responsibilities ([ADR-012](./012-agent-identity-commits-vs-github-tokens.md)).
 
-### Commit creation and signing — current design under review
+### Commit creation and signing
 
-Native `git commit` with GPG signing and `git push` remain the accepted path. API-created commits remain excluded pending [ADR-014](./014-commit-signing.md), which evaluates local GPG versus GitHub-created App commits.
+Native `git commit` with GPG signing and `git push` remain the accepted path. [ADR-014](./014-commit-signing.md) records the evaluation of App commits and the decision to retain native Git for clean rebases and portability.
 
-The CLI-over-MCP decision does **not itself require** local commit creation: `gh api graphql` can invoke a commit-creation API without MCP. The earlier prohibition was a separate portability/signing choice, now under review.
+The CLI-over-MCP decision does **not itself require** local commit creation: `gh api graphql` can invoke a commit-creation API without MCP. The signing choice is recorded separately in ADR-014.
 
 ### Target design
 
@@ -52,14 +52,14 @@ Sources: Arize and ScaleKit are primary evaluation reports; clifor.ai is linked 
 | Option | Disposition |
 |---|---|
 | MCP servers for SCM operations | Additional tool/context overhead without a demonstrated need beyond the installed CLIs. Revisit if required capabilities or measured results justify them. |
-| API-created commits | Separate signing/portability choice under evaluation in ADR-014; not inherently incompatible with CLI use. |
+| API-created commits | Evaluated in ADR-014; retain native Git for clean rebases, portability and less custom publication behavior. |
 
 ## Consequences
 
 **Positive**
 
 - Reuse familiar tools and the shell interface without an additional SCM tool catalog or command abstraction service.
-- Retain a common Git workflow while the signing choice is evaluated separately.
+- Retain a common Git workflow; ADR-014 records the signing rationale.
 
 **Accepted trade-offs**
 
@@ -76,6 +76,7 @@ Sources: Arize and ScaleKit are primary evaluation reports; clifor.ai is linked 
 
 | Date | Decision / clarification | Reasoning |
 |---|---|---|
+| 2026-10-25 | Retain native commit creation after the ADR-014 evaluation | Clean rebases and portability outweigh avoiding GPG-key delivery. |
 | 2026-10-24 | Rename ADR around SCM-agnostic CLI use over MCP; add benchmark sources | Makes the intended interface choice discoverable and records the evidence and its limits. |
 | 2026-10-24 | Separate the signing question into undecided ADR-014 | CLI use permits API calls; local commit creation is a separate choice. Current signing design remains in force. |
 | 2026-10-21 | Native Git plus forge CLIs; no SCM command abstraction | Shared Git workflow with agents choosing the appropriate forge commands. |
