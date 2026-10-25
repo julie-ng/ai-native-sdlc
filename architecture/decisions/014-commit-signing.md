@@ -77,14 +77,18 @@ Dev-container agents could retain their existing native Git configuration while 
 
 ## Open
 
+[Research findings, 2026-10-25](../reference/commit-signing-research.md) cover role attribution, file publication, rebasing, contribution analysis and GitLab. The mechanism remains undecided; documented API behavior is distinguished from workflows still requiring tests.
+
 - Which mechanism should cloud agents use? Should dev-container agents retain a different mechanism?
 - For App commits, how should agents package changes and reconcile their checkout? Do supported file changes and history operations cover the intended coding workflow?
 - For both local GPG and App commits, can the reviewer and coder be distinguished in commit attribution and signing identity? Would that require separate user accounts, signing keys or App identities?
 - For App commits, does the workflow handle rebasing and conflict resolution cleanly when an agent picks up an issue against an advanced base branch or updates a PR after later review? How are rewritten commits signed and the local checkout kept consistent?
-- GitLab API signing behavior has not been evaluated; GitHub findings do not establish an equivalent path there.
+- Which contribution/analysis interfaces are required: personal-user profiles, repository statistics or platform run records? App bot attribution and repository counts are available, but the intended analytics tool's handling of bots still needs checking.
+- GitLab documents server signing of REST-created commits and unsigned replacements after UI rebasing; the intended GitLab deployment/configuration and workflow remain untested.
 
 ## Verification
 
+- 2026-10-25: primary documentation reviewed and public Bot schema/commit/contributor data inspected; details and limits are in the [research note](../reference/commit-signing-research.md).
 - Local agent GPG signing is already used in the dev-container tier ([ADR-001](./001-dev-container-agent-identity.md)); cloud signing-key delivery is not designed.
 - **Unverified in this project:** App-token commit creation, App author attribution, Verified status and local-checkout synchronization. A narrow test should establish these before selecting that route.
 
@@ -92,6 +96,7 @@ Dev-container agents could retain their existing native Git configuration while 
 
 | Date | Decision / clarification | Reasoning |
 |---|---|---|
+| 2026-10-25 | Record research without selecting a signing mechanism | App commits support repository analysis; role identity and history rewriting introduce separate choices and validation needs. |
 | 2026-10-24 | Keep cloud commit-signing choice undecided | Preserve the comparison before changing ADR-008/012. |
 | 2026-10-24 | Reject a new remote signing service | Additional infrastructure and API/client work are not justified. |
 | 2026-10-24 | Separate CLI-over-MCP choice from commit-creation mechanism | `gh` can invoke GitHub's commit API without MCP. |

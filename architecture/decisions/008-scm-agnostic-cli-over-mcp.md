@@ -70,7 +70,7 @@ Sources: Arize and ScaleKit are primary evaluation reports; clifor.ai is linked 
 
 ## Open
 
-- **Unverified:** GitLab's GPG verification rules (key on a user account, matching email) — assumed similar to GitHub's, not checked.
+- GitLab's account/key/email matching requirements are documented in the [signing research](../reference/commit-signing-research.md#gitlab-findings); the platform's GitLab runtime configuration remains untested.
 
 ## Decision log
 
