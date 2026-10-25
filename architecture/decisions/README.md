@@ -25,9 +25,10 @@ Sections:
 | [005](./005-state-and-artifacts.md) | State and artifacts — workflow service DB + artifact service | Accepted — design, not built |
 | [006](./006-models-and-llm-access.md) | Models and LLM access — subscription on the laptop, API keys in the cloud | Accepted |
 | [007](./007-harness.md) | Harness — goose in the cloud, Claude Code / Codex on the laptop | Accepted |
-| [008](./008-scm-agnostic-native-git.md) | SCM-agnostic — native git, forge CLI only for forge objects | Accepted |
+| [008](./008-scm-agnostic-cli-over-mcp.md) | SCM-agnostic tooling — Git and forge CLIs over MCP | Accepted |
 | [009](./009-stop-conditions.md) | Stop conditions — cap, green, human | Accepted — design, not built |
 | [010](./010-agent-images.md) | Agent images — official goose base, skills baked, one image per role | Accepted — base pending measurement |
 | [011](./011-skills-location.md) | Skills location — `.agents/skills/`, symlinked for Claude Code | Accepted |
 | [012](./012-agent-identity-commits-vs-github-tokens.md) | Agent identity — commits vs. GitHub tokens; short-lived per-step access | Accepted — design, not yet implemented or verified in this repo |
 | [013](./013-skills-distribution.md) | Skills distribution — baked for the POC, target left to the platform | Accepted |
+| [014](./014-commit-signing.md) | Commit signing — native Git with GPG | Accepted — design; cloud key delivery not implemented |

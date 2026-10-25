@@ -13,7 +13,7 @@
 - Pods are disposable and run untrusted code. Each step needs short-lived GitHub access issued on demand, rather than a standing credential shared across runs.
 - That access must also be scoped to the step's role and **one** repository. Expiration alone is insufficient.
 - Commits must show **Verified** — unverified commits are not acceptable.
-- Commits are made with plain `git commit` ([ADR-008](./008-scm-agnostic-native-git.md)), not via the API.
+- Commits are made with plain `git commit` and GPG signing ([ADR-014](./014-commit-signing.md)); forge CLI selection is [ADR-008](./008-scm-agnostic-cli-over-mcp.md).
 
 ## Decision
 
@@ -23,7 +23,7 @@
 | Concern | Mechanism |
 |---|---|
 | Committer | Agent **user account** (`julieio-agent`), same as ADR-001 |
-| Commit verification | **GPG** signing key of that user account, signed at `git commit` |
+| Commit verification | Role-specific **GPG** key registered with that account, signed at `git commit` ([ADR-014](./014-commit-signing.md)) |
 | Access — push + forge API | **GitHub App installation token**, minted per pod by the [token broker](../reference/token-broker.md), ≤ 1 hour |
 | Token scope | Downscoped per request to the pod's role and one repository |
 | App private key | Only in the broker, read from Key Vault via the broker's workload identity. Never in an agent pod. |
@@ -32,7 +32,7 @@
 
 **Per-step issuance is platform policy, not single-use or run-bound enforcement by GitHub.** Installation tokens remain reusable within their granted repository/permissions until expiry or revocation. Deleting the pod does not automatically revoke its issued GitHub token. The broker avoids intentionally sharing credentials across runs; it does not make a stolen token unusable elsewhere during its lifetime.
 
-**Why a user account still commits:** the App's `…[bot]` identity cannot hold a GPG key (**unverified**), and API-created commits are ruled out by ADR-008. A separate user account is needed for integrations anyway (Vercel preview builds, see ADR-001).
+**Why a user account still commits:** ADR-014 retains native Git + GPG for clean rebases and portability. GitHub verification associates the public key and matching committer email with the agent account; role metadata need not imply separate accounts. Integrations also use the agent account (Vercel preview builds, see ADR-001).
 
 **Signing and access are independent mechanisms.** The signature is made locally at `git commit`; the App token only authenticates the HTTPS push and API calls. Which token pushes has no bearing on the signature.
 
@@ -66,7 +66,7 @@ The requirement combines on-demand short-lived issuance, per-step repository/rol
 | Classic PAT in pods (as ADR-001) | Supports Git + API and configurable expiration, but distributes a standing user credential instead of using the per-step issuance exchange. |
 | Fine-grained PAT | Supports repository/permission scoping and configurable expiration, but scope is configured at creation; no per-request installation-token exchange for step-specific access. |
 | Deploy key | One-repository Git access, but no expiry date or forge API access; does not meet the short-lived Git + API requirement. |
-| App commits via API (auto-signed) | Forge-specific commit path; ruled out by ADR-008. |
+| App commits via API (auto-signed) | Evaluated in ADR-014; native Git retained for clean rebases, portability and less custom publication behavior. |
 | App private key mounted in the pod | Can mint short-lived tokens, but exposes long-lived issuance authority to untrusted code. Keeping that authority in the broker is part of the requirement. |
 | Codex / claude.ai GitHub connectors | OAuth as the developer — commits attributed to them. |
 | Cloud vault per-run secrets | Needs per-pod cloud identity; vaults not built for per-run churn. See token-broker.md. |
@@ -92,13 +92,13 @@ The requirement combines on-demand short-lived issuance, per-step repository/rol
 
 | Date | Clarification | Reasoning |
 |---|---|---|
+| 2026-10-25 | Link signing rationale to ADR-014 | Native Git is retained after evaluating App commits, without relying on the unverified bot GPG-key claim. |
 | 2026-10-24 | Highlight short-lived per-step issuance and distinguish it from single-use/run binding | This lifecycle justifies managing the long-lived App key in a trusted broker; configurable PAT expiry alone does not supply the chosen issuance/scoping exchange. |
 | 2026-10-24 | Rename ADR to commits vs. GitHub tokens | Makes the separation between attribution/signing and access credentials discoverable by filename. |
 
 ## Open
 
 - **Signing key delivery** into pods — not designed.
-- **Unverified:** GitHub App bots cannot register GPG keys.
 - **App name vs. owner.** "You cannot use the same name as an existing GitHub account, unless it is your own user or organization name" ([GitHub docs](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app)). An App named `julieio-agent` must be registered **by the `julieio-agent` account itself**. Undecided: the agent account owns the App, or the developer's account owns it under a different name.
 - [identity.md](../reference/identity.md) lists App permissions without **Issues**; the planner needs it.
 - Broker availability: replicas + readiness, or mint in the workflow service before the pod starts.
