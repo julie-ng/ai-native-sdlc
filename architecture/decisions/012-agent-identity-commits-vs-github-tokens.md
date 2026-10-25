@@ -23,7 +23,7 @@
 | Concern | Mechanism |
 |---|---|
 | Committer | Agent **user account** (`julieio-agent`), same as ADR-001 |
-| Commit verification | **GPG** signing key of that user account, signed at `git commit` |
+| Commit verification | Role-specific **GPG** key registered with that account, signed at `git commit` ([ADR-014](./014-commit-signing.md)) |
 | Access — push + forge API | **GitHub App installation token**, minted per pod by the [token broker](../reference/token-broker.md), ≤ 1 hour |
 | Token scope | Downscoped per request to the pod's role and one repository |
 | App private key | Only in the broker, read from Key Vault via the broker's workload identity. Never in an agent pod. |

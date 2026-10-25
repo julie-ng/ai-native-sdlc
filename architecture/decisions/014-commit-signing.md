@@ -52,7 +52,8 @@ A new remote signing service is also rejected: it adds infrastructure and API/cl
 ### Role attribution
 
 - **Architect and coder** are the committing roles; both obtain repository/role-scoped broker tokens.
-- Set distinct `git user.name` and `git user.email` per role. These are Git metadata, not authentication or separate GitHub accounts.
+- Identify the agent role in the stored author name: `goose (architect)` or `goose (coder)`, with a corresponding role email. These are Git metadata, not authentication or separate GitHub accounts.
+- Use **one long-lived GPG key per role**, reused across runs. Each committing pod receives only its role's private key through a mount.
 - Tag roles now for later code-quality/maintainability comparisons across different instructions and skills. The effort is low; the analytical value remains unproven.
 
 GitHub links both roles to the same account in its author labels and aggregates their contributor counts. Role names/emails remain in the Git metadata for analysis; pushing with an App token does not change them. [Account linking](https://docs.github.com/en/account-and-profile/how-tos/email-preferences/setting-your-commit-email-address), [contributor grouping](https://docs.github.com/en/rest/repos/repos#list-repository-contributors).
@@ -60,12 +61,12 @@ GitHub links both roles to the same account in its author labels and aggregates 
 > [!IMPORTANT]
 > GitHub's **Verified** badge requires the committer email to match the key and a verified email on the account holding its public key. Both roles can share one agent account. [Email/key requirements](https://docs.github.com/en/authentication/managing-commit-signature-verification/associating-an-email-with-your-gpg-key).
 
-Optional: **one long-lived GPG key per role**, reused across runs, distinguishes signing fingerprints. These keys serve signing/verification, not repository authentication or authorization.
+Author names are self-declared: a coder can claim `goose (architect)` while signing with its own key. GitHub's **Verified** badge on the shared account does not validate that role claim. **Manually match the verified signing-key fingerprint to the role's recorded key** to check the attribution. Without the architect's private key, the coder cannot produce a valid architect-key signature. These keys serve signing/verification, not repository authentication or authorization.
 
 ### Accepted trade-offs
 
 - Deliver a signing private key to each committing pod and maintain its lifecycle.
-- Role labels may share one GitHub profile; commit-level analysis uses Git metadata and, if separated, key fingerprints.
+- Role labels share one GitHub profile; analysis uses the stored author name. Checking the claimed role requires manually matching signing fingerprints to the role-key mapping.
 
 ### MVP / POC scope
 
@@ -73,16 +74,17 @@ Dev-container GPG signing exists ([ADR-001](./001-dev-container-agent-identity.m
 
 ## Open
 
-- Key delivery/rotation; whether to use separate role keys.
+- Key delivery/rotation and recording the role-to-fingerprint mapping for manual checks.
 - Align workflow/broker permissions with architect/coder attribution; ADR-012 currently lists planner, coder, reviewer and open-PR roles.
 
 ## Decision log
 
 | Date | Decision / clarification | Reasoning |
 |---|---|---|
+| 2026-10-25 | Use separate role keys and manually check fingerprints | Author names are claims; a shared-account Verified badge does not distinguish architect from coder. |
 | 2026-10-25 | Distinguish role metadata from GitHub account display | Role names/emails remain in commits; GitHub links verified aliases to one account and groups its contributions. |
 | 2026-10-25 | Retain native Git + GPG | Clean rebases, portability and less custom behavior to debug. |
-| 2026-10-25 | Tag architect/coder; role keys optional | Low-effort data for later quality/maintainability comparisons. |
+| 2026-10-25 | Initially tag architect/coder with optional role keys | Low-effort data for later quality/maintainability comparisons; role-key separation subsequently selected above. |
 | 2026-10-25 | Record App signing research | Separate documented behavior from untested workarounds. |
 | 2026-10-24 | Evaluate App commits; reject remote signing service | Newly identified App capability; extra signing infrastructure not justified. |
 
@@ -95,14 +97,14 @@ Dev-container GPG signing exists ([ADR-001](./001-dev-container-agent-identity.m
 |---|---|---|
 | Creates / signs the commit | Local Git / GPG key | GitHub via commit API / GitHub |
 | Commit identity | Configured Git name/email | Credential-derived App bot |
-| Pod credentials | Broker token + signing key | Broker token |
+| Pod credentials | Broker token + role signing key | Broker token |
 | Local setup | Role metadata and signing configuration | Not needed for the API commit itself |
 | Publication | `git push` | File-change request, then checkout synchronization |
 | Portability | Shared native Git operations | Forge-specific API workflow |
 
 ### Native Git flow
 
-1. Obtain broker token; load signing key and role metadata.
+1. Obtain broker token; use the mounted role key and configured author metadata.
 2. Edit, test and create GPG-signed commits.
 3. Resolve/rebase as needed, sign replacement commits and push with the token.
 

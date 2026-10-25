@@ -1,6 +1,6 @@
 # Commit signing — research for ADR-014
 
-2026-10-25. Research conducted before the [signing decision in ADR-014](../decisions/014-commit-signing.md). Primary GitHub, Git and GitLab documentation; public GitHub API reads as noted below. No App was registered and no test commits or branches were created. ADR-014 subsequently retained native Git + GPG; the App workflow proposals below remain archived research.
+2026-10-25. Research conducted before the [signing decision in ADR-014](../decisions/014-commit-signing.md). Primary GitHub, Git and GitLab documentation; public GitHub API reads as noted below. No App was registered and no test commits or branches were created. ADR-014 subsequently selected native Git + separate role GPG keys, with manual fingerprint checks of claimed roles; the App workflow proposals below remain archived research.
 
 ## Are App commits counted and attributable?
 
