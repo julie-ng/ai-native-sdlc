@@ -7,3 +7,6 @@
 [submodule "workflows"]
 	path = workflows
 	url = https://github.com/julie-ng/ai-native-sdlc-workflows
+[submodule "platform-services"]
+	path = platform-services
+	url = https://github.com/julie-ng/ai-native-sdlc-platform-services
