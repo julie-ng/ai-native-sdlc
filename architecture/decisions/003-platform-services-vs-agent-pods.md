@@ -6,7 +6,7 @@
 
 ## Context
 
-- Agent pods run untrusted, model-driven code. Legitimate outbound traffic: GitHub (push, forge API), platform services (artifacts, step status), the LLM gateway. No cloud APIs.
+- Agent pods run untrusted, model-driven code. Legitimate outbound traffic: GitHub (push, forge API), platform services (artifact authorization, step status), Azure Blob Storage (artifact transfers using SAS URLs), the LLM gateway.
 - Platform services (workflow service, artifact service, token broker) are authored by the platform team and need cloud resources: database, Blob Storage, Key Vault.
 - Distinct Secret mounts do not require a namespace per role. Anyone authorized to create pods in a namespace can mount its Secrets, so trusted controllers choose mounts; agents must have neither Secret-read permissions nor permissions to create/modify workloads ([Kubernetes Secret access](https://kubernetes.io/docs/concepts/configuration/secret/#information-security-for-secrets)).
 
@@ -23,7 +23,7 @@
 
 - **One `agents` namespace, one ServiceAccount per role.** ServiceAccount = role, pod = run.
 - Namespaces: `argo`, `platform` (workflow + artifact service), `github-broker`, `agents`. Namespaces stay free for tenancy (per team or client) later.
-- Agents reach artifacts and report status **through platform services**, never cloud APIs directly.
+- Agents request artifact access and report status **through platform services**. The artifact service validates the HMAC token for the specific run and artifact, then issues a scoped Blob SAS URL. Pods upload/download artifact bytes directly to/from Azure Storage; the artifact service does not stream them.
 - `automountServiceAccountToken: false` on agent pods; only the Argo controller may create pods in `agents`.
 
 Detail: [token-broker.md](../reference/token-broker.md).
@@ -35,7 +35,7 @@ Agents authenticate to the artifact service (and other platform services) with *
 - Token binds: workflow run UUID, timestamp, resource type + ID, scoped permissions.
 - Request carries the token plus run UUID and task ID.
 - Service verifies by looking up the run, checking expiry against run creation, checking allowed task IDs, and **recomputing** the token from stored values.
-- HMAC key stays server-side; the pod only ever holds a token.
+- HMAC key stays server-side; the pod holds the HMAC token and any artifact SAS URLs issued after validation.
 
 Separate from the Kubernetes token, which is audience `token-broker` only.
 
@@ -58,7 +58,7 @@ Not built.
 
 **Positive**
 
-- A compromised agent pod holds no cloud credential at all.
+- Agent pods have no cloud identity or storage account keys. Their Blob access uses artifact-scoped SAS URLs issued by the artifact service.
 - Role-based scoping without per-role Secrets.
 
 **Accepted trade-offs**
@@ -66,7 +66,7 @@ Not built.
 | Trade-off | Notes |
 |---|---|
 | Shared `agents` namespace | Anyone allowed to create pods there could pick any role's ServiceAccount. Mitigated by RBAC: only the Argo controller creates pods. |
-| Every agent capability needs a platform service | Artifacts, status, tokens — all mediated. More services to build. |
+| Every agent capability needs a platform service | Artifact authorization, status, tokens — all mediated. Artifact bytes transfer directly to/from Blob Storage. More services to build. |
 
 ## Decision log
 
