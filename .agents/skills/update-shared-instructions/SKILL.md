@@ -1,61 +1,50 @@
 ---
 name: update-shared-instructions
-description: Distribute the parent repository's shared agent instructions to selected submodules, reconcile their AGENTS.md indexes, surface instruction conflicts, and deliver one pull request per changed repository.
+description: Sync parent-owned agent instructions to selected submodules, migrate duplicated guidance when needed, resolve routine differences, and deliver concise review PRs.
 ---
 
 # Update shared instructions
 
-The parent repository owns `.agents/shared/*.md`. Submodules receive local copies and retain their project-specific instructions. Run this workflow when asked to distribute or refresh those shared instructions. A request to write or review this skill does not authorize running it.
+Distribute `.agents/shared/*.md` from this parent repo; retain each target’s project-specific instructions. Writing or reviewing this skill does not run it. When templates are also requested, coordinate with `update-github-templates` on one owned branch, worktree and PR per target.
 
-When the user requests templates and shared instructions together, run both skills in the same owned task worktree and branch per target, and create or update one combined PR. For an existing owned sync branch, fetch and rebase onto the latest `origin/main` before further analysis; do not create a second PR. Preserve each skill’s separate scope when only one sync is requested.
+## Prepare once
 
-## Start from the latest origin/main
+- Read applicable instructions once. In a dev container, use `devcontainer-agent-setup` for authenticated Git/GitHub work and configure signed agent commits in each task worktree; never substitute a human identity.
+- Fetch the parent's `origin/main` and use an isolated source worktree at that commit. Use another source ref only when the user requests it, including an explicit pre-merge test. Record the source commit and use that fixed snapshot for every target.
+- Discover targets from that source’s `.gitmodules`; use the selected subset or all submodules if none is specified. Clarify genuinely ambiguous target selection; do not ask again about a set already established in the session.
+- Check for overlapping work once. Create each new `agent/` task branch in an isolated worktree from freshly fetched target `origin/main`, before inspecting target content. Reuse an owned, open sync branch when continuing the same task; never reuse a merged branch. Fetch and rebase a continuing branch if main advanced.
+- For uninitialized submodules, use an isolated clone. Verify `git rev-parse --show-toplevel` is the intended worktree; fix inherited `core.worktree` only in that new worktree if necessary. Leave existing checkouts and parent gitlink pointers untouched.
+- Batch independent reads across targets. Do not repeatedly rediscover source files, reread unchanged instructions, or rerun setup during a combined sync.
 
-- Locate the hosting parent checkout through its `.gitmodules` and `.agents/shared/`; do not assume the current directory is the parent.
-- If running in a dev container, use `devcontainer-agent-setup` before authenticated Git/GitHub work. Never substitute the human's identity if credentials are unavailable.
-- Fetch the parent's `origin/main` and create an isolated source worktree at that fetched commit. Use its `.gitmodules`, shared sources and instructions for preparation, not the hosting checkout's potentially stale or uncommitted contents. Leave the hosting checkout untouched. Use another source ref only when explicitly requested, and record that choice.
-- Discover submodule paths and remotes from that source worktree's `.gitmodules`. Use the user's selected targets; if none are specified, target all listed submodules. If the requested repository or PR count differs from the discovered targets, clarify the target set before creating target branches. Never silently exclude a repository to meet a count.
-- Inspect existing branches, PRs and worktrees for an unfinished distribution. Report overlaps rather than overwriting another session's work or opening duplicate PRs.
-- For each target, fetch `origin/main` and create a new `agent/` task branch in a separate worktree directly from that freshly fetched ref. Do this before inspecting target instructions or analyzing duplication and conflicts. Do not branch from the submodule's pinned commit, current checkout, or another task branch.
-- If a submodule is uninitialized, use an isolated clone of its declared remote to fetch `origin/main` and create the task worktree. Do not initialize or switch the parent's submodule checkout merely to distribute instructions.
-- Before inspecting or editing target contents, verify `git rev-parse --show-toplevel` resolves to the intended task worktree. If inherited `core.worktree` points elsewhere, correct only the new worktree’s setting and recheck; do not change the existing checkout’s path.
-- Configure the agent identity and signing for each new task worktree before committing. Leave existing submodule checkouts, dirty files and branches untouched. Do not stage or commit parent submodule pointers.
-- Only push the task branch and create a PR targeting `main`. Never push, merge or commit directly to `main`, merge the PR, bypass protections, or delete branches as part of this workflow.
+## Choose the amount of review
 
-## Prepare from the fresh worktrees
+- **Initial migration:** if shared copies or the root index are absent, read root instructions and directly relevant references; remove compatible duplicated general rules while retaining project-specific commands, conventions, restrictions and attribution requirements. Read nested instructions only when applicable to the affected scope or required by repository guidance; do not audit the whole project.
+- **Routine refresh:** compare the existing shared copies with the source first. Review changed rules against affected local instructions; do not repeat the initial consolidation or reopen settled decisions. If copies and index already match and no requested migration remains, report up to date without a commit or PR.
 
-- Read the source worktree's `AGENTS.md` and shared instructions. Snapshot its shared Markdown sources once for the whole run and record the source commit so every target receives the same contents. Do not modify the source while distributing it.
-- Perform all target instruction inspection, conflict analysis, edits and checks in the newly created target worktrees. Do not use the parent's existing submodule checkouts as the analysis baseline.
+## Resolve differences using judgment
 
-## Reconcile instructions and surface conflicts
+- Apply explicit session decisions without asking the user to repeat them. Remove superseded generic rules and fix references directly affected by the sync. For example, an explicitly required Git setup skill supersedes an old generic “do not require personal skills” sentence; that is cleanup, not an open policy decision.
+- Preserve genuine project-specific exceptions; explicit exceptions override shared defaults, otherwise both apply. Do not infer new exceptions from accidentally broad or stale wording.
+- Escalate only consequential choices that remain unresolved after consulting the current instructions and session decisions: e.g. widening access, rewriting another contributor’s branch, or weakening an intentional project restriction. Preserve the disputed rule for review and state the actual decision needed in one sentence.
+- Do not silently expand authorization or remove project-specific security restrictions. Do not classify different technologies, commands or implementation details as conflicts merely because the shared rules are generic.
 
-Read each target's root `AGENTS.md`, nested `AGENTS.md` files, harness stubs and relevant instruction references before editing. Compare both the existing shared copies and project instructions against the source snapshot. Inspect the repository's docs-only verification guidance too.
+## Copy and reconcile
 
-Classify findings by meaning, not just matching text:
+Use the bundled helper for deterministic copying and root-index updates:
 
-- **Duplication:** compatible shared rules repeated locally. Remove redundant general rules from the root instructions when the shared files replace them; retain project-specific applications and detail.
-- **Explicit project exception:** preserve it. Explicit project-specific exceptions override shared defaults; otherwise both apply. Identify the exception and its effect in the PR.
-- **Conflict without an explicit exception:** preserve the existing project rule and flag the contradictory clauses for review. Do not silently discard it, reinterpret it as an agreed exception, or change the shared source. Prepare the distribution PR as a draft if the unresolved conflict leaves instructions ambiguous.
-- **Stale or broken guidance:** identify obsolete paths, inconsistent branch/identity rules and missing skill references. Fix references directly affected by this distribution; report unrelated problems without expanding scope.
+```sh
+node scripts/sync.mjs SOURCE_ROOT TARGET_ROOT
+```
 
-For each conflict or exception, report the repository and file locations, the conflicting instructions, their practical consequence, and what was preserved or changed. State when no conflicts were found. Do not turn differences in technology, commands or domain contracts into conflicts merely because the shared guidance is generic.
+Resolve `scripts/sync.mjs` relative to this skill’s directory. The helper copies every source Markdown file byte-for-byte, uses the source root index’s labels, and creates or updates the final shared section. It preserves other root sections and target-only shared files. It does not reconcile policies, delete obsolete files, stage changes, or operate Git.
 
-## Update the target
+- Make any required semantic cleanup in target root instructions separately. Preserve nested files, harness stubs, skills and unrelated content. Do not copy the parent's project-specific root instructions or memory contents.
+- Remove obsolete distributed files only when provenance and replacement intent are established; otherwise mention the removal candidate briefly. Add narrow ignore exceptions only if required. Do not delete instruction directories as incidental cleanup.
 
-- Copy every Markdown file in the source snapshot into the target's `.agents/shared/`, preserving source contents exactly. Do not customize distributed copies; project exceptions belong in project instructions.
-- Preserve project-specific reading order, commands, conventions, security restrictions and nested instruction files. Do not distribute the parent's root `AGENTS.md`, skills, memory contents or architecture docs.
-- Add or update one `Shared instructions` section at the end of the root `AGENTS.md`. State: “Read and follow these alongside this repo’s project-specific instructions. Explicit project-specific exceptions override shared defaults; otherwise both apply.” Link each copied file with a descriptive label and a repo-relative `./.agents/shared/…` path. Remove duplicate index entries and stale entries for formerly distributed files.
-- If root `AGENTS.md` is absent, create it with the shared section and any necessary pointers to existing project guidance. Do not invent project policies or reproduce the parent's project-specific content.
-- Preserve unrelated files in the target's `.agents/shared/`. If an old distributed file has no source counterpart, report it as a removal candidate; do not delete it without established provenance and clear replacement intent.
-- Check whether ignore rules prevent tracking the copied files. Add only the narrow exceptions needed for this shared directory. Leave unrelated ignore rules and harness configuration alone.
-- Do not delete `.agents/instructions/` or other instruction directories as an incidental cleanup. Their removal requires task scope or a clear file-by-file replacement.
+## Verify once and deliver
 
-## Verify and deliver
-
-- Confirm every copied file is byte-for-byte identical to the source snapshot, every shared index entry resolves, every source file has one entry, and no stale distributed index entry remains. Check the diff for lost project rules and unintended changes.
-- Run `git diff --check` and the target's applicable documentation/guidance checks, including validation of affected instruction links. Report unavailable checks and pre-existing failures; do not fix unrelated application code to make documentation checks pass.
-- If no changes are needed, report the target as up to date; do not create an empty commit or PR.
-- Commit each coherent target update with the configured agent identity and GPG signing. Before publication, fetch `origin/main` again; if it advanced, rebase onto it, sign rewritten commits, and repeat the affected comparison and checks.
-- Push only the task branch. Create one PR per changed target with native `gh`, targeting `main`. Describe the source snapshot, instruction/index changes, conflicts and preserved exceptions, verification, and unresolved issues. An unresolved instruction conflict requires a draft PR, not a silent precedence decision. No additional confirmation is needed for the branch push and PR creation when the user has invoked this distribution workflow.
-- If a target is blocked, keep completed work in the others and report the actual failure. Do not claim a PR exists until its URL is returned or verified.
-- Finish with one table listing **every selected repository**, its PR link or up-to-date/blocked status, and any conflict requiring the human's attention. Include all PRs together for review and explain any difference from the expected count. Report the parent submodule pointers as unchanged by this workflow.
+- After the final edits, run the helper with `--check`, validate affected local links, inspect the diff for lost project rules, and run `git diff --check` plus required documentation checks. The helper verifies exact source copies and the canonical index. Repeat affected checks only after relevant edits, a failure, or a rebase changes the result.
+- Commit coherent changes with the agent identity and GPG signing. Refetch target `origin/main` before publication; rebase and sign replacements only if needed. Push only the task branch and create or update one PR targeting `main`; never merge, change protections, delete branches, or commit parent gitlink updates.
+- Use the repo PR template with short entries: what changed, checks performed, and decisions still needed. One sentence per conflict; do not narrate the reconciliation process or repeat every preserved rule. Use a draft only when an unresolved consequential decision blocks readiness, not for routine cleanup or a documented unavailable check.
+- Invoking this workflow authorizes its task-branch pushes and PR creation. Continue unaffected targets if one is blocked; report the actual failure without fixing unrelated code.
+- Verify PR URLs, bases and file scope once. Finish with one compact table of all selected targets, PR/up-to-date/blocked status, and unresolved decisions. Report existing checkouts and gitlink pointers as unchanged by the run.
