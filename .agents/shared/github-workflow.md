@@ -1,7 +1,14 @@
 ## Git & GitHub Workflow
 
 > [!NOTE]
-> Source maintained in the [parent repo](https://github.com/julie-ng/ai-native-sdlc/blob/main/.agents/shared/github-workflow.md). Edit the source there; distributed copies in submodules are updated from it.
+> Maintained in the parent ai-native-sdlc repository. Edit the source there, not this distributed copy.
+
+### Agent identity and credentials
+
+- Use the configured agent identity, never the human developer's identity. Sign all commits with the configured agent GPG key, including rewritten commits.
+- In a dev container, use the `devcontainer-agent-setup` skill once before committing, pushing, or `gh`/PR work. Setup mechanics belong in that skill; locate mounts through the hosting workspace's local devcontainer configuration and do not copy host-specific paths into repository docs.
+- If the skill or agent credentials are unavailable, continue permitted local work and report delivery limitations. Never substitute a personal identity.
+- Never print or copy credential values into documentation, commits, issues or PRs.
 
 ### Prefer native Git and GitHub CLI
 
