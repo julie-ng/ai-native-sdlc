@@ -12,11 +12,6 @@
 
 - Read the [architecture index](./architecture/README.md), then the [ADR index](./architecture/decisions/README.md), then the design docs and ADRs relevant to the prompt.
 
-## Diagrams
-
-- Read [DESIGN.md](./DESIGN.md) when creating or revising SVG diagrams.
-- Use the `julie-io-diagrams` skill from the personal skills directory; reusable CSS and reference SVGs live in `images/`.
-
 ## Shared instructions
 
 Read and follow these alongside this repo’s project-specific instructions. Explicit project-specific exceptions override shared defaults; otherwise both apply.

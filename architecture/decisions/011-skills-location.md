@@ -22,7 +22,7 @@ As above, in every agent-worked repo.
 
 ### MVP / POC scope
 
-Applied for the [julie.io diagram skill](../../.agents/skills/julie-io-diagrams/SKILL.md): tracked in `.agents/skills/`, with `.claude/skills` symlinked to it. Other local skills remain ignored. Harness discovery and duplicate loading have not been tested here.
+Project distribution skills are tracked in `.agents/skills/`, with `.claude/skills` symlinked to it. Harness discovery and duplicate loading have not been tested here.
 
 ## Consequences
 
@@ -43,4 +43,5 @@ Applied for the [julie.io diagram skill](../../.agents/skills/julie-io-diagrams/
 
 | Date | Decision | Notes |
 |---|---|---|
-| 2026-10-21 | Track the project diagram skill in the canonical directory and add the Claude symlink | Narrow ignore exceptions keep other local skills untracked. Discovery across harnesses remains unverified. |
+| 2026-11-03 | Keep personal authoring tools outside the repository | Retain project distribution skills and the Claude symlink. |
+| 2026-10-21 | Track project skills in the canonical directory and add the Claude symlink | Discovery across harnesses remains unverified. |
