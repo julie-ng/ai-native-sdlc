@@ -7,6 +7,8 @@ description: Distribute the parent repository's shared agent instructions to sel
 
 The parent repository owns `.agents/shared/*.md`. Submodules receive local copies and retain their project-specific instructions. Run this workflow when asked to distribute or refresh those shared instructions. A request to write or review this skill does not authorize running it.
 
+When the user requests templates and shared instructions together, run both skills in the same owned task worktree and branch per target, and create or update one combined PR. For an existing owned sync branch, fetch and rebase onto the latest `origin/main` before further analysis; do not create a second PR. Preserve each skill’s separate scope when only one sync is requested.
+
 ## Start from the latest origin/main
 
 - Locate the hosting parent checkout through its `.gitmodules` and `.agents/shared/`; do not assume the current directory is the parent.
@@ -16,6 +18,7 @@ The parent repository owns `.agents/shared/*.md`. Submodules receive local copie
 - Inspect existing branches, PRs and worktrees for an unfinished distribution. Report overlaps rather than overwriting another session's work or opening duplicate PRs.
 - For each target, fetch `origin/main` and create a new `agent/` task branch in a separate worktree directly from that freshly fetched ref. Do this before inspecting target instructions or analyzing duplication and conflicts. Do not branch from the submodule's pinned commit, current checkout, or another task branch.
 - If a submodule is uninitialized, use an isolated clone of its declared remote to fetch `origin/main` and create the task worktree. Do not initialize or switch the parent's submodule checkout merely to distribute instructions.
+- Before inspecting or editing target contents, verify `git rev-parse --show-toplevel` resolves to the intended task worktree. If inherited `core.worktree` points elsewhere, correct only the new worktree’s setting and recheck; do not change the existing checkout’s path.
 - Configure the agent identity and signing for each new task worktree before committing. Leave existing submodule checkouts, dirty files and branches untouched. Do not stage or commit parent submodule pointers.
 - Only push the task branch and create a PR targeting `main`. Never push, merge or commit directly to `main`, merge the PR, bypass protections, or delete branches as part of this workflow.
 

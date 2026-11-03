@@ -7,6 +7,8 @@ description: Sync the parent repository's GitHub issue and pull request template
 
 The parent repository owns the shared GitHub templates. Distribute them when asked to sync issue or pull request templates to submodules. Writing or reviewing this skill does not authorize running it. Instruction-set distribution remains a separate workflow in `update-shared-instructions`.
 
+When the user requests templates and shared instructions together, run both skills in the same owned task worktree and branch per target, and create or update one combined PR. For an existing owned sync branch, fetch and rebase onto the latest `origin/main` before further analysis; do not create a second PR. Preserve each skill’s separate scope when only one sync is requested.
+
 ## Start from the latest origin/main
 
 - Locate the hosting parent checkout through `.gitmodules`. Read its applicable instructions. In a dev container, use `devcontainer-agent-setup` before authenticated Git/GitHub work; never substitute the human's identity if agent credentials are unavailable.
@@ -14,6 +16,7 @@ The parent repository owns the shared GitHub templates. Distribute them when ask
 - Discover target paths and remotes from the source `.gitmodules`. Use the user's selected targets, or all listed submodules if none are specified. Clarify any mismatch between the requested target/PR count and the discovered set before creating target branches.
 - Inspect existing worktrees, branches and PRs for overlapping template updates. Report overlaps rather than modifying another session's work or opening duplicate PRs.
 - For each target, fetch `origin/main` and create a new `agent/` task branch in a separate worktree from that fetched ref before inspecting templates or making changes. For uninitialized submodules, use an isolated clone of the declared remote; leave the parent's submodule checkouts untouched.
+- Before inspecting or editing target contents, verify `git rev-parse --show-toplevel` resolves to the intended task worktree. If inherited `core.worktree` points elsewhere, correct only the new worktree’s setting and recheck; do not change the existing checkout’s path.
 - Configure the agent identity and GPG signing for each task worktree. Never modify protected branches, merge PRs, bypass protections, delete branches, or stage parent submodule pointers in this workflow.
 
 ## Snapshot and compare
