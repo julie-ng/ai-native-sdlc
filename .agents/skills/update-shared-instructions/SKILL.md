@@ -36,7 +36,7 @@ Use the bundled helper for deterministic copying and root-index updates:
 node scripts/sync.mjs SOURCE_ROOT TARGET_ROOT
 ```
 
-Resolve `scripts/sync.mjs` relative to this skill’s directory. The helper copies every source Markdown file byte-for-byte, uses the source root index’s labels, and creates or updates the final shared section. It preserves other root sections and target-only shared files. It does not reconcile policies, delete obsolete files, stage changes, or operate Git.
+Resolve `scripts/sync.mjs` relative to this skill’s directory. The helper copies every source Markdown file byte-for-byte, uses the source root index’s labels and order, and creates or updates the final shared section. It preserves other root sections and target-only shared files. It does not reconcile policies, delete obsolete files, stage changes, or operate Git.
 
 - Make any required semantic cleanup in target root instructions separately. Preserve nested files, harness stubs, skills and unrelated content. Do not copy the parent's project-specific root instructions or memory contents.
 - Remove obsolete distributed files only when provenance and replacement intent are established; otherwise mention the removal candidate briefly. Add narrow ignore exceptions only if required. Do not delete instruction directories as incidental cleanup.
