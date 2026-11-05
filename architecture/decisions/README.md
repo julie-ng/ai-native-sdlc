@@ -32,3 +32,4 @@ Sections:
 | [012](./012-agent-identity-commits-vs-github-tokens.md) | Agent identity — commits vs. GitHub tokens; short-lived per-step access | Accepted — design, not yet implemented or verified in this repo |
 | [013](./013-skills-distribution.md) | Skills distribution — baked for the POC, target left to the platform | Accepted |
 | [014](./014-commit-signing.md) | Commit signing — native Git with GPG | Accepted — design; cloud key delivery not implemented |
+| [015](./015-sas-signing-and-local-identity.md) | SAS signing — user delegation keys, service principal for local development | Accepted |
