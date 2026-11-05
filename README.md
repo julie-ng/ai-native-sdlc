@@ -20,20 +20,77 @@ This repo is where I design the platform and scope work. The components are buil
 
 ## Project Status
 
-- **Design** — [ADR-001 – 013](./architecture/decisions/) accepted
+- **Design** — [ADR-001 – 016](./architecture/decisions/) accepted
 - **Dev container agent** — working: own GitHub account, GPG-signed commits, unattended runs after a confirmed read-back ([ADR-001](./architecture/decisions/001-dev-container-agent-identity.md))
 - **goose in a container** — working with `docker run`: issue in, PR out
-- **Cloud platform on AKS** — [cluster deployed](./infrastructure/); platform services and workflows next
+- **Cloud platform on AKS** — [cluster deployed](./infrastructure/), Argo Workflows installed (hello-world step runs on the agent pool), Key Vault secrets in place
+- **Platform services** — artifact API built, SAS signing verified against Azure; caller authentication and deployment next
 
-### Next
+### Next — initial release
+
+One issue end to end in the cluster: start a run with the Argo CLI, a planner writes a plan, a coder implements it and opens a PR, I review and merge.
 
 - [x] AKS cluster — deployed on Azure
-- [ ] Platform services — workflow service, artifact service, token broker
-- [ ] Argo Workflows — webhook in, one pod per agent step
+- [x] Argo Workflows — installed with Helm
 - [x] Agent images — shared [`agent-base`](./agent-images/) built
-- [ ] Role images — one per role, skills baked in
+- [ ] Agent image published to the registry, goose running in an Argo pod
+- [ ] Platform services — HMAC caller authentication, create the run, deploy to the cluster
+- [ ] Workflow — `foreman → planner → coder`, started with `argo submit`
+
+**Later:** token broker and GitHub App (a temporary token for now), reviewer step, webhook trigger, role images with skills baked in.
 
 ## What's New?
+
+### 2026-11-05
+
+**Decided**
+
+- **Initial release scope:** one issue end to end in the cluster. Start a run with the Argo CLI; a planner writes a plan, a coder implements it and opens a PR, and I review and merge. No reviewer step yet.
+- **HMAC tokens for platform services**, reusing my Tally Split implementation, so callers work without a cluster. Kubernetes ServiceAccount authentication is deferred. See [ADR-016](./architecture/decisions/016-hmac-caller-authentication.md).
+- **One exception to "agents have no cloud identity":** the coder can read only its commit-signing key from Key Vault. See [ADR-003](./architecture/decisions/003-platform-services-vs-agent-pods.md#exception-workload-identity-for-the-commit-signing-key).
+- **Shared agent instructions** now prefer the smallest implementation that meets the acceptance criteria, after agents kept proposing production-grade machinery for a POC.
+
+**Added**
+
+- **Argo Workflows installed** on AKS with Helm. See [Infrastructure](./infrastructure/).
+- **Trusted `foreman` step:** its own identity and RBAC to create a run and hand each agent step a scoped token. Platform services consolidated into one identity.
+- **Key Vault secrets created** by script: platform-service tokens and the agent's GPG signing key.
+
+### 2026-11-04
+
+**Validated**
+
+- **Artifact SAS URLs** signed with user delegation keys, no storage account keys. Upload, download and overwrite work against Azure; wrong permissions and other containers return 403. See [ADR-015](./architecture/decisions/015-sas-signing-and-local-identity.md).
+
+### 2026-11-01
+
+**Added**
+
+- **Artifact API** in [Platform services](./platform-services/): register, upload and download artifacts through scoped SAS URLs, backed by PostgreSQL. Plus logging, a readiness endpoint and an API docs site.
+
+**Changed**
+
+- Removed an unneeded service layer from platform services in favor of explicit guards and plain functions.
+
+### 2026-10-27
+
+**Added**
+
+- **Cost control:** GitHub workflow stops AKS and PostgreSQL manually and daily at 8pm.
+
+### 2026-10-25
+
+**Decided**
+
+- **Commit signing:** native Git with GPG, one key per agent role. See [ADR-014](./architecture/decisions/014-commit-signing.md).
+
+**Added**
+
+- [GitHub token broker](./github-broker/) bootstrapped, and the [workflows](./workflows/) repo created.
+
+**Validated**
+
+- **Agent pod restrictions:** agent pods can't reach the cloud metadata endpoint (IMDS), and privileged pods such as `hostNetwork` are rejected.
 
 ### 2026-10-22
 
