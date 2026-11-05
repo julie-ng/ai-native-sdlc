@@ -3,7 +3,7 @@
 > [!NOTE]
 > Design draft, 2026-10-10. Not built. Captured from a design session so it survives context loss. See [identity](./identity.md) and [02 · Architecture](../02-architecture.md).
 
-A small platform service that issues each agent pod a short-lived GitHub installation token, downscoped to the pod's role and one repository. Agents never hold the GitHub App private key or a cloud identity. For artifact transfers they receive scoped Blob SAS URLs from the artifact service ([ADR-005](../decisions/005-state-and-artifacts.md)).
+A small platform service that issues each agent pod a short-lived GitHub installation token, downscoped to the pod's role and one repository. Agents never hold the GitHub App private key or a cloud identity.[^signing-key] For artifact transfers they receive scoped Blob SAS URLs from the artifact service ([ADR-005](../decisions/005-state-and-artifacts.md)).
 
 ## Why
 
@@ -106,3 +106,5 @@ A small platform service that issues each agent pod a short-lived GitHub install
 | 2026-10-10 | Pull model via token broker, not cloud vault | Vault needs per-pod cloud identity and isn't built for per-run secret churn. Broker auth uses the cloud-agnostic K8s ServiceAccount token. |
 | 2026-10-10 | Repository derived from pod metadata, never from the request | Denied by construction. |
 | 2026-10-10 | Argo parameters carry references (broker URL, role), never tokens | Workflow objects are readable; tokens must not land there. |
+
+[^signing-key]: One exception: the coder can read the commit-signing key. See [ADR-003](../decisions/003-platform-services-vs-agent-pods.md#exception-workload-identity-for-the-commit-signing-key).

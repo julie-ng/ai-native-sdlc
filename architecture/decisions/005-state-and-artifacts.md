@@ -7,7 +7,7 @@
 ## Context
 
 - Pods are stateless per task. State crosses agent boundaries only by explicit handoff.
-- Agent pods have no cloud identity ([ADR-003](./003-platform-services-vs-agent-pods.md)).
+- Agent pods have no access to Azure resources[^signing-key] ([ADR-003](./003-platform-services-vs-agent-pods.md)).
 - Long-term goal: keep run data (logs, Markdown artifacts, screenshots) so agents can improve.
 
 ## Decision
@@ -60,3 +60,5 @@ Not built.
 ## Open
 
 - Artifact naming/addressing so a downstream step finds an upstream step's output.
+
+[^signing-key]: One exception: the coder can read the commit-signing key. See [ADR-003](./003-platform-services-vs-agent-pods.md#exception-workload-identity-for-the-commit-signing-key).
