@@ -17,13 +17,13 @@
 |---|---|---|---|
 | **0** | `allow`/`deny` rules in agent settings | **No** — deterrent only | anywhere, as hints |
 | **1** | Dev container | **Yes** — filesystem: files outside the mounts don't exist. Shares the host kernel. | laptop, subscription-billed |
-| **2** | K8s pod | **Yes** — container, shares the node kernel. Plus: not on the developer's machine, disposable per step. Target: no cloud identity, no K8s API access. | cloud, API keys |
+| **2** | K8s pod | **Yes** — container, shares the node kernel. Plus: not on the developer's machine, disposable per step. Target: no cloud identity (one exception, ADR-003), no K8s API access. | cloud, API keys |
 
 Level 2 is not a stronger *kernel* boundary than Level 1 — both are containers. It is a different *environment*: nothing of the developer's is reachable, and the pod dies with the task.
 
 ### Target design
 
-- Level 2 pods: `automountServiceAccountToken: false`, only a projected token with audience `token-broker` ([token broker](../reference/token-broker.md)). Agent pods hold no cloud identity and no K8s API access.
+- Level 2 pods: `automountServiceAccountToken: false`, a projected token with audience `token-broker` ([token broker](../reference/token-broker.md)), and no K8s API access. Agent pods hold no cloud identity, except committing roles, which can read only the signing key ([ADR-003](./003-platform-services-vs-agent-pods.md#exception-workload-identity-for-the-commit-signing-key)).
 - Egress firewall: network designed so one can be added.
 
 ### MVP / POC scope
