@@ -17,7 +17,7 @@
 ### Why HMAC
 
 - **Cluster-free callers.** A token verified with a server-side key works for callers outside Kubernetes, including local development, without TokenReview or a cluster API.
-- **Reuse.** The design and much of the implementation come from Tally Split, as ADR-003 notes.
+- **Reuse.** The design and much of the implementation come from Tally Split, as ADR-003 notes. Reusing it as is is the fastest route to a first release.
 
 This is a pragmatic choice for the first release, not a finding that HMAC is the better long-term mechanism.
 
@@ -52,12 +52,14 @@ Nothing is built. Caller authentication, token issuance and credential delivery 
 ### Accepted trade-offs
 
 - A shared signing key to store and rotate.
+- Not stateless: verification looks up the run on every request. The token is an opaque MAC over stored values and carries no claims.
 - A credential-delivery problem the ServiceAccount approach would avoid: Argo parameters cannot carry tokens, so the pod needs another route to its token.
 
 ## Open
 
 - **Credential delivery into the pod.** Not designed. A pull exchange, where the pod presents its projected ServiceAccount token and the workflow service issues the scoped HMAC, was discussed but not decided. It would need run and step labels stamped by Argo, a platform-service audience on the projected token, and TokenReview plus pod-read permissions for the issuer.
 - **Where task type, inputs and outputs come from.** Embedded in the token, or looked up by the service from its own records. The workflow-service plan holds this open.
+- **Stateless tokens, later.** Carry signed claims (run, step, task type, inputs, outputs, expiry) in the token, so verification checks only the signature and expiry, with no lookup. Faster per request; revocation then depends on short expiry. Deferred as a pragmatic choice: the first release reuses the Tally Split verification flow.
 - **Response codes and security-event logging** (401 versus 403).
 - **Revisit ServiceAccount authentication** once the broker is built and the exchange above has been explored.
 
