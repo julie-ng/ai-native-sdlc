@@ -11,20 +11,23 @@ if (roots.length !== 2) {
 const [source, target] = roots.map(root => fs.realpathSync(root))
 if (source === target) throw new Error('Source and target must differ')
 
-// 2. Find the source instructions and build their index using the source labels.
+// 2. Find the source instructions and build their index using the source labels,
+//    in the order the source AGENTS.md lists them.
 const shared = '.agents/shared'
 const names = fs.readdirSync(path.join(source, shared))
   .filter(name => name.endsWith('.md') && fs.statSync(path.join(source, shared, name)).isFile())
-  .sort()
 if (!names.length) throw new Error('Source shared instruction set is empty')
 const sourceIndex = fs.readFileSync(path.join(source, 'AGENTS.md'), 'utf8')
-const entries = names.map(name => {
-  const ref = `./${shared}/${name}`
-  const label = [...sourceIndex.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g)]
-    .find(match => match[2] === ref)?.[1]
-  if (!label) throw new Error(`Source AGENTS.md has no label for ${name}`)
-  return `- [${label}](${ref})`
-})
+const links = [...sourceIndex.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g)]
+const position = ref => links.findIndex(match => match[2] === ref)
+const entries = names
+  .map(name => ({ name, ref: `./${shared}/${name}` }))
+  .map(entry => {
+    if (position(entry.ref) < 0) throw new Error(`Source AGENTS.md has no label for ${entry.name}`)
+    return entry
+  })
+  .sort((a, b) => position(a.ref) - position(b.ref))
+  .map(({ ref }) => `- [${links[position(ref)][1]}](${ref})`)
 const section = '## Shared instructions\n\n'
   + 'Read and follow these alongside this repo’s project-specific instructions. Explicit project-specific exceptions override shared defaults; otherwise both apply.\n\n'
   + entries.join('\n') + '\n'
