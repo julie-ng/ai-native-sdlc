@@ -41,7 +41,7 @@ One goose process can't switch models mid-run, but every step is its own pod —
 Kubernetes issues every workload a short-lived token tied to its ServiceAccount. Each side exchanges it differently:
 
 - **Platform services** exchange it with the cloud's identity provider for access to cloud resources — on Azure, Microsoft Entra Workload ID.
-- **Agent pods get no cloud identity.** The [token broker](./reference/token-broker.md) exchanges their token for a GitHub token scoped to the pod's role and one repository.
+- **Agent pods get no cloud identity**, except the `coder`, which can read only the commit-signing key ([ADR-003](./decisions/003-platform-services-vs-agent-pods.md#exception-workload-identity-for-the-commit-signing-key)). The [token broker](./reference/token-broker.md) exchanges their token for a GitHub token scoped to the pod's role and one repository.
 
 Same Kubernetes identity, two exchanges. Every token expires. Pods never name the repository — the broker looks it up — so a pod can't ask for access to another one.
 
@@ -89,7 +89,7 @@ The full reasoning lives in the [ADRs](./decisions/). In short — decided for t
 | Decision | ADR |
 |---|---|
 | Argo Workflows, one pod per agent step, no nesting | [004](./decisions/004-orchestration-argo-workflows.md) |
-| Agent pods: no cloud identity; HMAC tokens to platform services; one `agents` namespace, ServiceAccount per role | [003](./decisions/003-platform-services-vs-agent-pods.md) |
+| Agent pods: no cloud identity (one exception: signing-key read); HMAC tokens to platform services; one `agents` namespace, ServiceAccount per role | [003](./decisions/003-platform-services-vs-agent-pods.md) |
 | GitHub token broker instead of tokens in a cloud vault | [003](./decisions/003-platform-services-vs-agent-pods.md), [012](./decisions/012-agent-identity-commits-vs-github-tokens.md) |
 | Workflow service is the system of record; webhook goes straight to it | [004](./decisions/004-orchestration-argo-workflows.md), [005](./decisions/005-state-and-artifacts.md) |
 | One PostgreSQL server, separate databases; Argo via workload identity | [005](./decisions/005-state-and-artifacts.md) |

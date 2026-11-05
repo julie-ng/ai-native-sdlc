@@ -7,7 +7,7 @@
 ## Context
 
 - Pods are stateless per task. State crosses agent boundaries only by explicit handoff.
-- Agent pods have no cloud identity ([ADR-003](./003-platform-services-vs-agent-pods.md)).
+- Agent pods have no cloud identity for storage ([ADR-003](./003-platform-services-vs-agent-pods.md)).
 - Long-term goal: keep run data (logs, Markdown artifacts, screenshots) so agents can improve.
 
 ## Decision
