@@ -16,9 +16,9 @@
 |---|---|---|
 | Examples | workflow service, artifact service, token broker, Argo | planner, coder, reviewer, open-PR step |
 | Trust | trusted | untrusted |
-| Cloud identity | workload identity → PostgreSQL (incl. Argo), Blob, Key Vault | **none**, except read access to the commit-signing key (below) |
+| Cloud identity | workload identity → PostgreSQL (incl. Argo), Blob, Key Vault | **none**, except read access to the long-lived secrets the pod needs (below) |
 | GitHub | broker holds the App key | short-lived token from the broker ([ADR-012](./012-agent-identity-commits-vs-github-tokens.md)) |
-| Kubernetes | normal | no API access; projected ServiceAccount token, audience `token-broker`; committing roles also carry the workload identity token (below) |
+| Kubernetes | normal | no API access; projected ServiceAccount token, audience `token-broker`; planner and coder also carry the workload identity token (below) |
 | Platform services | — | HMAC token per run/task (below) |
 
 - **One `agents` namespace, one ServiceAccount per role.** ServiceAccount = role, pod = run.
@@ -39,21 +39,30 @@ Agents authenticate to the artifact service (and other platform services) with *
 
 Separate from the Kubernetes token, which is audience `token-broker` only.
 
-### Exception: workload identity for the commit-signing key
+<a id="exception-workload-identity-for-the-commit-signing-key"></a>
 
-Added 2026-11-05. Committing agent pods need the GPG private key to sign commits ([ADR-014](./014-commit-signing.md)). The key is in Key Vault and mounted by the Key Vault CSI driver using a workload identity on the committing roles' ServiceAccounts.
+### Workload identity for long-lived secrets
 
-- **Why acceptable:** the key grants no access to any system. It signs commits, and GitHub uses the signature for verification only. Every mount option places the key in the pod anyway, so an identity that can read only that key adds no capability.
-- **Why not the CSI add-on identity:** AKS attaches it to every node pool, and IMDS is blocked only in `agents`. Trusted pods in other namespaces could read the key.
+Added 2026-11-05 for the commit-signing key, generalized 2026-11-07. Granular, secret-scoped permissions in infrastructure code replace blanket denial.
 
-Constraints, so this stays an exception:
+Agent pods read the long-lived secrets they need directly from Key Vault. The Key Vault CSI driver mounts them using a workload identity per role.
 
-- **One dedicated managed identity**, used for nothing else.
-- **One role:** `Key Vault Secrets User`, scoped to the signing-key secret only. Any further role assignment for an agent identity needs a new decision.
-- **Federated only to committing roles' ServiceAccounts.** Initial release: `coder`.
+- **Only secrets the pod needs anyway**, for example the AI gateway key, the GitHub PAT (temporary, until the broker) and the commit-signing key.
+- **One managed identity per role**, federated only to that role's ServiceAccount.
+- **One `Key Vault Secrets User` grant per secret**, at secret scope. No vault-scope grants, no other roles.
 - **IMDS stays blocked** in `agents`, unchanged.
 
-Accepted: model-driven code can use the mounted workload identity token directly, but it reaches only the key the pod already holds.
+| Role | Secrets (initial release) |
+|---|---|
+| planner | AI gateway key, GitHub PAT |
+| coder | AI gateway key, GitHub PAT, commit-signing key |
+
+- **Why acceptable:** every delivery option places the secret in the pod. An identity that can read only those secrets adds no capability; a leaked workload identity token reaches only what the pod already holds.
+- **Why not copies in Kubernetes Secrets:** manual or per-run copies in etcd, rotated by hand. The CSI mount reads the current value.
+- **Why not the CSI add-on identity:** AKS attaches it to every node pool, and IMDS is blocked only in `agents`. Trusted pods in other namespaces could read the secrets.
+- **Per-run credentials are different.** HMAC tokens exist only once a run is created, so a trusted step delivers them, not workload identity ([ADR-016](./016-hmac-caller-authentication.md)).
+
+Accepted: the planner holds the PAT because `gh` requires authentication even for public repositories. The PAT is not role-scoped, so the planner could push; branch rulesets still require a PR and signed commits on `main`. The token broker replaces the PAT with per-role tokens.
 
 ### Target design
 
@@ -68,13 +77,13 @@ Not built.
 | Option | Why not |
 |---|---|
 | Namespace per role solely to separate Secret mounts | Not required when trusted controllers select mounts and agents cannot read Secrets or create/modify workloads. |
-| Workload identity for agent pods | Gives untrusted code cloud access it does not need. Exception: read access to the signing key only (above). |
+| Workload identity for agent pods | Gives untrusted code cloud access it does not need. Exception: read access to the long-lived secrets the pod needs (above). |
 
 ## Consequences
 
 **Positive**
 
-- Agent pods have no storage account keys and no cloud identity beyond reading the signing key. Their Blob access uses artifact-scoped SAS URLs issued by the artifact service.
+- Agent pods have no storage account keys and no cloud identity beyond reading the long-lived secrets the pod needs. Their Blob access uses artifact-scoped SAS URLs issued by the artifact service.
 - Role-based scoping without per-role Secrets.
 
 **Accepted trade-offs**
@@ -88,10 +97,11 @@ Not built.
 
 | Date | Clarification | Reasoning |
 |---|---|---|
+| 2026-11-07 | Generalize the exception: planner and coder read the long-lived secrets they need (AI gateway key, PAT, signing key) through workload identity, one secret-scoped grant each | Same reasoning as the signing key: the secret is in the pod regardless. Simpler than copying values into Kubernetes Secrets. Granular grants in infrastructure code instead of blanket denial. |
 | 2026-11-05 | Committing roles get a workload identity that can read only the signing key | Signing grants no access; the key is in the pod regardless. The CSI add-on identity would expose the key to every node pool. |
 | 2026-10-24 | Secret mounts do not inherently require namespaces per role | Access depends on API permissions and control of pod creation/mounts, not on the mere presence of Secrets in a shared namespace. |
 
 ## Open
 
-- **HMAC token delivery** into the agent pod. Argo parameters carry no tokens (see [token-broker.md](../reference/token-broker.md)), so not via a parameter. Not designed.
+- **HMAC token delivery** into the agent pod: a trusted `foreman` step creates the run and writes one Kubernetes Secret per step, owned by the Workflow ([infrastructure#19](https://github.com/julie-ng/ai-native-sdlc-infrastructure/issues/19)). Argo parameters carry no tokens. Designed, not built.
 - **Unverified:** default ServiceAccount token lifetime on AKS may be extended for compatibility. Not relied on — automount off, dedicated projected token.

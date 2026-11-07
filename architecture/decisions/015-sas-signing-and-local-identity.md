@@ -6,7 +6,7 @@
 
 ## Context
 
-- The artifact service issues per-blob SAS URLs so agent pods transfer artifact bytes directly to and from Azure Storage ([ADR-005](./005-state-and-artifacts.md)). Pods hold no cloud identity[^signing-key] or storage account keys ([ADR-003](./003-platform-services-vs-agent-pods.md)).
+- The artifact service issues per-blob SAS URLs so agent pods transfer artifact bytes directly to and from Azure Storage ([ADR-005](./005-state-and-artifacts.md)). Pods hold no cloud identity[^agent-secrets] or storage account keys ([ADR-003](./003-platform-services-vs-agent-pods.md)).
 - The service authenticates to Azure with Microsoft Entra ID. In the cluster that is workload identity, which has no account key.
 - Local development needs the same signing path without a cluster.
 
@@ -64,4 +64,4 @@
   - reading with a write SAS,
   - reading another container.
 
-[^signing-key]: One exception: the coder can read the commit-signing key. See [ADR-003](./003-platform-services-vs-agent-pods.md#exception-workload-identity-for-the-commit-signing-key).
+[^agent-secrets]: Exception: agent roles read the long-lived secrets they need, one secret-scoped grant each. See [ADR-003](./003-platform-services-vs-agent-pods.md#workload-identity-for-long-lived-secrets).
