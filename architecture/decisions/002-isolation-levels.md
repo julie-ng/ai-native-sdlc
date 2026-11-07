@@ -17,13 +17,13 @@
 |---|---|---|---|
 | **0** | `allow`/`deny` rules in agent settings | **No** — deterrent only | anywhere, as hints |
 | **1** | Dev container | **Yes** — filesystem: files outside the mounts don't exist. Shares the host kernel. | laptop, subscription-billed |
-| **2** | K8s pod | **Yes** — container, shares the node kernel. Plus: not on the developer's machine, disposable per step. Target: no cloud identity[^signing-key], no K8s API access. | cloud, API keys |
+| **2** | K8s pod | **Yes** — container, shares the node kernel. Plus: not on the developer's machine, disposable per step. Target: no cloud identity[^agent-secrets], no K8s API access. | cloud, API keys |
 
 Level 2 is not a stronger *kernel* boundary than Level 1 — both are containers. It is a different *environment*: nothing of the developer's is reachable, and the pod dies with the task.
 
 ### Target design
 
-- Level 2 pods: `automountServiceAccountToken: false`, a projected token with audience `token-broker` ([token broker](../reference/token-broker.md)). Agent pods hold no cloud identity[^signing-key] and no K8s API access.
+- Level 2 pods: `automountServiceAccountToken: false`, a projected token with audience `token-broker` ([token broker](../reference/token-broker.md)). Agent pods hold no cloud identity[^agent-secrets] and no K8s API access.
 - Egress firewall: network designed so one can be added.
 
 ### MVP / POC scope
@@ -57,4 +57,4 @@ Level 2 is not a stronger *kernel* boundary than Level 1 — both are containers
 | Docker-in-Docker on Level 1 | The dev container feature runs privileged ([devcontainer README](../../.devcontainer/README.md)). A privileged container weakens the Level 1 boundary considerably. |
 | No egress control (MVP) | A compromised agent can send data anywhere its network reaches. |
 
-[^signing-key]: One exception: the coder can read the commit-signing key. See [ADR-003](./003-platform-services-vs-agent-pods.md#exception-workload-identity-for-the-commit-signing-key).
+[^agent-secrets]: Exception: agent roles read the long-lived secrets they need, one secret-scoped grant each. See [ADR-003](./003-platform-services-vs-agent-pods.md#workload-identity-for-long-lived-secrets).
