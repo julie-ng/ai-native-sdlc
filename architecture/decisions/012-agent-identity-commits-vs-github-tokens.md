@@ -1,6 +1,6 @@
 # ADR-012: Agent identity — commits vs. GitHub tokens
 
-- **Status:** Accepted — **design. Not yet implemented or verified in this repo.**
+- **Status:** Accepted — commits and signing built (2026-11-11); token broker not built, temporary PAT
 - **Date:** 2026-10-21
 - **Context:** Cloud tier (Level 2, K8s pods), no human starts the run. Dev container identity is [ADR-001](./001-dev-container-agent-identity.md).
 
@@ -55,7 +55,9 @@ As above.
 
 ### MVP / POC scope
 
-Not built. Today's cloud-tier evidence is a `docker run` spike with a classic PAT ([goose-k8s-prep](../../spikes/goose-k8s-prep/)).
+Partly built (2026-11-11). In the cluster, the coder commits as the agent account `@julieio-goose`, signs with its GPG key, and GitHub shows the commits as **Verified**.
+
+- **Not built:** the token broker and GitHub App tokens. Push and `gh` use a temporary PAT from Key Vault, shared by planner and coder ([credential flow](../reference/credential-flow.md)).
 
 ## Alternatives considered
 

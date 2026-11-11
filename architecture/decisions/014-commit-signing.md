@@ -1,6 +1,6 @@
 # ADR-014: Commit signing — native Git with GPG
 
-- **Status:** Accepted — design; cloud key delivery not implemented
+- **Status:** Accepted — cloud key delivery built (2026-11-11); one key, not one per role
 - **Date:** 2026-10-25
 - **Context:** Cloud committing roles; retain the native Git flow in the dev-container tier.
 
@@ -70,7 +70,7 @@ Author names are self-declared: a coder can claim `goose (architect)` while sign
 
 ### MVP / POC scope
 
-Dev-container GPG signing exists ([ADR-001](./001-dev-container-agent-identity.md)); cloud key delivery and role configuration remain implementation work. App commits were researched, not integration-tested.
+Dev-container GPG signing exists ([ADR-001](./001-dev-container-agent-identity.md)). Cloud key delivery built (2026-11-11): the coder mounts the private key from Key Vault through CSI under its own workload identity, the image entrypoint imports it into a private GPG home, and commits show **Verified**. One key for `@julieio-goose`, not one per role. App commits were researched, not integration-tested.
 
 ## Open
 

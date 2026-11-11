@@ -17,12 +17,12 @@ The agent runs in two places. On my laptop, in a [dev container](./dev-container
 | | Dev container | Cloud |
 |---|---|---|
 | Decision | [ADR-001](../decisions/001-dev-container-agent-identity.md) | [ADR-012](../decisions/012-agent-identity-commits-vs-github-tokens.md) |
-| Committer | agent user account `julieio-agent` | same account |
-| Signing | GPG key on that account | same |
-| Access | classic PAT, HTTPS for `git` and `gh` | GitHub App installation token from the [token broker](./token-broker.md), ≤ 1 hour, per pod |
-| Scope | collaborator role + repo rulesets | downscoped per request to the pod's role and one repo |
+| Committer | agent user account `julieio-agent` | agent user account `julieio-goose` |
+| Signing | GPG key on that account | GPG key on that account, mounted from Key Vault into the coder pod only |
+| Access | classic PAT, HTTPS for `git` and `gh` | target: GitHub App installation token from the [token broker](./token-broker.md), ≤ 1 hour, per pod. Initial release: temporary PAT from Key Vault |
+| Scope | collaborator role + repo rulesets | target: downscoped per request to the pod's role and one repo. Initial release: collaborator role + repo rulesets |
 | LLM | my subscription ([ADR-006](../decisions/006-models-and-llm-access.md)) | API keys via an AI gateway |
-| Built in this repo | **yes** — signed commits show Verified, e.g. [PR #8](https://github.com/julie-ng/autonomous-agents-setup/pull/8) | **not yet** — no App registered, broker not built |
+| Built | **yes** — signed commits show Verified, e.g. [PR #8](https://github.com/julie-ng/autonomous-agents-setup/pull/8) | **partly** — signed commits from the coder pod show Verified (2026-11-11); broker not built. See [credential flow](./credential-flow.md) |
 
 In the dev container the token is coarse on purpose. A classic PAT carries account-wide scopes and is not repo-scoped; the real boundary is the repository — collaborator role, rulesets and environment-only secrets, described in [GitHub configuration](./github-configuration.md). In the cloud, the broker narrows every token to exactly the pod's role and repository, and the App private key never leaves the broker.
 
@@ -30,7 +30,7 @@ In the dev container the token is coarse on purpose. A classic PAT carries accou
 
 Just as important as what it holds:
 
-- **No cloud identity** — workload identity belongs to platform services such as the workflow service and the token broker, not to agent pods ([ADR-003](../decisions/003-platform-services-vs-agent-pods.md))
+- **No cloud identity beyond its own secrets** — workload identity belongs to platform services such as the workflow service and the token broker. Agent roles use theirs only to read the long-lived secrets they need, one secret-scoped grant each ([ADR-003](../decisions/003-platform-services-vs-agent-pods.md#workload-identity-for-long-lived-secrets))
 - **No deploy credentials**
 - **No Kubernetes API access**
 - **No access to the App private key**
@@ -47,6 +47,8 @@ Production secrets and deploys are meant to be reachable only after a human merg
 
 | Date | Decision | Notes |
 |---|---|---|
+| 2026-11-11 | Cloud tier built for the initial release: `julieio-goose` commits and signs in the coder pod; temporary PAT instead of the broker | [Credential flow](./credential-flow.md) |
+| 2026-11-07 | Agent roles read their long-lived secrets (AI gateway key, PAT, GPG key) through workload identity, one secret-scoped grant each | [ADR-003](../decisions/003-platform-services-vs-agent-pods.md#workload-identity-for-long-lived-secrets) |
 | 2026-10-21 | Cloud: agent user commits and signs, App token pushes | [ADR-012](../decisions/012-agent-identity-commits-vs-github-tokens.md) |
 | 2026-10-21 | Repo configuration is the boundary, not the token | [GitHub configuration](./github-configuration.md) |
 | 2026-10-20 | Dev container: own account, classic PAT, GPG signing, no SSH | [ADR-001](../decisions/001-dev-container-agent-identity.md) |

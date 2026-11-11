@@ -1,6 +1,6 @@
 # ADR-004: Orchestration — Argo Workflows, one pod per agent step
 
-- **Status:** Accepted — design, not built
+- **Status:** Accepted — initial release built (2026-11-11): linear `foreman → planner → coder`, no review loop
 - **Date:** 2026-10-21 (final decision 2026-10-20)
 - **Context:** Cloud tier. Supersedes the earlier single-Job design and Argo Events in [phase 2](../../spikes/orchestration-k8s-phase-2.md).
 
@@ -30,7 +30,9 @@ As above, on AKS.
 
 ### MVP / POC scope
 
-Not built. Proven so far: one goose container, issue → PR, with plain `docker run` ([goose-k8s-prep](../../spikes/goose-k8s-prep/)). Never run in K8s.
+Built for the initial release (2026-11-11): Argo Workflows 4.1.6 on AKS, one pod per step. The human starts a run with `argo submit`; the [`initial-release` template](../../workflows/) runs `foreman → planner → coder`, and the coder opens a signed PR.
+
+- **Not built:** the review loop and iteration cap, and the webhook trigger through the workflow service.
 
 ## Alternatives considered
 

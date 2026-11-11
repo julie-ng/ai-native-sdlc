@@ -1,6 +1,6 @@
 # ADR-003: Platform services vs. agent pods — trust split
 
-- **Status:** Accepted — design, not built
+- **Status:** Accepted — initial release built (2026-11-11); token broker not built
 - **Date:** 2026-10-21 (decisions from 2026-10-10)
 - **Context:** Cloud tier (Level 2, K8s). See [ADR-002](./002-isolation-levels.md).
 
@@ -70,7 +70,12 @@ As above.
 
 ### MVP / POC scope
 
-Not built.
+Built for the initial release (2026-11-11). See the [credential flow](../reference/credential-flow.md).
+
+- `agents` namespace, one ServiceAccount per role; planner and coder run as separate pods.
+- Agent → platform services: HMAC step tokens, delivered by the trusted `foreman` step ([ADR-016](./016-hmac-caller-authentication.md)).
+- Long-lived secrets by workload identity and CSI, one secret-scoped grant each: planner reads the AI gateway key and PAT; coder also the GPG key.
+- **Not built:** the token broker. A temporary PAT, shared by planner and coder, stands in for per-pod GitHub tokens.
 
 ## Alternatives considered
 

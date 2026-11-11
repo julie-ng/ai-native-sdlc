@@ -23,6 +23,9 @@ One workflow run, from issue to pull request. The POC runs on Azure (AKS); the d
 6. The agent pushes commits and comments on GitHub.
 7. The agent reports status to the workflow service. For artifact access, it calls the artifact service with an HMAC token; after validating the run, artifact and permission, the service returns a Blob SAS URL. The agent transfers artifact bytes directly to/from Azure Storage.
 
+> [!NOTE]
+> **Initial release (2026-11-11).** The human starts a run with `argo submit` instead of a webhook. A trusted `foreman` step creates the run in platform services and hands each agent its HMAC step token; a temporary PAT stands in for the token broker. Planner and coder run once each, no review loop. See the [credential flow](./reference/credential-flow.md).
+
 Steps 3–7 repeat for each agent in the loop. Decisions: [ADR-003](./decisions/003-platform-services-vs-agent-pods.md), [ADR-004](./decisions/004-orchestration-argo-workflows.md), [ADR-005](./decisions/005-state-and-artifacts.md).
 
 ### State

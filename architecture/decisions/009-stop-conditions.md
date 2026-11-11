@@ -1,6 +1,6 @@
 # ADR-009: Stop conditions — cap, green, human
 
-- **Status:** Accepted — design, not built
+- **Status:** Accepted — partly built: deadlines only (2026-11-11)
 - **Date:** 2026-10-21 (decided 2026-10-20)
 - **Context:** Cloud tier, coder ↔ reviewer / QA loops ([ADR-004](./004-orchestration-argo-workflows.md)).
 
@@ -33,7 +33,9 @@ As above.
 
 ### MVP / POC scope
 
-Not built.
+Partly built (2026-11-11): no loop yet, so no iteration cap or QA gate. Cost is bounded by `activeDeadlineSeconds` per step and per workflow, and by HMAC step tokens that expire 15 minutes after run creation.
+
+Verified: `goose run` exits 0 even when the model call fails. Each step therefore fails unless its outcome exists (an uploaded plan, an opened PR), consistent with "exit code 0 is not a success signal".
 
 ## Consequences
 

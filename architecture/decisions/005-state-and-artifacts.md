@@ -1,6 +1,6 @@
 # ADR-005: State and artifacts — workflow service DB + artifact service
 
-- **Status:** Accepted — design, not built
+- **Status:** Accepted — artifact service built (2026-11-10); workflow service not built
 - **Date:** 2026-10-21 (decisions from 2026-09-04 to 2026-10-20)
 - **Context:** Cloud tier. Artifact service authorizes access; pods transfer artifact bytes directly to/from Blob Storage using SAS URLs — see [02 · Architecture](../02-architecture.md#state).
 
@@ -34,7 +34,11 @@ As above, on AKS with Azure Blob Storage and PostgreSQL.
 
 ### MVP / POC scope
 
-Not built.
+Partly built (2026-11-10), as one app: [platform services](../../platform-services/).
+
+- **Artifact service:** runs, steps and artifact metadata in PostgreSQL; bytes in Blob Storage through per-blob user delegation SAS ([ADR-015](./015-sas-signing-and-local-identity.md)). Planner writes `plan`, coder reads it.
+- **Workflow service:** only run creation (`POST /api/runs`). Status reporting, retries, cost and the webhook are not built.
+- Argo keeps no archive or artifact repository; its storage account is unused.
 
 ## Alternatives considered
 

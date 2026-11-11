@@ -20,17 +20,17 @@ Sections:
 |---|---|---|
 | [001](./001-dev-container-agent-identity.md) | Dev container agent identity — own account, classic PAT, GPG signing | Accepted |
 | [002](./002-isolation-levels.md) | Isolation levels — settings, dev container, K8s pod | Accepted |
-| [003](./003-platform-services-vs-agent-pods.md) | Platform services vs. agent pods — trust split | Accepted — design, not built |
-| [004](./004-orchestration-argo-workflows.md) | Orchestration — Argo Workflows, one pod per agent step | Accepted — design, not built |
-| [005](./005-state-and-artifacts.md) | State and artifacts — workflow service DB + artifact service | Accepted — design, not built |
+| [003](./003-platform-services-vs-agent-pods.md) | Platform services vs. agent pods — trust split | Accepted — built; token broker not built |
+| [004](./004-orchestration-argo-workflows.md) | Orchestration — Argo Workflows, one pod per agent step | Accepted — built, no review loop yet |
+| [005](./005-state-and-artifacts.md) | State and artifacts — workflow service DB + artifact service | Accepted — artifact service built; workflow service not built |
 | [006](./006-models-and-llm-access.md) | Models and LLM access — subscription on the laptop, API keys in the cloud | Accepted |
 | [007](./007-harness.md) | Harness — goose in the cloud, Claude Code / Codex on the laptop | Accepted |
 | [008](./008-scm-agnostic-cli-over-mcp.md) | SCM-agnostic tooling — Git and forge CLIs over MCP | Accepted |
-| [009](./009-stop-conditions.md) | Stop conditions — cap, green, human | Accepted — design, not built |
+| [009](./009-stop-conditions.md) | Stop conditions — cap, green, human | Accepted — deadlines only |
 | [010](./010-agent-images.md) | Agent images — official goose base, skills baked, one image per role | Accepted — base pending measurement |
 | [011](./011-skills-location.md) | Skills location — `.agents/skills/`, symlinked for Claude Code | Accepted |
-| [012](./012-agent-identity-commits-vs-github-tokens.md) | Agent identity — commits vs. GitHub tokens; short-lived per-step access | Accepted — design, not yet implemented or verified in this repo |
+| [012](./012-agent-identity-commits-vs-github-tokens.md) | Agent identity — commits vs. GitHub tokens; short-lived per-step access | Accepted — signed commits built; broker not built |
 | [013](./013-skills-distribution.md) | Skills distribution — baked for the POC, target left to the platform | Accepted |
-| [014](./014-commit-signing.md) | Commit signing — native Git with GPG | Accepted — design; cloud key delivery not implemented |
+| [014](./014-commit-signing.md) | Commit signing — native Git with GPG | Accepted — built, one key for now |
 | [015](./015-sas-signing-and-local-identity.md) | SAS signing — user delegation keys, service principal for local development | Accepted |
-| [016](./016-hmac-caller-authentication.md) | Caller authentication — HMAC tokens for the first release, ServiceAccount deferred | Accepted — design, not built |
+| [016](./016-hmac-caller-authentication.md) | Caller authentication — HMAC tokens for the first release, ServiceAccount deferred | Accepted — built and deployed |

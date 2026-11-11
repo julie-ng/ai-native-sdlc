@@ -1,6 +1,6 @@
 # ADR-016: Caller authentication for platform services — HMAC tokens for the first release
 
-- **Status:** Accepted — design, not built
+- **Status:** Accepted — built and deployed (2026-11-10)
 - **Date:** 2026-11-05
 - **Context:** How agent steps authenticate to the platform services (artifact service, workflow service). Confirms the mechanism in [ADR-003](./003-platform-services-vs-agent-pods.md) as a pragmatic first-release choice and defers the Kubernetes ServiceAccount alternative.
 
@@ -32,7 +32,7 @@ As in [ADR-003](./003-platform-services-vs-agent-pods.md):
 
 ### MVP / POC scope
 
-Nothing is built. Caller authentication, token issuance and credential delivery all remain implementation work.
+Built and deployed (2026-11-10). Platform services issues one token per step from `POST /api/runs` (admin token), and verifies each request against the stored run and step. The trusted `foreman` step delivers the tokens as Kubernetes Secrets owned by the Workflow ([credential flow](../reference/credential-flow.md)).
 
 ## Alternatives considered
 
@@ -65,4 +65,5 @@ Nothing is built. Caller authentication, token issuance and credential delivery 
 
 ## Verification
 
-None. Not built.
+- 2026-11-10, from a test pod in `agents`: creating a run with the admin token returned 201; the planner token uploaded a plan and the coder token downloaded it.
+- 2026-11-11, end to end with `argo submit`: `foreman` created the run and both Secrets, owned by the Workflow and deleted with it after the TTL; planner and coder used their tokens for the plan handoff.
