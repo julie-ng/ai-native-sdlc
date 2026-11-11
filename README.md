@@ -23,23 +23,54 @@ This repo is where I design the platform and scope work. The components are buil
 - **Design** — [ADR-001 – 016](./architecture/decisions/) accepted
 - **Dev container agent** — working: own GitHub account, GPG-signed commits, unattended runs after a confirmed read-back ([ADR-001](./architecture/decisions/001-dev-container-agent-identity.md))
 - **goose in a container** — working with `docker run`: issue in, PR out
-- **Cloud platform on AKS** — [cluster deployed](./infrastructure/), Argo Workflows installed (hello-world step runs on the agent pool), Key Vault secrets in place
-- **Platform services** — artifact API built, SAS signing verified against Azure; caller authentication and deployment next
+- **Cloud platform on AKS** — [cluster deployed](./infrastructure/), Argo Workflows installed, agent secrets from Key Vault through workload identity
+- **Platform services** — [deployed in the cluster](./platform-services/): create a run, HMAC step tokens, artifact API with SAS URLs, Entra authentication to PostgreSQL
+- **Workflow** — [`foreman → planner → coder`](./workflows/) runs end to end with `argo submit`: issue in, signed PR out
 
-### Next — initial release
+### Initial release — done
 
-One issue end to end in the cluster: start a run with the Argo CLI, a planner writes a plan, a coder implements it and opens a PR, I review and merge.
+One issue end to end in the cluster: start a run with the Argo CLI, a planner writes a plan, a coder implements it and opens a PR, I review and merge. First agent PR merged on 2026-11-11.
 
 - [x] AKS cluster — deployed on Azure
 - [x] Argo Workflows — installed with Helm
 - [x] Agent images — shared [`agent-base`](./agent-images/) built
-- [ ] Agent image published to the registry, goose running in an Argo pod
-- [ ] Platform services — HMAC caller authentication, create the run, deploy to the cluster
-- [ ] Workflow — `foreman → planner → coder`, started with `argo submit`
+- [x] Agent image published to the registry, goose running in an Argo pod
+- [x] Platform services — HMAC caller authentication, create the run, deploy to the cluster
+- [x] Workflow — `foreman → planner → coder`, started with `argo submit`
+
+**Next:** better issue scoping and agent output quality, saving agent session transcripts ([#30](https://github.com/julie-ng/ai-native-sdlc/issues/30)).
 
 **Later:** token broker and GitHub App (a temporary token for now), reviewer step, webhook trigger, role images with skills baked in.
 
 ## What's New?
+
+### 2026-11-11
+
+**Milestone**
+
+- **Initial release works end to end.** One `argo submit` with a repository and issue number: a trusted `foreman` step creates the run, a planner writes and uploads a plan, a coder implements it and opens a signed PR. The first agent PR took under 2.5 minutes, showed **Verified** on GitHub, and I merged it.
+
+**Decided**
+
+- **Agents transfer artifacts themselves**, with `curl` commands in their instructions, rather than through wrapper code. Accepted trade-off: the model can read its own short-lived step token. The pod already holds stronger credentials, so hiding it would have added code without adding protection.
+- **Agent instructions live in the workflows repo** next to the templates, for now. A practical choice for this release, not an architecture decision.
+
+**Learned**
+
+- `goose run` exits successfully even when the model call fails. Each step now checks that its result exists: an uploaded plan, an opened PR.
+- Argo copies the agent container's volume mounts, including secrets, into its own helper container. The templates remove those copies.
+
+### 2026-11-10
+
+**Added**
+
+- **Platform services deployed on AKS**: HMAC step tokens, creating a run, and a workload identity token for PostgreSQL. Migrations run at startup as the service's own identity. Verified from an agent pod: create a run, upload a plan, download it.
+- **Agent image entrypoint**: loads the secrets mounted from Key Vault and sets up the Git identity and commit signing.
+
+**Decided**
+
+- **Agents read the long-lived secrets they need** through workload identity, one secret-scoped grant each. Replaces the signing-key-only exception. See [ADR-003](./architecture/decisions/003-platform-services-vs-agent-pods.md#workload-identity-for-long-lived-secrets).
+- **Step tokens expire after 15 minutes** as a cost cap: a slow run fails rather than keeps spending.
 
 ### 2026-11-05
 
