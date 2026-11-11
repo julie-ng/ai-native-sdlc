@@ -13,6 +13,7 @@ How the platform works — unsupervised coding agents taking a scoped issue to a
 
 Deep dives, linked from the pages above.
 
+- [Credential flow](./reference/credential-flow.md) — one run end to end: who creates, stores and holds each credential
 - [Identity](./reference/identity.md) — agent vs. me: access vs. attribution, both tiers
 - [GitHub configuration](./reference/github-configuration.md) — rulesets, environment-only secrets; no indirect path to credentials or production
 - [Token broker](./reference/token-broker.md) — just-in-time, downscoped GitHub tokens for agent pods
