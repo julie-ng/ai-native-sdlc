@@ -2,6 +2,8 @@
 
 > [!NOTE]
 > Design draft, 2026-10-10. Not built. Captured from a design session so it survives context loss. See [identity](./identity.md) and [02 · Architecture](../02-architecture.md).
+>
+> This page describes the **target design**. The first build is a smaller MVP; where the two differ, see [Initial release](#initial-release).
 
 A small platform service that issues each agent pod a short-lived GitHub installation token, downscoped to the pod's role and one repository. Agents never hold the GitHub App private key or a cloud identity.[^agent-secrets] For artifact transfers they receive scoped Blob SAS URLs from the artifact service ([ADR-005](../decisions/005-state-and-artifacts.md)).
 
@@ -21,7 +23,7 @@ A small platform service that issues each agent pod a short-lived GitHub install
 |---|---|---|
 | Examples | workflow service, artifact service, **token broker** | planner, coder, reviewer |
 | Trust | trusted, authored by us | untrusted, model-driven |
-| Cloud identity | **workload identity** → database, Blob Storage, Key Vault | **none** |
+| Cloud identity | **workload identity** → database, Blob Storage, Key Vault | none, except reading the long-lived secrets each role needs[^agent-secrets] |
 | GitHub credential | broker holds App private key (from Key Vault) | short-lived installation token from broker |
 | Kubernetes credential | normal | projected ServiceAccount token, audience `token-broker` only |
 
@@ -64,7 +66,7 @@ A small platform service that issues each agent pod a short-lived GitHub install
 - **Private key never enters an agent pod.** Only the broker reads it, via its own workload identity.
 - **Two credential lifetimes:** the Kubernetes credential is pod-bound and validated with TokenReview. The issued GitHub token expires after one hour and remains reusable within its scope until expiry or revocation; pod deletion does not automatically revoke it. Per-step issuance is platform policy, not GitHub-enforced run binding.
 
-## Role → permission mapping (draft)
+## Role → permission mapping (target design)
 
 | Role | GitHub App permissions in minted token |
 |---|---|
@@ -75,6 +77,24 @@ A small platform service that issues each agent pod a short-lived GitHub install
 
 > [!NOTE]
 > The App itself needs the **union** of these — including **Issues**, which the planner needs to read issues on private repos and to comment.
+
+## Initial release
+
+The first build is an MVP, not the target design. It proves one thing: pods get just-in-time, downscoped GitHub tokens, so the temporary PAT (`julieio-goose-github-pat`) can go. Anything not listed here waits.
+
+| | Target design | Initial release |
+|---|---|---|
+| Roles | planner, coder, reviewer, open-PR step | `planner` and `coder` only. The coder opens the PR; there is no reviewer or open-PR step. |
+| Planner permissions | `issues: write`, `contents: read` | `contents: read`, `issues: read`. It only reads the issue and clones. |
+| Coder permissions | `contents: write` | `contents: write`, `pull_requests: write`, `issues: read`. It opens the PR itself. |
+| Assignment metadata | run, step and attempt identifiers plus the repository | one pod annotation, `ai-native-sdlc/repository` (`owner/repo`), set by the workflow template. Run, step and attempt labels wait for the workflow service. |
+| Repository allowlist | broker configuration | broker configuration, mapping `owner/repo` to its numeric repository ID and installation ID |
+| App private key | broker reads Key Vault with its workload identity | mounted as a file by the Secrets Store CSI driver (`token-broker-gh-app-private-key`), so the broker needs no Azure SDK |
+| Trigger | workflow service submits the workflow | the human developer runs `argo submit` |
+
+- **Commits** stay signed by `@julieio-goose` with its GPG key; the broker token only authenticates the push ([ADR-012](../decisions/012-agent-identity-commits-vs-github-tokens.md)). Whether commits pushed with an App token still show **Verified** is checked early.
+- **Left out on purpose:** retries and circuit breaking, rate limiting, token caching, metrics, replicas and availability, and key rotation beyond restarting the broker. See [open questions](#open-questions).
+- **Implementation issues:** [#6 endpoint and policy](https://github.com/julie-ng/ai-native-sdlc-github-broker/issues/6), [#7 GitHub issuer](https://github.com/julie-ng/ai-native-sdlc-github-broker/issues/7), [#8 Kubernetes adapters](https://github.com/julie-ng/ai-native-sdlc-github-broker/issues/8).
 
 ## Implementation notes
 
@@ -97,6 +117,7 @@ A small platform service that issues each agent pod a short-lived GitHub install
 
 | Date | Decision | Notes |
 |---|---|---|
+| 2026-11-13 | First build is an MVP: two roles, one repository annotation, App key as a mounted file | [Initial release](#initial-release). The coder opens the PR, so it gets `pull_requests: write`; no run, step or attempt labels until the workflow service needs them. |
 | 2026-10-24 | Clarify short-lived issuance and shared-namespace Secret access | Fresh per-step issuance avoids standing shared access tokens; issued GitHub tokens remain reusable until expiry/revocation. Secret mounts do not force per-role namespaces. |
 | 2026-10-21 | Cloud: agent user commits and signs, broker's App token pushes | [ADR-012](../decisions/012-agent-identity-commits-vs-github-tokens.md) |
 | 2026-10-21 | Broker in its own `github-broker` namespace | [ADR-003](../decisions/003-platform-services-vs-agent-pods.md) |
